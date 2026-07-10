@@ -1,6 +1,7 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Sidebar from "../components/Sidebar";
 import Header from "../components/Header";
+import BASE_URL, { fetchWithAuth } from "../config/Api";
 import { 
     FaUser, 
     FaBell, 
@@ -12,8 +13,16 @@ import {
     FaShieldAlt
 } from "react-icons/fa";
 
+
 function Settings() {
     const [activeSection, setActiveSection] = useState("profile");
+    const [isEditing, setIsEditing] = useState(false);
+    const [systemSettings, setSystemSettings] = useState({
+        maintenance_mode: "NORMAL",
+        maintenance_message: "",
+        estimated_completion: "",
+        allow_admin_override: true,
+    });
 
     const sections = [
         { id: "profile", label: "Admin Profile", icon: <FaUser /> },
@@ -23,6 +32,53 @@ function Settings() {
         { id: "system", label: "System Config", icon: <FaServer /> },
     ];
 
+
+const loadSystemSettings = async () => {
+    try {
+        const response = await fetchWithAuth(`${BASE_URL}/api/admin/system-settings/`);
+        const data = await response.json();
+
+        if (data.success) {
+            setSystemSettings({
+                maintenance_mode: data.maintenance_mode,
+                maintenance_message: data.maintenance_message || "",
+                estimated_completion: data.estimated_completion || "",
+                allow_admin_override: data.allow_admin_override,
+            });
+        }
+    } catch (error) {
+        console.log(error);
+    }
+};
+
+   const saveSystemSettings = async () => {
+    try {
+        const payload = { ...systemSettings };
+        if (payload.estimated_completion === "") {
+            payload.estimated_completion = null;
+        }
+
+        const response = await fetchWithAuth(`${BASE_URL}/api/admin/system-settings/`, {
+            method: 'PUT',
+            body: JSON.stringify(payload)
+        });
+        const data = await response.json();
+        
+        if (response.ok) {
+            alert(data.message || "Settings saved successfully.");
+        } else {
+            alert(data.error || data.message || JSON.stringify(data));
+        }
+    } catch (error) {
+        console.log(error);
+        alert("Unable to save settings.");
+    }
+};
+useEffect(() => {
+    if (activeSection === "system") {
+        loadSystemSettings();
+    }
+}, [activeSection]);
     const renderSectionContent = () => {
         switch (activeSection) {
             case "profile":
@@ -71,8 +127,8 @@ function Settings() {
                                 <input type="text" defaultValue="Admin User" style={inputStyle} />
                             </div>
                             <div className="form-group">
-                                <label style={labelStyle}>phone Address</label>
-                                <input type="phone" defaultValue="admin@stayefy.com" style={inputStyle} />
+                                <label style={labelStyle}>Email Address</label>
+                                <input type="email" defaultValue="admin@stayefy.com" style={inputStyle} />
                             </div>
                             <div className="form-group">
                                 <label style={labelStyle}>Phone Number</label>
@@ -112,10 +168,158 @@ function Settings() {
                         </div>
                     </div>
                 );
+        case "system":
+    return (
+        <div>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 25 }}>
+                <h3 style={{ margin: 0 }}>
+                    System Configuration
+                </h3>
+                {!isEditing && (
+                    <button 
+                        onClick={() => setIsEditing(true)}
+                        style={{
+                            padding: "6px 16px",
+                            borderRadius: "6px",
+                            border: "1px solid #7c3aed",
+                            background: "white",
+                            color: "#7c3aed",
+                            cursor: "pointer",
+                            fontWeight: "600"
+                        }}
+                    >
+                        Edit
+                    </button>
+                )}
+            </div>
+
+            <div style={{ marginBottom: 25 }}>
+                <label style={labelStyle}>
+                    Maintenance Mode
+                </label>
+                {isEditing ? (
+                    <div style={{ marginTop: 10 }}>
+                        <label>
+                            <input
+                                type="radio"
+                                value="NORMAL"
+                                checked={systemSettings.maintenance_mode === "NORMAL"}
+                                onChange={(e) =>
+                                    setSystemSettings({ ...systemSettings, maintenance_mode: e.target.value })
+                                }
+                            />
+                            {" "}Normal
+                        </label>
+                        <br /><br />
+                        <label>
+                            <input
+                                type="radio"
+                                value="READ_ONLY"
+                                checked={systemSettings.maintenance_mode === "READ_ONLY"}
+                                onChange={(e) =>
+                                    setSystemSettings({ ...systemSettings, maintenance_mode: e.target.value })
+                                }
+                            />
+                            {" "}Read Only
+                        </label>
+                        <br /><br />
+                        <label>
+                            <input
+                                type="radio"
+                                value="FULL_MAINTENANCE"
+                                checked={systemSettings.maintenance_mode === "FULL_MAINTENANCE"}
+                                onChange={(e) =>
+                                    setSystemSettings({ ...systemSettings, maintenance_mode: e.target.value })
+                                }
+                            />
+                            {" "}Full Maintenance
+                        </label>
+                    </div>
+                ) : (
+                    <div style={{ padding: "10px", background: "#f9fafb", borderRadius: "8px", border: "1px solid #e5e7eb", marginTop: "8px" }}>
+                        {systemSettings.maintenance_mode === "NORMAL" && "Normal"}
+                        {systemSettings.maintenance_mode === "READ_ONLY" && "Read Only"}
+                        {systemSettings.maintenance_mode === "FULL_MAINTENANCE" && "Full Maintenance"}
+                    </div>
+                )}
+            </div>
+
+            <div style={{ marginBottom: 25 }}>
+                <label style={labelStyle}>
+                    Maintenance Message
+                </label>
+                {isEditing ? (
+                    <textarea
+                        rows={5}
+                        style={{ ...inputStyle, resize: "none" }}
+                        value={systemSettings.maintenance_message}
+                        onChange={(e) =>
+                            setSystemSettings({ ...systemSettings, maintenance_message: e.target.value })
+                        }
+                    />
+                ) : (
+                    <div style={{ padding: "10px", background: "#f9fafb", borderRadius: "8px", border: "1px solid #e5e7eb", marginTop: "8px", minHeight: "60px" }}>
+                        {systemSettings.maintenance_message || "None"}
+                    </div>
+                )}
+            </div>
+
+            <div style={{ marginBottom: 25 }}>
+                <label style={labelStyle}>
+                    Estimated Completion
+                </label>
+                {isEditing ? (
+                    <input
+                        type="datetime-local"
+                        style={inputStyle}
+                        value={systemSettings.estimated_completion}
+                        onChange={(e) =>
+                            setSystemSettings({ ...systemSettings, estimated_completion: e.target.value })
+                        }
+                    />
+                ) : (
+                    <div style={{ padding: "10px", background: "#f9fafb", borderRadius: "8px", border: "1px solid #e5e7eb", marginTop: "8px" }}>
+                        {systemSettings.estimated_completion ? new Date(systemSettings.estimated_completion).toLocaleString() : "Not set"}
+                    </div>
+                )}
+            </div>
+
+            <div>
+                <label style={isEditing ? {} : labelStyle}>
+                    {isEditing ? (
+                        <>
+                            <input
+                                type="checkbox"
+                                checked={systemSettings.allow_admin_override}
+                                onChange={(e) =>
+                                    setSystemSettings({ ...systemSettings, allow_admin_override: e.target.checked })
+                                }
+                            />
+                            {" "}Allow Admin Operations During Maintenance
+                        </>
+                    ) : (
+                        <>
+                            Allow Admin Operations During Maintenance
+                            <div style={{ padding: "10px", background: "#f9fafb", borderRadius: "8px", border: "1px solid #e5e7eb", marginTop: "8px", fontWeight: "normal" }}>
+                                {systemSettings.allow_admin_override ? "Yes" : "No"}
+                            </div>
+                        </>
+                    )}
+                </label>
+            </div>
+
+        </div>
+    );
             default:
                 return (
                     <div style={{ padding: "40px", textAlign: "center", color: "#6b7280" }}>
-                        <div style={{ fontSize: "48px", marginBottom: "16px opacity: 0.5" }}>⚙️</div>
+                        <div
+    style={{
+        fontSize: "48px",
+        marginBottom: "16px",
+        opacity: 0.5,
+    }}
+>⚙️</div>
                         <p>This section ({activeSection}) is under development.</p>
                     </div>
                 );
@@ -162,28 +366,44 @@ function Settings() {
 
                         {/* Settings Content */}
                         <div style={{ flex: 1, padding: "32px" }}>
+                            
                             {renderSectionContent()}
                             
-                            <div style={{ marginTop: "40px", paddingTop: "24px", borderTop: "1px solid #e5e7eb", display: "flex", justifyContent: "flex-end", gap: "12px" }}>
-                                <button style={{ 
-                                    padding: "10px 20px", 
-                                    borderRadius: "8px", 
-                                    border: "1px solid #e5e7eb",
-                                    background: "white",
-                                    cursor: "pointer",
-                                    fontWeight: "600"
-                                }}>Reset Changes</button>
-                                <button style={{ 
-                                    padding: "10px 24px", 
-                                    borderRadius: "8px", 
-                                    border: "none",
-                                    background: "#7c3aed",
-                                    color: "white",
-                                    cursor: "pointer",
-                                    fontWeight: "600",
-                                    boxShadow: "0 4px 12px rgba(124, 58, 237, 0.2)"
-                                }}>Save Settings</button>
-                            </div>
+                            {isEditing && (
+                                <div style={{ marginTop: "40px", paddingTop: "24px", borderTop: "1px solid #e5e7eb", display: "flex", justifyContent: "flex-end", gap: "12px" }}>
+                                    <button 
+                                        onClick={() => {
+                                            setIsEditing(false);
+                                            loadSystemSettings(); // Reset to saved values
+                                        }}
+                                        style={{ 
+                                            padding: "10px 20px", 
+                                            borderRadius: "8px", 
+                                            border: "1px solid #e5e7eb",
+                                            background: "white",
+                                            cursor: "pointer",
+                                            fontWeight: "600"
+                                        }}
+                                    >Cancel</button>
+                                    <button
+                                        onClick={() => {
+                                            saveSystemSettings();
+                                            setIsEditing(false);
+                                        }}
+                                        style={{
+                                            padding: "10px 24px",
+                                            borderRadius: "8px",
+                                            border: "none",
+                                            background: "#7c3aed",
+                                            color: "white",
+                                            cursor: "pointer",
+                                            fontWeight: "600"
+                                        }}
+                                    >
+                                        Save Settings
+                                    </button>
+                                </div>
+                            )}
                         </div>
                     </div>
                 </div>

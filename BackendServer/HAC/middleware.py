@@ -69,7 +69,31 @@ class MaintenanceMiddleware:
     ALLOWED_METHODS = ["GET", "HEAD", "OPTIONS"]
     EXCLUDED_PATHS = {
     "/admin/",
-    "/system/status/",
+    "/api/system/status/",
+
+    # Admin Authentication
+    "/api/send-admin-otp/",
+    "/api/verify-admin-otp/",
+    "/api/admin-password/",
+    "/api/check-admin-password-status/",
+    "/api/admin-login/",
+
+    # JWT
+    "/api/token/",
+    "/api/token/refresh/",
+
+    # Push Notifications
+    "/api/save-push-token/",
+     "/api/admin/system-settings/",
+    # Admin Panel
+    "/api/admin_home/",
+    "/api/owner-profile-update/",
+    "/api/owner-admin/",
+    "/api/all-owners-data/",
+    "/api/update_status/",
+    "/api/suspension_reason/",
+    "/api/get_suspension_reason/",
+    "/api/owner-status/",
     }
 
     def __init__(self, get_response):

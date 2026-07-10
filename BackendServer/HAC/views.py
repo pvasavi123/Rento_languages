@@ -2051,3 +2051,74 @@ def system_status(request):
             "success": False,
             "message": str(e)
         }, status=500)
+
+
+
+
+
+from django.http import JsonResponse
+from django.views.decorators.http import require_http_methods
+from django.views.decorators.csrf import csrf_exempt
+from .models import SystemSettings
+import json
+
+
+@csrf_exempt
+@require_http_methods(["GET", "PUT"])
+def admin_system_settings(request):
+    """
+    GET  -> Return current system settings
+    PUT  -> Update maintenance settings
+    """
+
+    settings, created = SystemSettings.objects.get_or_create(
+        id=1,
+        defaults={
+            "maintenance_mode": SystemSettings.NORMAL
+        }
+    )
+
+    if request.method == "GET":
+        return JsonResponse({
+            "success": True,
+            "maintenance_mode": settings.maintenance_mode,
+            "maintenance_message": settings.maintenance_message,
+            "estimated_completion": settings.estimated_completion,
+            "allow_admin_override": settings.allow_admin_override,
+        })
+
+    try:
+        body = json.loads(request.body)
+
+        settings.maintenance_mode = body.get(
+            "maintenance_mode",
+            settings.maintenance_mode
+        )
+
+        settings.maintenance_message = body.get(
+            "maintenance_message",
+            settings.maintenance_message
+        )
+
+        settings.estimated_completion = body.get(
+            "estimated_completion",
+            settings.estimated_completion
+        )
+
+        settings.allow_admin_override = body.get(
+            "allow_admin_override",
+            settings.allow_admin_override
+        )
+
+        settings.save()
+
+        return JsonResponse({
+            "success": True,
+            "message": "System settings updated successfully."
+        })
+
+    except Exception as e:
+        return JsonResponse({
+            "success": False,
+            "message": str(e)
+        }, status=400)

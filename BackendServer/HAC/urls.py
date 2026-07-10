@@ -26,6 +26,7 @@ urlpatterns = [
     path('check-admin-password-status/', views.check_admin_password_status),
     path('admin-login/', views.admin_login),
     path('admin_home/', views.admin_home),
+    path("admin/system-settings/",views.admin_system_settings,name="admin_system_settings",),
 
     path('owner-admin/', views.owner_admin_list),
     path('all-owners-data/', views.get_all_steps_data),
