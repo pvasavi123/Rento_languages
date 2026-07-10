@@ -108,6 +108,14 @@ export default function OwnerProfile({ navigation }) {
 
   const scrollRef = useRef(null);
   const scrollY = useRef(new Animated.Value(0)).current;
+  const scrollYVal = useRef(0);
+
+  React.useEffect(() => {
+    const id = scrollY.addListener(({ value }) => {
+      scrollYVal.current = value;
+    });
+    return () => scrollY.removeListener(id);
+  }, [scrollY]);
 
   // --- Animation State & Refs ---
   const [coords, setCoords] = useState(null);
@@ -140,10 +148,10 @@ export default function OwnerProfile({ navigation }) {
             }
             ref.measure((x, y, w, h, pageX, pageY) => {
               if (pageX || pageY) {
-                resolve({ x: pageX + w / 2 - 15, y: pageY + h / 2 - 15 });
+                resolve({ x: pageX + w / 2 - 15, y: pageY + scrollYVal.current + h / 2 - 15 });
               } else {
                 ref.measureInWindow((winX, winY, winW, winH) => {
-                  resolve({ x: (winX || 0) + (winW || 0) / 2 - 15, y: (winY || 0) + (winH || 0) / 2 - 15 });
+                  resolve({ x: (winX || 0) + (winW || 0) / 2 - 15, y: (winY || 0) + scrollYVal.current + (winH || 0) / 2 - 15 });
                 });
               }
             });
@@ -1156,6 +1164,8 @@ export default function OwnerProfile({ navigation }) {
           style={[
             StyleSheet.absoluteFill,
             {
+              zIndex: 9999,
+              elevation: 9999,
               transform: [{ translateY: Animated.multiply(scrollY, -1) }]
             }
           ]}
@@ -1375,7 +1385,7 @@ export default function OwnerProfile({ navigation }) {
               </TouchableOpacity>
             </LinearGradient>
 
-            <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+            <KeyboardAvoidingView style={{ flex: 1 }} behavior="padding">
               <ScrollView style={{ flex: 1, padding: 16 }} showsVerticalScrollIndicator={false}>
                 {aiMessages.map(msg => (
                   <View key={msg.id} style={{
@@ -1693,6 +1703,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.05,
     shadowRadius: 15,
     elevation: 2,
+    overflow: 'hidden',
   },
   expenseItem: {
     flexDirection: 'row',

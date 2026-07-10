@@ -207,7 +207,7 @@ const OwnerNotificationScreen = ({ route }) => {
     if (item.type === "issue") {
       return (
         <TouchableOpacity
-          key={item.id}
+          key={`${item.type}-${item.id}`}
           style={styles.card}
           onPress={() => navigation.navigate("OwnerNavigation", { screen: "Issues" })}
         >
@@ -242,7 +242,7 @@ const OwnerNotificationScreen = ({ route }) => {
     if (item.type === "payment") {
       return (
         <TouchableOpacity
-          key={item.id}
+          key={`${item.type}-${item.id}`}
           style={styles.card}
           onPress={() => navigation.navigate("OwnerNavigation", { screen: "Payments" })}
         >
@@ -272,14 +272,14 @@ const OwnerNotificationScreen = ({ route }) => {
     }
 
     return (
-      <View key={item.id} style={styles.card}>
+      <View key={`${item.type}-${item.id}`} style={styles.card}>
         <View style={styles.cardHeader}>
           <View style={styles.userInfo}>
             <View style={styles.avatar}>
               <Text style={styles.avatarText}>{item.name?.[0]?.toUpperCase()}</Text>
             </View>
-            <View>
-              <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
+            <View style={{ flex: 1, paddingRight: 4 }}>
+              <View style={{ flexDirection: "row", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
                 <Text style={styles.userName}>{item.name}</Text>
                 {item.type === "existing_tenant" ? (
                   <View style={{ backgroundColor: "#E0E7FF", paddingHorizontal: 6, paddingVertical: 2, borderRadius: 4 }}>
@@ -577,6 +577,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "700",
     color: COLORS.TEXT_PRIMARY,
+    flexShrink: 1,
   },
   userPhone: {
     fontSize: 12,

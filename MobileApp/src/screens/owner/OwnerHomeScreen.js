@@ -201,7 +201,7 @@ export default function BuildingScreen({ route }) {
     if (route?.params?.editMode !== undefined) {
       setEditMode(route.params.editMode);
       if (route.params.editMode) {
-        setViewMode("grid");
+        setViewMode("floor");
       }
     }
   }, [route?.params?.editMode]);
@@ -544,7 +544,7 @@ export default function BuildingScreen({ route }) {
     }
 
     return { floor: `Floor ${f.floorNo}`, floorNo: f.floorNo, units: [] };
-  }) || [];
+  }).sort((a, b) => Number(a.floorNo) - Number(b.floorNo)) || [];
 
   // const isOccupied = (floorLabel, room) => {
   //   const key = `${floorLabel}-${room}`;
@@ -1694,7 +1694,7 @@ try {
                       ]}
                     >
                       <View style={styles.roomGridHeader}>
-                        <View style={{ flexDirection: "row", alignItems: "center", flex: 1 }}>
+                        <View style={{ flexDirection: "row", alignItems: "center", flex: 1, flexWrap: "wrap", gap: 6, paddingVertical: 4 }}>
                           <Ionicons name="layers-outline" size={18} color="#6C2BD9" style={{ marginRight: 6 }} />
                           <Text style={styles.roomGridTitle}>{item.floor}</Text>
                           {editMode && (
@@ -1708,7 +1708,7 @@ try {
                                   paddingVertical: 4,
                                   paddingHorizontal: 8,
                                   borderRadius: 6,
-                                  marginLeft: 12
+                                  marginLeft: 6
                                 }}
                               >
                                 <Ionicons name="layers" size={14} color="white" />
@@ -1728,7 +1728,6 @@ try {
                                   paddingVertical: 4,
                                   paddingHorizontal: 8,
                                   borderRadius: 6,
-                                  marginLeft: 8
                                 }}
                               >
                                 <Ionicons name="add" size={14} color="white" />
@@ -1755,7 +1754,6 @@ try {
                                   paddingVertical: 4,
                                   paddingHorizontal: 8,
                                   borderRadius: 6,
-                                  marginLeft: 8
                                 }}
                               >
                                 <Ionicons name="trash" size={14} color="white" />

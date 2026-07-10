@@ -94,6 +94,8 @@ class MaintenanceMiddleware:
     "/api/suspension_reason/",
     "/api/get_suspension_reason/",
     "/api/owner-status/",
+    "/api/owner_data/",
+    "/api/get_all_property_basic_details/",
     }
 
     def __init__(self, get_response):

@@ -741,7 +741,7 @@ export default function TenantProfile({ navigation }) {
               </TouchableOpacity>
             </LinearGradient>
 
-            <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+            <KeyboardAvoidingView style={{ flex: 1 }} behavior="padding">
               <ScrollView style={{ flex: 1, padding: 16 }} showsVerticalScrollIndicator={false}>
                 {aiMessages.map(msg => (
                   <View key={msg.id} style={{
