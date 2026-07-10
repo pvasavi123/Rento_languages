@@ -716,3 +716,39 @@ class ExistingTenantRequest(models.Model):
 
 OwnerAccount = Owners
 
+
+
+class SystemSettings(models.Model):
+
+    NORMAL = "NORMAL"
+    READ_ONLY = "READ_ONLY"
+    FULL_MAINTENANCE = "FULL_MAINTENANCE"
+
+    MODE_CHOICES = [
+        (NORMAL, "Normal"),
+        (READ_ONLY, "Read Only"),
+        (FULL_MAINTENANCE, "Full Maintenance"),
+    ]
+
+    maintenance_mode = models.CharField(
+        max_length=30,
+        choices=MODE_CHOICES,
+        default=NORMAL
+    )
+
+    maintenance_message = models.TextField(
+        blank=True,
+        null=True
+    )
+
+    estimated_completion = models.DateTimeField(
+        blank=True,
+        null=True
+    )
+
+    allow_admin_override = models.BooleanField(
+        default=True
+    )
+
+    def __str__(self):
+        return self.maintenance_mode

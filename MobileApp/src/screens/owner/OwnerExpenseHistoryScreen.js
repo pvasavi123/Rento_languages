@@ -17,10 +17,9 @@ export default function OwnerExpenseHistoryScreen({ navigation }) {
 
     const fetchExpenses = async () => {
         try {
-            const rawEmail = await AsyncStorage.getItem("ownerPhone");
-            if (!rawEmail) return;
-            const phone = rawEmail.trim();
-            const response = await fetchWithAuth(`${BASE_URL}/api/owner-expenses/${encodeURIComponent(phone)}/`);
+            const ownerId = await AsyncStorage.getItem("selectedAccountId");
+            if (!ownerId) return;
+            const response = await fetchWithAuth(`${BASE_URL}/api/owner-expenses/${encodeURIComponent(ownerId)}/`);
             const data = await response.json();
             if (response.ok) {
                 setExpenses(Array.isArray(data) ? data : (data.data || []));

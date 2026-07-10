@@ -1,7 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-//const BASE_URL = "http://192.168.1.6:8000";
-const BASE_URL = "https://api.rennto.in";
+const BASE_URL = "http://192.168.1.20:8000";
+// const BASE_URL = "https://api.rennto.in";
 
 export const WS_BASE_URL = BASE_URL
   .replace("http://", "ws://")

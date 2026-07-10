@@ -20,7 +20,7 @@ export default function OwnerExpenseScreen({ navigation }) {
 
         try {
             setLoading(true);
-            const ownerPhone = await AsyncStorage.getItem('ownerPhone');
+            const ownerId = await AsyncStorage.getItem('selectedAccountId');
             
             const response = await fetchWithAuth(`${BASE_URL}/api/add-expense/`, {
                 method: 'POST',
@@ -28,7 +28,7 @@ export default function OwnerExpenseScreen({ navigation }) {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                    owner_phone: ownerPhone,
+                    owner_id: ownerId,
                     category,
                     amount: parseFloat(amount),
                     date,

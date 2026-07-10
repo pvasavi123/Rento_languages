@@ -146,7 +146,7 @@ class IssueService:
                 "floor_no": alloc["floor_no"],
                 "room_no": alloc["room_no"],
                 "bed_no": alloc["bed_no"],
-                "property_name": alloc["property_name"],
+                "property_name": "",
                 "property_type": alloc["property_type"],
                 "property_id": alloc["property_id"]
             })

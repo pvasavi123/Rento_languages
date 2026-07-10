@@ -43,14 +43,19 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
+
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+
+    # Custom middleware
+    'HAC.middleware.OwnerAccountMiddleware',
+    'HAC.middleware.MaintenanceMiddleware',
+
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'HAC.middleware.OwnerAccountMiddleware',
 ]
 
 #REST_FRAMEWORK = {
@@ -84,46 +89,56 @@ TEMPLATES = [
 WSGI_APPLICATION = 'BMS.wsgi.application'
 ASGI_APPLICATION = 'BMS.asgi.application'
 
-#CHANNEL_LAYERS = {
-#    'default': {
-#        'BACKEND': 'channels.layers.InMemoryChannelLayer',
-#    },
-#}
-
 CHANNEL_LAYERS = {
-    "default": {
-        "BACKEND": "channels_redis.core.RedisChannelLayer",
-        "CONFIG": {
-            "hosts": [
-                (
-                    env("REDIS_HOST"),
-                    int(env("REDIS_PORT"))
-                )
-            ],
-        },
-    },
+   'default': {
+       'BACKEND': 'channels.layers.InMemoryChannelLayer',
+   },
 }
+
+
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
+    }
+}
+
+
+
+# CHANNEL_LAYERS = {
+#     "default": {
+#         "BACKEND": "channels_redis.core.RedisChannelLayer",
+#         "CONFIG": {
+#             "hosts": [
+#                 (
+#                     env("REDIS_HOST"),
+#                     int(env("REDIS_PORT"))
+#                 )
+#             ],
+#         },
+#     },
+# }
 
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
 
-DATABASES = {
-    "default": {
-        "ENGINE": env(
-            "DB_ENGINE",
-            default="django.db.backends.sqlite3"
-        ),
-        "NAME": env(
-            "DB_NAME",
-            default=str(BASE_DIR / "db.sqlite3")
-        ),
-        "USER": env("DB_USER", default=""),
-        "PASSWORD": env("DB_PASSWORD", default=""),
-        "HOST": env("DB_HOST", default=""),
-        "PORT": env("DB_PORT", default=""),
-    }
-}
+# DATABASES = {
+#     "default": {
+#         "ENGINE": env(
+#             "DB_ENGINE",
+#             default="django.db.backends.sqlite3"
+#         ),
+#         "NAME": env(
+#             "DB_NAME",
+#             default=str(BASE_DIR / "db.sqlite3")
+#         ),
+#         "USER": env("DB_USER", default=""),
+#         "PASSWORD": env("DB_PASSWORD", default=""),
+#         "HOST": env("DB_HOST", default=""),
+#         "PORT": env("DB_PORT", default=""),
+#     }
+# }
 
 
 # DATABASES = {
@@ -245,20 +260,20 @@ EMAIL_HOST_PASSWORD = env("EMAIL_HOST_PASSWORD", default="")
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 SERVER_EMAIL = EMAIL_HOST_USER
 
-#CACHES = {
-#    "default": {
-#        "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
-#        "LOCATION": "otp-cache",
-#    }
-#}
-
 CACHES = {
-    "default": {
-        "BACKEND": "django_redis.cache.RedisCache",
-        "LOCATION": "redis://127.0.0.1:6379/1",
-        "OPTIONS": {
-            "CLIENT_CLASS": "django_redis.client.DefaultClient",
-        },
-    }
+   "default": {
+       "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+       "LOCATION": "otp-cache",
+   }
 }
+
+# CACHES = {
+#     "default": {
+#         "BACKEND": "django_redis.cache.RedisCache",
+#         "LOCATION": "redis://127.0.0.1:6379/1",
+#         "OPTIONS": {
+#             "CLIENT_CLASS": "django_redis.client.DefaultClient",
+#         },
+#     }
+# }
 TWO_FACTOR_API_KEY = env("API_KEY")

@@ -1161,18 +1161,18 @@ def mark_all_notifications_read(request, phone):
 
 @api_view(['GET'])
 @jwt_required()
-def get_owner_expenses(request, phone):
+def get_owner_expenses(request, owner_id):
     try:
         # Enforce owner isolation
         if request.jwt_payload.get('role') == 'owner':
             owner_obj = getattr(request, 'owner_account', None) or request.custom_user
-            if not owner_obj or owner_obj.owner_id != phone:
+            if not owner_obj or (owner_obj.owner_id != owner_id and owner_obj.phone != owner_id):
                 return Response({"error": "You do not have permission to perform this action."}, status=status.HTTP_403_FORBIDDEN)
-            target_phone = owner_obj.owner_id
+            target_owner_id = owner_obj.owner_id
         else:
-            target_phone = phone
-        result = ExpenseService.get_expenses(target_phone)
-        return Response({"expenses": result}, status=status.HTTP_200_OK)
+            target_owner_id = owner_id
+        result = ExpenseService.get_expenses(target_owner_id)
+        return Response({"expenses": result, "data": result}, status=status.HTTP_200_OK)
     except Exception as e:
         if "Owner not found" in str(e):
             return Response({"error": "Owner not found"}, status=404)
@@ -1188,14 +1188,14 @@ def add_expense(request):
             owner_obj = getattr(request, 'owner_account', None) or request.custom_user
             if not owner_obj:
                 return Response({"error": "You do not have permission to perform this action."}, status=status.HTTP_403_FORBIDDEN)
-            phone = owner_obj.owner_id
+            owner_id = owner_obj.owner_id
         else:
-            phone = request.data.get('owner_phone') or request.data.get('owner_email')
-        result = ExpenseService.create_expense(phone, request.data, request.FILES)
+            owner_id = request.data.get('owner_id') or request.data.get('owner_phone') or request.data.get('owner_email')
+        result = ExpenseService.create_expense(owner_id, request.data, request.FILES)
         return Response(result, status=status.HTTP_201_CREATED)
     except Exception as e:
         if "Owner not found" in str(e):
-            return Response({"error": f"Owner not found for phone/id: {phone}"}, status=404)
+            return Response({"error": f"Owner not found for owner_id: {owner_id}"}, status=404)
         return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
@@ -1234,7 +1234,7 @@ def owner_issues(request, phone):
         # Enforce owner isolation
         if request.jwt_payload.get('role') == 'owner':
             owner_obj = getattr(request, 'owner_account', None) or request.custom_user
-            if not owner_obj or owner_obj.owner_id != phone:
+            if not owner_obj or (owner_obj.owner_id != phone and owner_obj.phone != phone):
                 return Response({"error": "You do not have permission to perform this action."}, status=status.HTTP_403_FORBIDDEN)
             target_phone = owner_obj.owner_id
         else:
@@ -2021,3 +2021,33 @@ def get_current_owner_account(request):
         "status": account.status
     }, status=status.HTTP_200_OK)
 
+
+
+from django.http import JsonResponse
+from .models import SystemSettings
+
+
+def system_status(request):
+    try:
+        settings = SystemSettings.objects.first()
+
+        if not settings:
+            return JsonResponse({
+                "success": True,
+                "maintenance_mode": "NORMAL",
+                "message": "",
+                "estimated_completion": None
+            })
+
+        return JsonResponse({
+            "success": True,
+            "maintenance_mode": settings.maintenance_mode,
+            "message": settings.maintenance_message,
+            "estimated_completion": settings.estimated_completion,
+        })
+
+    except Exception as e:
+        return JsonResponse({
+            "success": False,
+            "message": str(e)
+        }, status=500)

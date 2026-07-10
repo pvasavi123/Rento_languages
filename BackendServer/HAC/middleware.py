@@ -1,3 +1,4 @@
+from httpx import request
 import jwt
 from django.conf import settings
 from django.http import JsonResponse
@@ -47,3 +48,92 @@ class OwnerAccountMiddleware:
 
         response = self.get_response(request)
         return response
+
+
+
+
+from django.http import JsonResponse
+from .models import SystemSettings
+
+
+class MaintenanceMiddleware:
+    """
+    Middleware to enforce application maintenance modes.
+
+    Modes:
+        NORMAL             -> Allow all requests.
+        READ_ONLY          -> Allow only GET, HEAD, OPTIONS requests.
+        FULL_MAINTENANCE   -> Block all requests except admin.
+    """
+
+    ALLOWED_METHODS = ["GET", "HEAD", "OPTIONS"]
+    EXCLUDED_PATHS = {
+    "/admin/",
+    "/system/status/",
+    }
+
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+
+        try:
+            # Allow Django Admin
+            if any(request.path.startswith(path) for path in self.EXCLUDED_PATHS):
+                return self.get_response(request)
+
+            # Fetch system settings
+            system_settings = SystemSettings.objects.first()
+
+            # If settings are not configured, allow all requests
+            if not system_settings:
+                return self.get_response(request)
+
+            maintenance_mode = system_settings.maintenance_mode
+
+            # ---------------- NORMAL ----------------
+            if maintenance_mode == SystemSettings.NORMAL:
+                return self.get_response(request)
+
+            # ---------------- READ ONLY ----------------
+            if maintenance_mode == SystemSettings.READ_ONLY:
+
+                if request.method in self.ALLOWED_METHODS:
+                    return self.get_response(request)
+
+                return JsonResponse(
+                    {
+                        "success": False,
+                        "maintenance_mode": maintenance_mode,
+                        "message": (
+                            system_settings.maintenance_message
+                            or "The system is currently in read-only maintenance mode."
+                        ),
+                        "estimated_completion": system_settings.estimated_completion,
+                    },
+                    status=503,
+                )
+
+            # ---------------- FULL MAINTENANCE ----------------
+            if maintenance_mode == SystemSettings.FULL_MAINTENANCE:
+                return JsonResponse(
+                    {
+                        "success": False,
+                        "maintenance_mode": maintenance_mode,
+                        "message": (
+                            system_settings.maintenance_message
+                            or "The system is currently under maintenance."
+                        ),
+                        "estimated_completion": system_settings.estimated_completion,
+                    },
+                    status=503,
+                )
+
+            # Unknown mode - allow request
+            return self.get_response(request)
+
+        except Exception as e:
+            print(f"MaintenanceMiddleware Error: {e}")
+
+            # Never block the application because of middleware failure.
+            return self.get_response(request)

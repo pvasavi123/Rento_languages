@@ -5,8 +5,8 @@ from .common_service import CommonService
 class ExpenseService:
 
     @staticmethod
-    def create_expense(phone, data, files):
-        owner = CommonService.get_owner(phone)
+    def create_expense(owner_id, data, files):
+        owner = CommonService.get_owner(owner_id)
         if not owner:
             raise Exception("Owner not found")
 
@@ -20,8 +20,8 @@ class ExpenseService:
         return ExpenseSerializer(expense).data
 
     @staticmethod
-    def get_expenses(phone):
-        owner = CommonService.get_owner(phone)
+    def get_expenses(owner_id):
+        owner = CommonService.get_owner(owner_id)
         if not owner:
             raise Exception("Owner not found")
 
@@ -51,8 +51,8 @@ class ExpenseService:
             raise Exception("Expense not found")
 
     @staticmethod
-    def get_owner_expense_history(phone):
-        owner = CommonService.get_owner(phone)
+    def get_owner_expense_history(owner_id):
+        owner = CommonService.get_owner(owner_id)
         if not owner:
             raise Exception("Owner not found")
 

@@ -156,7 +156,7 @@ urlpatterns = [
     # OWNER EXPENSES
     # =====================================================
     path('add-expense/', views.add_expense),
-    path('owner-expenses/<str:phone>/', views.get_owner_expenses),
+    path('owner-expenses/<str:owner_id>/', views.get_owner_expenses),
 
     # =====================================================
     # TENANT VERIFICATION
@@ -183,6 +183,9 @@ urlpatterns = [
     path('owner/accounts/add/', views.add_owner_account),
     path('owner/accounts/switch/', views.switch_owner_account),
     path('owner/current-account/', views.get_current_owner_account),
+
+
+    path("system/status/", views.system_status, name="system_status"),
 ]
 
 if settings.DEBUG:

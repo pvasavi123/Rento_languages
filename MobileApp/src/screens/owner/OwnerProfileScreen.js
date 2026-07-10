@@ -424,9 +424,9 @@ export default function OwnerProfile({ navigation }) {
 
   const fetchExpenses = async () => {
     try {
-      const phone = await resolveOwnerPhone();
-      if (!phone) return;
-      const response = await fetchWithAuth(`${BASE_URL}/api/owner-expenses/${encodeURIComponent(phone)}/`);
+      const ownerId = await AsyncStorage.getItem("selectedAccountId");
+      if (!ownerId) return;
+      const response = await fetchWithAuth(`${BASE_URL}/api/owner-expenses/${encodeURIComponent(ownerId)}/`);
       const data = await response.json();
       if (response.ok) {
         setExpenses(data.expenses || []);
