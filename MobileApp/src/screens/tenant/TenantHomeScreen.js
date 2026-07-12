@@ -12,6 +12,7 @@ import { useEffect, useRef, useState, useCallback, useMemo } from "react";
 import { TenantContext } from "@/src/context/TenantContext";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import BASE_URL, { fetchWithAuth } from "@/src/config/Api";
+import { useMaintenance } from "../../context/MaintenanceContext";
 import { LinearGradient } from "expo-linear-gradient";
 import FilterBottomSheet from "../../../components/FilterBottomScreen";
 import * as Notifications from "../../utils/NotificationsProxy";
@@ -202,6 +203,18 @@ const categories = [
 ];
 
 export default function TenantHomeScreen({ route }) {
+  const { maintenanceMode } = useMaintenance();
+  const isReadOnly = maintenanceMode === "READ_ONLY";
+  const checkReadOnly = () => {
+    if (isReadOnly) {
+      Alert.alert(
+        "Maintenance Mode",
+        "This action is temporarily unavailable during scheduled maintenance. You can continue to browse other parts of the application."
+      );
+      return true;
+    }
+    return false;
+  };
 
   // PUSH NOTIFICATION SETUP
   useEffect(() => {
@@ -1273,7 +1286,26 @@ export default function TenantHomeScreen({ route }) {
 }
 
 export function PropertyDetailsScreen(props) {
+  const { maintenanceMode } = useMaintenance();
+  const isReadOnly = maintenanceMode === 'READ_ONLY';
+  const checkReadOnly = () => {
+    if (isReadOnly) {
+      Alert.alert(
+        "Maintenance Mode",
+        "This action is temporarily unavailable during scheduled maintenance. You can continue to browse other parts of the application."
+      );
+      return true;
+    }
+    return false;
+  };
   const route = useRoute();
+  useEffect(() => {
+    const loadPhone = async () => {
+      const phone = await AsyncStorage.getItem("tenantPhone");
+      console.log("Loaded Tenant Phone:", phone);
+    };
+    loadPhone();
+  }, []);
   const property = props.property || route?.params?.property;
   const onBack = props.onBack || (() => navigation.goBack());
   const fetchTenantRequests = props.fetchTenantRequests || route?.params?.fetchTenantRequests;
@@ -1460,6 +1492,7 @@ export function PropertyDetailsScreen(props) {
   };
 
   const submitIdentityProof = async () => {
+    if (checkReadOnly()) return;
     const activePhone = await AsyncStorage.getItem("tenantPhone");
     if (!activePhone) {
       Alert.alert("Error", "Tenant details not found. Please log in again.");
@@ -1631,6 +1664,7 @@ export function PropertyDetailsScreen(props) {
   };
 
   const confirmBooking = async () => {
+    if (checkReadOnly()) return;
     try {
       if (isJoined) {
         alert("You are already staying in a property. Please vacate or contact the owner before requesting another property.");
@@ -1763,6 +1797,7 @@ export function PropertyDetailsScreen(props) {
   };
 
   const performWithdraw = async () => {
+    if (checkReadOnly()) return;
     try {
       const activePhone = await AsyncStorage.getItem("tenantPhone");
       if (!activePhone) {
@@ -1940,24 +1975,7 @@ export function PropertyDetailsScreen(props) {
       alert("Something went wrong while picking image.");
     }
   };
-  useEffect(() => {
 
-    const loadPhone = async () => {
-
-      const phone =
-        await AsyncStorage.getItem(
-          "tenantPhone"
-        );
-
-      console.log(
-        "Loaded Tenant Phone:",
-        phone
-      );
-    };
-
-    loadPhone();
-
-  }, []);
 
   return (
     <View style={[styles.container, { backgroundColor: "#fff" }]}>

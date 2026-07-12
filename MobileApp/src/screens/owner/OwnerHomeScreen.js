@@ -10,6 +10,7 @@ import { useWindowDimensions } from "react-native";
 import { useEffect, useRef, useState } from "react";
 import BASE_URL, { fetchWithAuth } from "@/src/config/Api";
 import COLORS from "@/src/theme/colors";
+import { useMaintenance } from "../../context/MaintenanceContext";
 import * as Notifications from "../../utils/NotificationsProxy";
 import * as Device from "expo-device";
 import Constants from "expo-constants";
@@ -65,6 +66,18 @@ const CONTENT_GAP = 10;
 const CONTAINER_PADDING = 18;
 
 export default function BuildingScreen({ route }) {
+  const { maintenanceMode } = useMaintenance();
+  const isReadOnly = maintenanceMode === "READ_ONLY";
+  const checkReadOnly = () => {
+    if (isReadOnly) {
+      Alert.alert(
+        "Maintenance Mode",
+        "This action is temporarily unavailable during scheduled maintenance. You can continue to browse other parts of the application."
+      );
+      return true;
+    }
+    return false;
+  };
   const { t, changeLanguage, language } = useLanguage();
   const [showLanguageModal, setShowLanguageModal] = useState(false);
   const [viewMode, setViewMode] = useState("floor");
@@ -392,11 +405,10 @@ export default function BuildingScreen({ route }) {
     if (stayType === "commercial") return [floor];
     return [];
   };
- 
-
   const activeLayout = editMode ? editableLayout : (response_data?.building_layout || []);
 
   const addFloor = () => {
+    if (checkReadOnly()) return;
     let nextFloorNo = 1;
     if (editableLayout && editableLayout.length > 0) {
       const maxFloor = Math.max(...editableLayout.map(f => f.floorNo));
@@ -427,6 +439,7 @@ export default function BuildingScreen({ route }) {
   };
 
   const addUnit = (floorNo) => {
+    if (checkReadOnly()) return;
     const updated = editableLayout.map(floor => {
       if (floor.floorNo !== floorNo) return floor;
 
@@ -464,6 +477,7 @@ export default function BuildingScreen({ route }) {
   };
 
   const updateUnit = (floorNo, unitLabel, action) => {
+    if (checkReadOnly()) return;
     const updated = editableLayout.map(floor => {
       if (floor.floorNo !== floorNo) return floor;
 
@@ -500,6 +514,7 @@ export default function BuildingScreen({ route }) {
   };
 
   const removeFloor = (floorNo) => {
+    if (checkReadOnly()) return;
     setEditableLayout(editableLayout.filter(f => f.floorNo !== floorNo));
   };
 
@@ -674,6 +689,7 @@ export default function BuildingScreen({ route }) {
     0
   );
   const handleSave = async (row, idx) => {
+    if (checkReadOnly()) return;
     try {
       const vv = rowEditValues[idx] || {};
 
@@ -703,7 +719,6 @@ export default function BuildingScreen({ route }) {
 
       const payload = {
         name: rawPayload.name,
-        phone: rawPayload.phone,
         phone: rawPayload.phone,
         bed: Number(rawPayload.bed),
         floor: rawPayload.floor ? Number(rawPayload.floor) : null,
@@ -1102,6 +1117,7 @@ useEffect(() => {
 
 }, [phone]);
   const saveTenant = async () => {
+    if (checkReadOnly()) return;
     try {
       const formData = new FormData();
 
@@ -1261,6 +1277,7 @@ try {
   };
 
   const deleteTenant = (tenant) => {
+    if (checkReadOnly()) return;
     Alert.alert(
       "Remove Tenant",
       `Are you sure you want to remove ${tenant.name} from this room?`,
@@ -1299,6 +1316,7 @@ try {
   };
 
   const blockTenant = (tenant) => {
+    if (checkReadOnly()) return;
     Alert.alert(
       "Block Tenant",
       `Are you sure you want to block ${tenant.name}?`,
@@ -2113,6 +2131,7 @@ try {
             </TouchableOpacity>
             <TouchableOpacity
               onPress={async () => {
+                if (checkReadOnly()) return;
                 try {
                   const payload = {
                     building_layout: editableLayout,

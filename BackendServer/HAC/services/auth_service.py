@@ -302,7 +302,7 @@ class AuthService:
  
         raise ValueError("Invalid role")
 
-    ADMIN_PHONE = "7672010079"
+    ADMIN_PHONE = "6281808454"
 
     @staticmethod
     def send_admin_otp(phone):
@@ -367,7 +367,7 @@ class AuthService:
 
             expiry_time = (
                 admin_password.created_at +
-                timedelta(minutes=50)
+                timedelta(days=30)
             )
 
             if timezone.now() < expiry_time:
@@ -423,7 +423,7 @@ class AuthService:
 
             expiry_time = (
                 admin.created_at +
-                timedelta(minutes=50)
+                timedelta(days=30)
             )
 
             if timezone.now() > expiry_time:
@@ -462,7 +462,7 @@ class AuthService:
 
         expiry_time = (
             admin.created_at +
-            timedelta(minutes=50)
+            timedelta(days=30)
         )
 
         if timezone.now() > expiry_time:

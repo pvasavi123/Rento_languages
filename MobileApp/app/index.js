@@ -5,6 +5,8 @@ import { BookingProvider } from "@/src/context/BookingContext";
 import { TenantProvider } from "@/src/context/TenantContext";
 import { LanguageProvider } from "@/src/utils/LanguageContext";
 import MainNavigator from "@/src/navigation/MainNavigator";
+import { MaintenanceProvider } from "@/src/context/MaintenanceContext";
+import MaintenanceBanner from "@/src/components/MaintenanceBanner";
 
 
 
@@ -68,7 +70,10 @@ export default function App() {
         <BookingProvider>
           <TenantProvider>
             <OwnerAccountProvider>
-              <MainNavigator />
+              <MaintenanceProvider>
+                <MainNavigator />
+                <MaintenanceBanner />
+              </MaintenanceProvider>
             </OwnerAccountProvider>
           </TenantProvider>
         </BookingProvider>

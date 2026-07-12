@@ -30,6 +30,9 @@ export const fetchWithAuth = async (url, options = {}) => {
         const clonedResponse = response.clone();
         const data = await clonedResponse.json();
         if (data.maintenance_mode === 'FULL_MAINTENANCE' || data.maintenance_mode === 'READ_ONLY') {
+          if (global.triggerMaintenanceCheck) {
+            global.triggerMaintenanceCheck();
+          }
           return new Response(
             JSON.stringify({
               success: true,

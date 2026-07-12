@@ -7,6 +7,7 @@ import { useLanguage } from "../../utils/LanguageContext";
 import * as ImagePicker from "expo-image-picker";
 import COLORS from "../../theme/colors";
 import BASE_URL, { fetchWithAuth } from "@/src/config/Api";
+import { useMaintenance } from "../../context/MaintenanceContext";
 import {
   Alert,
   Image,
@@ -46,6 +47,18 @@ const languages = [
 ];
 
 export default function TenantProfile({ navigation }) {
+  const { maintenanceMode } = useMaintenance();
+  const isReadOnly = maintenanceMode === "READ_ONLY";
+  const checkReadOnly = () => {
+    if (isReadOnly) {
+      Alert.alert(
+        "Maintenance Mode",
+        "This action is temporarily unavailable during scheduled maintenance. You can continue to browse other parts of the application."
+      );
+      return true;
+    }
+    return false;
+  };
   const { t, language, changeLanguage } = useLanguage();
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -149,6 +162,7 @@ export default function TenantProfile({ navigation }) {
   }, []);
 
   const handleUpdateProfile = async () => {
+    if (checkReadOnly()) return;
     if (!editName.trim() || !editPhone.trim()) {
       Alert.alert("Error", "Please fill all fields");
       return;
@@ -209,6 +223,7 @@ export default function TenantProfile({ navigation }) {
   }, [fetchTenantProfile]);
 
   const uploadProfileImage = async (uri) => {
+    if (checkReadOnly()) return;
     try {
       const phone = await AsyncStorage.getItem("tenantPhone");
       if (!phone) return;

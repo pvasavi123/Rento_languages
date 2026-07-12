@@ -16,13 +16,15 @@ import COLORS from "../../theme/colors";
 import BASE_URL, { fetchWithAuth } from "@/src/config/Api";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as ImagePicker from "expo-image-picker";
+import { useMaintenance } from "../../context/MaintenanceContext";
 
 export default function OwnerEditProfileScreen({ navigation }) {
+  const { maintenanceMode } = useMaintenance();
+  const isReadOnly = maintenanceMode === "READ_ONLY";
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [ownerData, setOwnerData] = useState({
     name: "",
-    phone: "",
     phone: "",
     property_name: "",
     area: "",
@@ -42,7 +44,6 @@ export default function OwnerEditProfileScreen({ navigation }) {
       if (response.ok) {
         setOwnerData({
           name: data.step1.name,
-          phone: data.step1.phone,
           phone: data.step1.phone,
           property_name: data.step1.property_name || "",
           area: data.step1.area || "",
@@ -185,7 +186,7 @@ export default function OwnerEditProfileScreen({ navigation }) {
       <ScrollView contentContainerStyle={styles.content}>
         {/* PROFILE IMAGE SECTION */}
         <View style={styles.imageSection}>
-          <TouchableOpacity style={styles.avatarWrapper} onPress={showImageOptions} activeOpacity={0.8}>
+          <TouchableOpacity style={[styles.avatarWrapper, isReadOnly && { opacity: 0.6 }]} onPress={isReadOnly ? () => Alert.alert("Maintenance Mode", "This action is temporarily unavailable during scheduled maintenance. You can continue to browse other parts of the application.") : showImageOptions} activeOpacity={0.8}>
             {ownerData.image ? (
               <Image source={{ uri: ownerData.image }} style={styles.avatar} />
             ) : (
@@ -244,14 +245,16 @@ export default function OwnerEditProfileScreen({ navigation }) {
         </View>
 
         <TouchableOpacity
-          style={styles.saveBtn}
+          style={[styles.saveBtn, isReadOnly && { opacity: 0.5 }]}
           onPress={handleSave}
-          disabled={saving}
+          disabled={saving || isReadOnly}
         >
           {saving ? (
             <ActivityIndicator color="white" />
           ) : (
-            <Text style={styles.saveBtnText}>Save Changes</Text>
+            <Text style={styles.saveBtnText}>
+              {isReadOnly ? "Unavailable During Maintenance" : "Save Changes"}
+            </Text>
           )}
         </TouchableOpacity>
 

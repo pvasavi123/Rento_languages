@@ -27,6 +27,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import axiosOriginal from 'axios';
 import QRCode from 'react-native-qrcode-svg';
 import BASE_URL, { fetchWithAuth } from '../../config/Api';
+import { useMaintenance } from '../../context/MaintenanceContext';
 
 const axios = {
   get: async (url, config = {}) => {
@@ -67,6 +68,18 @@ import { useLanguage } from '../../utils/LanguageContext';
 const { width } = Dimensions.get('window');
 
 const TenantPaymentScreen = () => {
+  const { maintenanceMode } = useMaintenance();
+  const isReadOnly = maintenanceMode === 'READ_ONLY';
+  const checkReadOnly = () => {
+    if (isReadOnly) {
+      Alert.alert(
+        "Maintenance Mode",
+        "This action is temporarily unavailable during scheduled maintenance. You can continue to browse other parts of the application."
+      );
+      return true;
+    }
+    return false;
+  };
   const { t } = useLanguage();
 
   const PAYMENT_APP_ASSETS = {
@@ -315,6 +328,7 @@ const TenantPaymentScreen = () => {
   };
 
   const handleUPIPayment = async (app) => {
+    if (checkReadOnly()) return;
     if (!paymentData?.upiId) {
       Alert.alert(t('error') || 'Error', t('upi_not_found') || 'Owner UPI ID not found.');
       return;
@@ -355,6 +369,7 @@ const TenantPaymentScreen = () => {
   };
 
   const handleCashPayment = async () => {
+    if (checkReadOnly()) return;
     if (!cashDescription.trim()) {
       Alert.alert(t('error') || 'Error', t('please_enter_description') || 'Please enter a description for the owner.');
       return;
@@ -431,6 +446,7 @@ const TenantPaymentScreen = () => {
   };
 
   const handleSendToOwner = async () => {
+    if (checkReadOnly()) return;
     if (!paymentProof) {
       Alert.alert(t('error') || 'Error', t('upload_screenshot_first') || 'Please upload a screenshot first.');
       return;
@@ -496,6 +512,7 @@ const TenantPaymentScreen = () => {
   };
 
   const handleAcknowledgeReminder = async () => {
+    if (checkReadOnly()) return;
     try {
       const phone = await AsyncStorage.getItem('tenantPhone');
       const ackReminderKey = `ack_reminder_${phone}_${paymentReminder?.id || 'reminder'}`;
@@ -507,6 +524,7 @@ const TenantPaymentScreen = () => {
   };
 
   const handleAcknowledgeSuccess = async () => {
+    if (checkReadOnly()) return;
     try {
       const phone = await AsyncStorage.getItem('tenantPhone');
       const ackKey = `ack_paid_${phone}_${paymentData?.lastPaymentRef || 'ref'}`;

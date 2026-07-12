@@ -7,6 +7,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import axiosOriginal from 'axios';
 import BASE_URL, { fetchWithAuth } from '../../config/Api';
 import { Svg, Circle, G, Line, Path, Rect } from 'react-native-svg';
+import { useMaintenance } from '../../context/MaintenanceContext';
 
 const axios = {
   get: async (url, config = {}) => {
@@ -65,6 +66,18 @@ const getDynamicDueDate = (daysOffset = 10) => {
 };
 
 const OwnerPaymentScreen = () => {
+  const { maintenanceMode } = useMaintenance();
+  const isReadOnly = maintenanceMode === 'READ_ONLY';
+  const checkReadOnly = () => {
+    if (isReadOnly) {
+      Alert.alert(
+        "Maintenance Mode",
+        "This action is temporarily unavailable during scheduled maintenance. You can continue to browse other parts of the application."
+      );
+      return true;
+    }
+    return false;
+  };
   const { t } = useLanguage();
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -415,6 +428,7 @@ const OwnerPaymentScreen = () => {
   };
 
   const handleSaveBank = async () => {
+    if (checkReadOnly()) return;
     const upiErr = validateUpi(upiId);
     const phoneErr = validatePhone(phoneNumber);
     const hasQr = newQrCode || qrCode;
@@ -516,6 +530,7 @@ const OwnerPaymentScreen = () => {
   };
 
   const handleSendReminder = async (tenantName, tenantPhone, amount = null) => {
+    if (checkReadOnly()) return;
     try {
       if (!tenantPhone) {
         Alert.alert('Error', `Missing phone number for ${tenantName}. Cannot send reminder.`);
@@ -541,6 +556,7 @@ const OwnerPaymentScreen = () => {
   };
 
   const handleSendReminderToAll = async () => {
+    if (checkReadOnly()) return;
     try {
       console.log("Starting bulk reminders...");
       const pendingTenants = tenantData.filter(t => t.status === 'due');
@@ -616,6 +632,7 @@ const OwnerPaymentScreen = () => {
   };
 
   const handleManualStatusChange = async (tenantId, newStatus, txn_ref) => {
+    if (checkReadOnly()) return;
     try {
       setLoading(true);
       await axios.post(`${BASE_URL}/api/update-payment/`, {
@@ -635,6 +652,7 @@ const OwnerPaymentScreen = () => {
   };
 
   const handleFullCashPaid = (tenant) => {
+    if (checkReadOnly()) return;
     Alert.alert(
       'Full Cash Payment',
       `Confirm full cash payment of ₹${tenant.amount.toLocaleString()} from ${tenant.name}?`,
@@ -665,6 +683,7 @@ const OwnerPaymentScreen = () => {
   };
 
   const handleMarkAsCashPaid = (tenant) => {
+    if (checkReadOnly()) return;
     setSelectedTenant(tenant);
     setCashPartialData({
       paidAmount: tenant.amount * 0.5,
@@ -678,6 +697,7 @@ const OwnerPaymentScreen = () => {
 
   
   const handleSendMessage = async () => {
+    if (checkReadOnly()) return;
     if (customMessage.trim() && selectedTenant?.tenant_phone) {
       try {
         await axios.post(`${BASE_URL}/api/send-tenant-notification/`, {
@@ -698,6 +718,7 @@ const OwnerPaymentScreen = () => {
   };
 
   const handleVerifyPayment = async (proofId, tenantId, txn_ref, tenantPhone, tenantName) => {
+    if (checkReadOnly()) return;
     try {
       console.log("Verifying payment:", txn_ref);
 
@@ -735,6 +756,7 @@ const OwnerPaymentScreen = () => {
   };
 
   const handleRejectPayment = async (proofId, txn_ref, tenantPhone, tenantName) => {
+    if (checkReadOnly()) return;
     try {
       console.log("Rejecting payment:", txn_ref);
 
@@ -810,6 +832,7 @@ const OwnerPaymentScreen = () => {
   };
 
   const handleConfirmCashPartial = async () => {
+    if (checkReadOnly()) return;
     if (selectedTenant?.txn_ref) {
       try {
         await axios.post(`${BASE_URL}/api/update-payment/`, {

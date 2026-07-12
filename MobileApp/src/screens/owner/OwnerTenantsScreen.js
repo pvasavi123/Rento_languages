@@ -18,8 +18,11 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import BASE_URL, { fetchWithAuth } from '../../config/Api';
+import { useMaintenance } from '../../context/MaintenanceContext';
 
 export default function OwnerTenantsScreen({ navigation, route }) {
+  const { maintenanceMode } = useMaintenance();
+  const isReadOnly = maintenanceMode === 'READ_ONLY';
   const [loading, setLoading] = useState(true);
   const [propertyId, setPropertyId] = useState(route?.params?.property_id || null);
   const [tenants, setTenants] = useState([]);
@@ -116,6 +119,13 @@ export default function OwnerTenantsScreen({ navigation, route }) {
   };
 
   const handleVacateTenant = async () => {
+    if (isReadOnly) {
+      Alert.alert(
+        "Maintenance Mode",
+        "This action is temporarily unavailable during scheduled maintenance. You can continue to browse other parts of the application."
+      );
+      return;
+    }
     if (!selectedTenantDetails) return;
     const { name, bed_record_id, stay_type } = selectedTenantDetails;
 

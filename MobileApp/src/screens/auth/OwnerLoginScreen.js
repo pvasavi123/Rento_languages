@@ -171,6 +171,9 @@ await AsyncStorage.setItem("userRole", "owner");
             phone: data.user.phone,
           });
         } else {
+          if (global.triggerMaintenanceCheck) {
+            global.triggerMaintenanceCheck();
+          }
           navigation.reset({
             index: 0,
             routes: [

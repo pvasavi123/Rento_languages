@@ -20,6 +20,8 @@ import TenantNotificationScreen from "../screens/tenant/TenantNotificationScreen
 import TenantPaymentHistoryScreen from "../screens/tenant/TenantPaymentHistoryScreen";
 // import ForgetPasswordScreen from "../screens/auth/ForgetPasswordScreen";
 import WaitingScreen from "../screens/auth/WaitingScreen";
+import { useMaintenance } from "../context/MaintenanceContext";
+import MaintenanceScreen from "../screens/MaintenanceScreen";
 
  
 import TenantHomeScreen from "../screens/tenant/TenantHomeScreen";
@@ -36,6 +38,7 @@ import WelcomeScreen from "../screens/tenant/WelcomeScreen";
 // import LoadingScreen from "../screens/tenant/LoadingScreen";
 const Stack = createStackNavigator();
 export default function MainNavigator() {
+  const { maintenanceMode } = useMaintenance();
   const [initialRoute, setInitialRoute] = useState(null);
 
   useEffect(() => {
@@ -55,6 +58,10 @@ export default function MainNavigator() {
     };
     checkSession();
   }, []);
+
+  if (maintenanceMode === "FULL_MAINTENANCE") {
+    return <MaintenanceScreen />;
+  }
 
   if (!initialRoute) return null;
 

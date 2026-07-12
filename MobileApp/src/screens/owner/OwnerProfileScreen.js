@@ -2,6 +2,7 @@ import React, { useRef, useState, useCallback, useContext } from "react";
 import { useFocusEffect } from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import BASE_URL, { fetchWithAuth } from "@/src/config/Api";
+import { useMaintenance } from "../../context/MaintenanceContext";
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import * as ImagePicker from "expo-image-picker";
@@ -28,6 +29,18 @@ import {
 } from "react-native";
 
 export default function OwnerProfile({ navigation }) {
+  const { maintenanceMode } = useMaintenance();
+  const isReadOnly = maintenanceMode === "READ_ONLY";
+  const checkReadOnly = () => {
+    if (isReadOnly) {
+      Alert.alert(
+        "Maintenance Mode",
+        "This action is temporarily unavailable during scheduled maintenance. You can continue to browse other parts of the application."
+      );
+      return true;
+    }
+    return false;
+  };
   const { t, language, changeLanguage } = useLanguage();
   const {
     accounts,
@@ -471,6 +484,7 @@ export default function OwnerProfile({ navigation }) {
   };
 
   const uploadProfileImage = async (uri) => {
+    if (checkReadOnly()) return;
     try {
       const phone = await resolveOwnerPhone();
       if (!phone) return;

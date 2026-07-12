@@ -56,6 +56,11 @@ export default function RenntoLoadingScreen({ navigation, route }) {
   const exitOpacity = useSharedValue(1);
 
   useEffect(() => {
+    // Trigger system maintenance mode check immediately after login/refresh
+    if (global.triggerMaintenanceCheck) {
+      global.triggerMaintenanceCheck();
+    }
+
     // 1. Screen fade-in
     screenOpacity.value = withTiming(1, { duration: 400 });
 

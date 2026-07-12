@@ -5,6 +5,7 @@ import { useMemo, useState, useEffect, useCallback, useRef } from "react";
 import { useNavigation, useFocusEffect } from "@react-navigation/native";
 import BASE_URL, { fetchWithAuth } from '../../config/Api';
 import { useLanguage } from "../../utils/LanguageContext";
+import { useMaintenance } from "../../context/MaintenanceContext";
 import {
   Alert,
   Image,
@@ -43,6 +44,18 @@ const COLORS = {
 
 
 export default function IssuesScreen() {
+  const { maintenanceMode } = useMaintenance();
+  const isReadOnly = maintenanceMode === "READ_ONLY";
+  const checkReadOnly = () => {
+    if (isReadOnly) {
+      Alert.alert(
+        "Maintenance Mode",
+        "This action is temporarily unavailable during scheduled maintenance. You can continue to browse other parts of the application."
+      );
+      return true;
+    }
+    return false;
+  };
   const { t } = useLanguage();
   const navigation = useNavigation();
   const [title, setTitle] = useState("");
@@ -71,6 +84,7 @@ export default function IssuesScreen() {
 
 
   const handleUpdate = async () => {
+    if (checkReadOnly()) return;
     try {
       setLoading(true);
       const formData = new FormData();
@@ -211,6 +225,7 @@ export default function IssuesScreen() {
   };
 
   const submitIssue = async () => {
+    if (checkReadOnly()) return;
     if (!title || !description) {
       Alert.alert("Error", "Please fill in all fields");
       return;
@@ -267,6 +282,7 @@ export default function IssuesScreen() {
   };
 
   const deleteIssue = async (id) => {
+    if (checkReadOnly()) return;
     Alert.alert("Confirm Deletion", "Remove this issue permanently?", [
       { text: "Cancel", style: "cancel" },
       {

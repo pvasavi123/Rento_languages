@@ -307,6 +307,9 @@ await Notifications.getExpoPushTokenAsync({
 
 }
 
+        if (global.triggerMaintenanceCheck) {
+          global.triggerMaintenanceCheck();
+        }
         navigation.reset({
           index: 0,
           routes: [{
@@ -465,6 +468,9 @@ console.log(
           t("registration_success") || "Registration Successful!"
         );
 
+        if (global.triggerMaintenanceCheck) {
+          global.triggerMaintenanceCheck();
+        }
         navigation.reset({
           index: 0,
           routes: [{ name: "TenantNavigation" }],

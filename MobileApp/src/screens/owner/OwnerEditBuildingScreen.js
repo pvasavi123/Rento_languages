@@ -17,8 +17,11 @@ import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import BASE_URL, { fetchWithAuth } from '../../config/Api';
 import COLORS from '../../theme/colors';
+import { useMaintenance } from '../../context/MaintenanceContext';
 
 export default function OwnerEditBuildingScreen({ navigation }) {
+  const { maintenanceMode } = useMaintenance();
+  const isReadOnly = maintenanceMode === 'READ_ONLY';
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [propertyType, setPropertyType] = useState(''); // 'hostel', 'apartment', 'commercial'
@@ -57,6 +60,10 @@ export default function OwnerEditBuildingScreen({ navigation }) {
   };
 
   const handleSave = async () => {
+    if (isReadOnly) {
+      Alert.alert("Maintenance Mode", "This action is temporarily unavailable during scheduled maintenance. You can continue to browse other parts of the application.");
+      return;
+    }
     if (saving) return;
     setSaving(true);
 
@@ -91,6 +98,10 @@ export default function OwnerEditBuildingScreen({ navigation }) {
   };
 
   const addFloor = () => {
+    if (isReadOnly) {
+      Alert.alert("Maintenance Mode", "This action is temporarily unavailable during scheduled maintenance. You can continue to browse other parts of the application.");
+      return;
+    }
     const nextFloorNo = buildingLayout.length > 0 
       ? Math.max(...buildingLayout.map(f => f.floorNo)) + 1 
       : 1;
@@ -107,6 +118,10 @@ export default function OwnerEditBuildingScreen({ navigation }) {
   };
 
   const removeFloor = (floorNo) => {
+    if (isReadOnly) {
+      Alert.alert("Maintenance Mode", "This action is temporarily unavailable during scheduled maintenance. You can continue to browse other parts of the application.");
+      return;
+    }
     Alert.alert(
       'Remove Floor',
       `Are you sure you want to remove Floor ${floorNo}? All units on this floor will be deleted.`,
@@ -131,6 +146,10 @@ export default function OwnerEditBuildingScreen({ navigation }) {
   };
 
   const addUnit = (floorNo) => {
+    if (isReadOnly) {
+      Alert.alert("Maintenance Mode", "This action is temporarily unavailable during scheduled maintenance. You can continue to browse other parts of the application.");
+      return;
+    }
     const updated = buildingLayout.map(floor => {
       if (floor.floorNo !== floorNo) return floor;
 
@@ -165,6 +184,10 @@ export default function OwnerEditBuildingScreen({ navigation }) {
   };
 
   const removeUnit = (floorNo, unitKey, unitValue) => {
+    if (isReadOnly) {
+      Alert.alert("Maintenance Mode", "This action is temporarily unavailable during scheduled maintenance. You can continue to browse other parts of the application.");
+      return;
+    }
     const updated = buildingLayout.map(floor => {
       if (floor.floorNo !== floorNo) return floor;
 
@@ -424,14 +447,16 @@ export default function OwnerEditBuildingScreen({ navigation }) {
 
       <View style={styles.footer}>
         <TouchableOpacity 
-          style={[styles.saveBtn, saving && styles.saveBtnDisabled]} 
+          style={[styles.saveBtn, (saving || isReadOnly) && styles.saveBtnDisabled]} 
           onPress={handleSave}
-          disabled={saving}
+          disabled={saving || isReadOnly}
         >
           {saving ? (
             <ActivityIndicator color="white" />
           ) : (
-            <Text style={styles.saveBtnText}>Save Changes</Text>
+            <Text style={styles.saveBtnText}>
+              {isReadOnly ? "Unavailable During Maintenance" : "Save Changes"}
+            </Text>
           )}
         </TouchableOpacity>
       </View>

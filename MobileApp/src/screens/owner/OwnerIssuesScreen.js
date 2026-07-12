@@ -6,6 +6,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import BASE_URL, { fetchWithAuth } from '../../config/Api';
 import { useLanguage } from "../../utils/LanguageContext";
+import { useMaintenance } from "../../context/MaintenanceContext";
 
 import {
   Animated,
@@ -59,6 +60,8 @@ const formatValue = (val) => {
 const initialIssues = [];
 
 export default function OwnerIssues() {
+  const { maintenanceMode } = useMaintenance();
+  const isReadOnly = maintenanceMode === "READ_ONLY";
   const { t } = useLanguage();
   const navigation = useNavigation();
   const [search, setSearch] = useState("");
@@ -281,6 +284,10 @@ export default function OwnerIssues() {
   };
 
   const handleUpdate = async () => {
+    if (isReadOnly) {
+      alert("This action is temporarily unavailable during scheduled maintenance. You can continue to browse other parts of the application.");
+      return;
+    }
     if (!selectedIssue) return;
 
     if ((localStatus === "Pending" || localStatus === "In Progress") && !ownerComment.trim()) {
@@ -573,8 +580,14 @@ export default function OwnerIssues() {
                 <TouchableOpacity style={[styles.closeBtn, { flex: 1, backgroundColor: '#666' }]} onPress={() => setModalVisible(false)}>
                   <Text style={styles.updateBtnText}>Close</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={[styles.closeBtn, { flex: 1 }]} onPress={handleUpdate}>
-                  <Text style={styles.updateBtnText}>Save Updates</Text>
+                 <TouchableOpacity 
+                  style={[styles.closeBtn, { flex: 1 }, isReadOnly && { opacity: 0.5 }]} 
+                  onPress={handleUpdate}
+                  disabled={isReadOnly}
+                >
+                  <Text style={styles.updateBtnText}>
+                    {isReadOnly ? "Unavailable" : "Save Updates"}
+                  </Text>
                 </TouchableOpacity>
               </View>
             </ScrollView>

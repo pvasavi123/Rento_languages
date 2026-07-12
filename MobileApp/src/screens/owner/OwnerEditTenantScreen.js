@@ -17,8 +17,11 @@ import { LinearGradient } from "expo-linear-gradient";
 import COLORS from "../../theme/colors";
 import BASE_URL, { fetchWithAuth } from "@/src/config/Api";
 import { BookingContext } from "@/src/context/BookingContext";
+import { useMaintenance } from "../../context/MaintenanceContext";
 
 export default function OwnerEditTenantScreen({ route, navigation }) {
+  const { maintenanceMode } = useMaintenance();
+  const isReadOnly = maintenanceMode === "READ_ONLY";
   const { tenant, stayType, totalBeds } = route.params;
   const { setRefreshTrigger } = useContext(BookingContext);
 
@@ -45,6 +48,10 @@ export default function OwnerEditTenantScreen({ route, navigation }) {
   const isValidDate = (text) => /^\d{4}-\d{2}-\d{2}$/.test(text.trim());
 
   const handleUpdate = async () => {
+    if (isReadOnly) {
+      Alert.alert("Maintenance Mode", "This action is temporarily unavailable during scheduled maintenance. You can continue to browse other parts of the application.");
+      return;
+    }
     // Validate inputs
     if (!name.trim()) {
       Alert.alert("Validation Error", "Please enter a tenant name.");
@@ -313,8 +320,8 @@ export default function OwnerEditTenantScreen({ route, navigation }) {
             <TouchableOpacity
               onPress={handleUpdate}
               activeOpacity={0.8}
-              disabled={loading}
-              style={{ width: "100%" }}
+              disabled={loading || isReadOnly}
+              style={[{ width: "100%" }, isReadOnly && { opacity: 0.5 }]}
             >
               <LinearGradient
                 colors={[COLORS.PRIMARY || "#6C2BD9", COLORS.PRIMARY_LIGHT || "#8B5CF6"]}
@@ -327,7 +334,9 @@ export default function OwnerEditTenantScreen({ route, navigation }) {
                 ) : (
                   <>
                     <Ionicons name="save-outline" size={20} color="#FFF" style={{ marginRight: 8 }} />
-                    <Text style={styles.primaryButtonText}>Update Details</Text>
+                    <Text style={styles.primaryButtonText}>
+                      {isReadOnly ? "Unavailable During Maintenance" : "Update Details"}
+                    </Text>
                   </>
                 )}
               </LinearGradient>

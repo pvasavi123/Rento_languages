@@ -4,8 +4,11 @@ import { Ionicons } from '@expo/vector-icons';
 import COLORS from '../../theme/colors';
 import BASE_URL, { fetchWithAuth } from '@/src/config/Api';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useMaintenance } from '../../context/MaintenanceContext';
 
 export default function OwnerExpenseScreen({ navigation }) {
+    const { maintenanceMode } = useMaintenance();
+    const isReadOnly = maintenanceMode === 'READ_ONLY';
     const [loading, setLoading] = useState(false);
     const [category, setCategory] = useState('');
     const [amount, setAmount] = useState('');
@@ -100,14 +103,16 @@ export default function OwnerExpenseScreen({ navigation }) {
                     />
 
                     <TouchableOpacity 
-                        style={[styles.submitBtn, loading && styles.submitBtnDisabled]} 
+                        style={[styles.submitBtn, (loading || isReadOnly) && styles.submitBtnDisabled]} 
                         onPress={handleAddExpense}
-                        disabled={loading}
+                        disabled={loading || isReadOnly}
                     >
                         {loading ? (
                             <ActivityIndicator color="#FFF" />
                         ) : (
-                            <Text style={styles.submitBtnText}>Save Expense</Text>
+                            <Text style={styles.submitBtnText}>
+                                {isReadOnly ? "Unavailable During Maintenance" : "Save Expense"}
+                            </Text>
                         )}
                     </TouchableOpacity>
                 </View>
