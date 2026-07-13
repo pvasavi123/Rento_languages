@@ -52,9 +52,9 @@ export default function IssuesScreen({ navigation }) {
         </View>
 
         {/* Action Suggestion */}
-        <TouchableOpacity style={styles.contactBtn}>
+        {/* <TouchableOpacity style={styles.contactBtn}>
           <Text style={styles.contactText}>Contact Support</Text>
-        </TouchableOpacity>
+        </TouchableOpacity> */}
 
       </ScrollView>
 

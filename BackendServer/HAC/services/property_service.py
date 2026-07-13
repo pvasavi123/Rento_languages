@@ -313,3 +313,72 @@ class PropertyService:
             "count": len(property_list),
             "data": property_list
         }
+
+    @staticmethod
+    def manage_property_images(request, phone):
+        from HAC.models import StayHostelDetails, ApartmentStayDetails, CommericialDetails
+        owner = CommonService.get_owner(phone)
+        if not owner:
+            return {"success": False, "message": "Owner not found", "status": 404}
+            
+        property_obj = StayHostelDetails.objects.filter(owner=owner).first()
+        if not property_obj:
+            property_obj = ApartmentStayDetails.objects.filter(owner=owner).first()
+        if not property_obj:
+            property_obj = CommericialDetails.objects.filter(owner=owner).first()
+            
+        if not property_obj:
+            return {"success": False, "message": "Property not found", "status": 404}
+
+        def build_urls(gallery_list):
+            if not gallery_list:
+                return []
+            return [{"uri": request.build_absolute_uri(settings.MEDIA_URL + path), "path": path} for path in gallery_list]
+
+        if request.method == "GET":
+            return {"success": True, "images": build_urls(property_obj.gallery_images), "status": 200}
+            
+        elif request.method == "POST":
+            action = request.data.get("action")
+            current_images = property_obj.gallery_images or []
+            
+            if action == "upload":
+                files = request.FILES.getlist("images")
+                paths = []
+                for file in files:
+                    path = default_storage.save(f"property_gallery/{file.name}", file)
+                    paths.append(path)
+                current_images.extend(paths)
+                property_obj.gallery_images = current_images
+                property_obj.save()
+                return {"success": True, "images": build_urls(property_obj.gallery_images), "status": 200}
+                
+            elif action == "delete":
+                image_path = request.data.get("image_path")
+                if image_path in current_images:
+                    current_images.remove(image_path)
+                    property_obj.gallery_images = current_images
+                    property_obj.save()
+                    # Optionally delete from storage
+                    # if default_storage.exists(image_path):
+                    #     default_storage.delete(image_path)
+                    return {"success": True, "images": build_urls(property_obj.gallery_images), "status": 200}
+                return {"success": False, "message": "Image not found", "status": 404}
+                
+            elif action == "replace":
+                old_image_path = request.data.get("old_image_path")
+                file = request.FILES.get("image")
+                if not file:
+                    return {"success": False, "message": "No replacement image provided", "status": 400}
+                    
+                if old_image_path in current_images:
+                    index = current_images.index(old_image_path)
+                    new_path = default_storage.save(f"property_gallery/{file.name}", file)
+                    current_images[index] = new_path
+                    property_obj.gallery_images = current_images
+                    property_obj.save()
+                    return {"success": True, "images": build_urls(property_obj.gallery_images), "status": 200}
+                return {"success": False, "message": "Original image not found", "status": 404}
+                
+            return {"success": False, "message": "Invalid action", "status": 400}
+

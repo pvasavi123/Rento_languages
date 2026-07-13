@@ -302,7 +302,12 @@ class AuthService:
  
         raise ValueError("Invalid role")
 
-    ADMIN_PHONE = "6281808454"
+    ADMIN_PHONE = "6304192151"
+
+    # ⏰ PASSWORD EXPIRY DURATION
+    # For TESTING: timedelta(minutes=2)
+    # For PRODUCTION (1 month): timedelta(days=30)
+    PASSWORD_EXPIRY_DURATION = timedelta(minutes=2)
 
     @staticmethod
     def send_admin_otp(phone):
@@ -367,7 +372,8 @@ class AuthService:
 
             expiry_time = (
                 admin_password.created_at +
-                timedelta(days=30)
+                # timedelta(days=30)
+                AuthService.PASSWORD_EXPIRY_DURATION
             )
 
             if timezone.now() < expiry_time:
@@ -383,6 +389,15 @@ class AuthService:
             "message": "Create a new password"
         }
 
+    def forgot_admin_password(phone):
+        if phone != AuthService.ADMIN_PHONE:
+            raise ValueError("Unauthorized access")
+ 
+        AdminPassword.objects.filter(
+            phone=phone
+        ).delete()
+ 
+        return AuthService.send_admin_otp(phone)
     @staticmethod
     def admin_password_login(phone, password, action):
 
@@ -423,7 +438,8 @@ class AuthService:
 
             expiry_time = (
                 admin.created_at +
-                timedelta(days=30)
+                # timedelta(days=30)
+                AuthService.PASSWORD_EXPIRY_DURATION
             )
 
             if timezone.now() > expiry_time:
@@ -462,7 +478,8 @@ class AuthService:
 
         expiry_time = (
             admin.created_at +
-            timedelta(days=30)
+            # timedelta(days=30)
+            AuthService.PASSWORD_EXPIRY_DURATION
         )
 
         if timezone.now() > expiry_time:

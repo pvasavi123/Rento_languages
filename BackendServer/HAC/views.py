@@ -243,6 +243,25 @@ def get_properties_listing(request):
         return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
+@api_view(['GET', 'POST'])
+@jwt_required()
+@parser_classes([MultiPartParser, FormParser])
+def manage_property_images(request):
+    try:
+        if request.jwt_payload.get('role') != 'owner':
+            return Response({"error": "Unauthorized"}, status=status.HTTP_403_FORBIDDEN)
+            
+        owner_obj = getattr(request, 'owner_account', None) or request.custom_user
+        if not owner_obj:
+            return Response({"error": "Owner not found"}, status=status.HTTP_404_NOT_FOUND)
+            
+        result = PropertyService.manage_property_images(request, owner_obj.phone)
+        status_code = result.get('status', 200)
+        return Response(result, status=status_code)
+    except Exception as e:
+        return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
 @api_view(['PUT', 'PATCH'])
 @jwt_required()
 def update_building_layout(request, phone):
@@ -1001,7 +1020,7 @@ def get_owner_payments(request, phone):
         # Enforce owner isolation
         if request.jwt_payload.get('role') == 'owner':
             owner_obj = getattr(request, 'owner_account', None) or request.custom_user
-            if not owner_obj or (owner_obj.owner_id != phone and owner_obj.phone != phone):
+            if not owner_obj:
                 return Response({"error": "You do not have permission to perform this action."}, status=status.HTTP_403_FORBIDDEN)
             target_phone = owner_obj.owner_id
         else:
@@ -1428,6 +1447,15 @@ def check_admin_password_status(request):
         return Response({"error": str(e)}, status=400)
 
 
+@api_view(["POST"])
+def forgot_admin_password(request):
+    try:
+        data = AuthService.forgot_admin_password(
+            request.data.get("phone")
+        )
+        return Response(data, status=200)
+    except ValueError as e:
+        return Response({"error": str(e)}, status=400)
 # =====================================================================
 # BUILDING LAYOUT MANAGEMENT ENDPOINTS
 # =====================================================================

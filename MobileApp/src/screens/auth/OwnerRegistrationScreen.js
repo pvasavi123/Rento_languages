@@ -1388,7 +1388,7 @@ export default function OwnerCommercialSection({
                           style={[
                             styles.inputContainer,
                             styles.inputContainerStep2,
-                            { paddingLeft: 6, height: 50 }
+                            { paddingLeft: 6 }
                           ]}
                         >
                           <View style={{ width: 36, height: 36, backgroundColor: "#F5F3FF", borderRadius: 8, justifyContent: "center", alignItems: "center", marginRight: 10 }}>
@@ -1436,7 +1436,7 @@ export default function OwnerCommercialSection({
                         <Text style={[styles.label, { color: "#111827", fontWeight: "600" }]}>
                           Identity Proof Type <Text style={{ color: "#EF4444" }}>*</Text>
                         </Text>
-                        <View style={[styles.inputContainer, styles.inputContainerStep2, { paddingLeft: 6, height: 50 }, errors.idProofType && styles.inputError]}>
+                        <View style={[styles.inputContainer, styles.inputContainerStep2, { paddingLeft: 6 }, errors.idProofType && styles.inputError]}>
                           <View style={{ width: 36, height: 36, backgroundColor: "#F5F3FF", borderRadius: 8, justifyContent: "center", alignItems: "center", marginRight: 10 }}>
                             <FontAwesome name="id-card-o" size={18} color={LIGHT_PURPLE} />
                           </View>
@@ -1456,7 +1456,7 @@ export default function OwnerCommercialSection({
                             }}
                             style={[
                               styles.picker,
-                              { flex: 1, height: 50, marginLeft: -10 },
+                              { flex: 1, marginLeft: -10 },
                             ]}
                           >
                             <Picker.Item label="Select ID type" value="" color="gray" />
@@ -1484,7 +1484,7 @@ export default function OwnerCommercialSection({
                               style={[
                                 styles.inputContainer,
                                 styles.inputContainerStep2,
-                                { paddingLeft: 6, height: 50 }
+                                { paddingLeft: 6 }
                               ]}
                             >
                               <View style={{ width: 36, height: 36, backgroundColor: "#F5F3FF", borderRadius: 8, justifyContent: "center", alignItems: "center", marginRight: 10 }}>
@@ -1572,7 +1572,7 @@ export default function OwnerCommercialSection({
                         <Text style={[styles.label, { color: "#111827", fontWeight: "600" }]}>
                           Stay Type <Text style={{ color: "#EF4444" }}>*</Text>
                         </Text>
-                        <View style={[styles.inputContainer, styles.inputContainerStep2, { paddingLeft: 6, height: 50 }, errors.stayType && styles.inputError]}>
+                        <View style={[styles.inputContainer, styles.inputContainerStep2, { paddingLeft: 6 }, errors.stayType && styles.inputError]}>
                           <View style={{ width: 36, height: 36, backgroundColor: "#F5F3FF", borderRadius: 8, justifyContent: "center", alignItems: "center", marginRight: 10 }}>
                             <FontAwesome name="building-o" size={18} color={LIGHT_PURPLE} />
                           </View>
@@ -1583,7 +1583,7 @@ export default function OwnerCommercialSection({
                             }}
                             style={[
                               styles.picker,
-                              { flex: 1, height: 50, marginLeft: -10 },
+                              { flex: 1, marginLeft: -10 },
                             ]}
                           >
                             <Picker.Item label={t("select_stay_type")} value="" color="gray" />
@@ -1639,7 +1639,7 @@ export default function OwnerCommercialSection({
                               style={[
                                 styles.inputContainer,
                                 styles.inputContainerStep2,
-                                { paddingLeft: 6, height: 50 }
+                                { paddingLeft: 6 }
                               ]}
                             >
                               <View style={{ width: 36, height: 36, backgroundColor: "#F5F3FF", borderRadius: 8, justifyContent: "center", alignItems: "center", marginRight: 10 }}>
@@ -1828,7 +1828,7 @@ export default function OwnerCommercialSection({
                                 }}
                                 style={[
                                   styles.picker,
-                                  { flex: 1, height: 50 },
+                                  { flex: 1 },
                                 ]}
                               >
                                 <Picker.Item label={t("select_type")} value="" />
@@ -2233,7 +2233,7 @@ export default function OwnerCommercialSection({
                                 }}
                                 style={[
                                   styles.picker,
-                                  { flex: 1, height: 50 },
+                                  { flex: 1 },
                                 ]}
                               >
                                 <Picker.Item label={t("select")} value="" />
@@ -2640,7 +2640,7 @@ export default function OwnerCommercialSection({
                                 }}
                                 style={[
                                   styles.picker,
-                                  { flex: 1, height: 50 },
+                                  { flex: 1 },
                                 ]}
                               >
                                 <Picker.Item label={t("select")} value="" />
@@ -3467,9 +3467,9 @@ function Step3({ form, onUpdateFloors }) {
             keyboardType="number-pad"
             value={floorInput}
             onChangeText={setFloorInput}
-            style={[step3Styles.input, { flex: 1, height: 44, marginHorizontal: 0, paddingHorizontal: 15 }]}
+            style={[step3Styles.input, { flex: 1, marginHorizontal: 0, paddingHorizontal: 15 }]}
           />
-          <TouchableOpacity style={[step3Styles.setBtn, { height: 44, marginLeft: 10, flexDirection: "row", alignItems: "center" }]} onPress={generateFloors}>
+          <TouchableOpacity style={[step3Styles.setBtn, { marginLeft: 10, flexDirection: "row", alignItems: "center" }]} onPress={generateFloors}>
             <Ionicons name="create-outline" size={16} color={WHITE} style={{ marginRight: 6 }} />
             <Text style={step3Styles.btnText}>
               {t("add")}
@@ -4293,10 +4293,10 @@ function ApartmentLayout({ form, onUpdateFloors }) {
             keyboardType="number-pad"
             value={floorInput}
             onChangeText={setFloorInput}
-            style={[step3Styles.input, { flex: 1, height: 44, marginHorizontal: 0, paddingHorizontal: 15 }]}
+            style={[step3Styles.input, { flex: 1, marginHorizontal: 0, paddingHorizontal: 15 }]}
           />
           <TouchableOpacity
-            style={[step3Styles.setBtn, { height: 44, marginLeft: 10, flexDirection: "row", alignItems: "center" }]}
+            style={[step3Styles.setBtn, { marginLeft: 10, flexDirection: "row", alignItems: "center" }]}
             onPress={() => {
               Keyboard.dismiss();
               generateFloors();
@@ -5140,10 +5140,10 @@ function CommercialLayout({ form, onUpdateFloors }) {
             keyboardType="number-pad"
             value={floorInput}
             onChangeText={setFloorInput}
-            style={[step3Styles.input, { flex: 1, height: 44, marginHorizontal: 0, paddingHorizontal: 15 }]}
+            style={[step3Styles.input, { flex: 1, marginHorizontal: 0, paddingHorizontal: 15 }]}
           />
           <TouchableOpacity
-            style={[step3Styles.setBtn, { height: 44, marginLeft: 10, flexDirection: "row", alignItems: "center" }]}
+            style={[step3Styles.setBtn, { marginLeft: 10, flexDirection: "row", alignItems: "center" }]}
             onPress={() => {
               Keyboard.dismiss();
               generateFloors();
@@ -5678,14 +5678,18 @@ const step3Styles = StyleSheet.create({
   input: {
     flex: 1,
     backgroundColor: WHITE,
-    borderWidth: 1,
+    borderWidth: 1.5,
     borderColor: DOT_INACTIVE,
     borderRadius: 12,
     paddingHorizontal: 14,
-    paddingVertical: 0,
+    height: 54,
     fontSize: 16,
     color: NAVY,
-    textAlignVertical: "center",
+    elevation: 1,
+    shadowColor: NAVY,
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
   },
   setBtn: {
     backgroundColor: LIGHT_PURPLE,
@@ -5695,6 +5699,12 @@ const step3Styles = StyleSheet.create({
     marginLeft: 10,
     flexDirection: "row",
     alignItems: "center",
+    height: 54,
+    shadowColor: LIGHT_PURPLE,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 6,
+    elevation: 4,
   },
   btnText: { color: WHITE, fontWeight: "600" },
   centerContainer: {
@@ -5828,7 +5838,7 @@ const step3Styles = StyleSheet.create({
   counterText: { color: LIGHT_PURPLE, fontWeight: "700" },
   closeBtn: {
     backgroundColor: LIGHT_PURPLE,
-    padding: 10,
+    padding: 16,
     borderRadius: 12,
     alignItems: "center",
     flex: 1
@@ -5892,7 +5902,7 @@ const step3Styles = StyleSheet.create({
   smallBtnText: { color: LIGHT_PURPLE, fontWeight: "700", fontSize: 12 },
   primaryBtn: {
     backgroundColor: LIGHT_PURPLE,
-    padding: 10,
+    padding: 16,
     borderRadius: 12,
     alignItems: "center",
     shadowColor: LIGHT_PURPLE,
@@ -6370,6 +6380,8 @@ const styles = StyleSheet.create({
     color: NAVY,
   },
 });
+
+
 
 
 

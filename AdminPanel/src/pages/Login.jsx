@@ -11,6 +11,7 @@ const Login = ({ onLogin }) => {
     const [otpSent, setOtpSent] = useState(false);
     const [showPasswordField, setShowPasswordField] = useState(false);
     const [isCreatePassword, setIsCreatePassword] = useState(false);
+    const [isPasswordExpired, setIsPasswordExpired] = useState(false);
 
     const [error, setError] = useState("");
 
@@ -40,8 +41,14 @@ const Login = ({ onLogin }) => {
                 if (checkData.status === "valid") {
                     setShowPasswordField(true);
                     setIsCreatePassword(false);
+                    setIsPasswordExpired(false);
                     setError("");
                     return;
+                }
+
+                // Password expired — notify user and auto-send OTP
+                if (checkData.status === "expired") {
+                    setIsPasswordExpired(true);
                 }
 
                 // Password expired or not exists
@@ -140,6 +147,35 @@ const Login = ({ onLogin }) => {
         }
     };
 
+    const handleForgotPassword = async () => {
+        try {
+            const response = await fetch(
+                `${BASE_URL}/api/admin-forgot-password/`,
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({ phone }),
+                }
+            );
+ 
+            const data = await response.json();
+ 
+            if (response.ok) {
+                setOtpSent(true);
+                setShowPasswordField(false);
+                setIsCreatePassword(true);
+                setError("");
+                alert("OTP sent successfully to reset password");
+            } else {
+                setError(data.error);
+            }
+        } catch (err) {
+            setError("Network error: " + err.message);
+        }
+    };
+
     return (
         <div className="login-page">
             <div className="login-card">
@@ -219,6 +255,47 @@ const Login = ({ onLogin }) => {
                                 }
                                 required
                             />
+
+                            {/* Forgot Password link — only for existing password */}
+                            {!isCreatePassword && (
+                                <button
+                                    type="button"
+                                    onClick={handleForgotPassword}
+                                    style={{
+                                        background: "none",
+                                        border: "none",
+                                        color: "#6c63ff",
+                                        cursor: "pointer",
+                                        fontSize: "13px",
+                                        marginTop: "8px",
+                                        textDecoration: "underline",
+                                        padding: 0,
+                                        display: "block",
+                                        textAlign: "right",
+                                        width: "100%",
+                                    }}
+                                >
+                                    Forgot Password? Reset via OTP
+                                </button>
+                            )}
+                        </div>
+                    )}
+
+                    {/* EXPIRED PASSWORD NOTICE */}
+                    {isPasswordExpired && !otpSent && !showPasswordField && (
+                        <div
+                            style={{
+                                background: "#fff3cd",
+                                border: "1px solid #ffc107",
+                                borderRadius: "8px",
+                                padding: "10px 14px",
+                                marginBottom: "12px",
+                                fontSize: "13px",
+                                color: "#856404",
+                            }}
+                        >
+                            ⚠️ Your password has <strong>expired</strong>. An OTP has been
+                            sent to your registered number to create a new password.
                         </div>
                     )}
 

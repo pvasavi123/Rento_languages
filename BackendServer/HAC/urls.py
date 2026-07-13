@@ -24,6 +24,7 @@ urlpatterns = [
     path('verify-admin-otp/', views.verify_admin_otp),
     path('admin-password/', views.admin_password_login),
     path('check-admin-password-status/', views.check_admin_password_status),
+    path('admin-forgot-password/', views.forgot_admin_password),
     path('admin-login/', views.admin_login),
     path('admin_home/', views.admin_home),
     path("admin/system-settings/",views.admin_system_settings,name="admin_system_settings",),
@@ -56,6 +57,7 @@ urlpatterns = [
     # OWNER PROPERTY SETUP
     # =====================================================
     path('details/<str:phone>/', views.get_hostel_step3),
+    path('owner/property-images/', views.manage_property_images),
     path('update_building_layout/<str:phone>/', views.update_building_layout),
 
     # =====================================================

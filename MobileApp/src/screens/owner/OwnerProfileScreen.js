@@ -8,6 +8,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import * as ImagePicker from "expo-image-picker";
 import { useLanguage } from "../../utils/LanguageContext";
 import { OwnerAccountContext } from "@/src/context/OwnerAccountContext";
+import PropertyImagesUpload from "../../components/PropertyImagesUpload";
 import {
   Alert,
   Image,
@@ -61,6 +62,7 @@ export default function OwnerProfile({ navigation }) {
   const netProfit = totalIncome - totalExpenses;
 
   const [showProfileModal, setShowProfileModal] = useState(false);
+  const [showPropertyImagesModal, setShowPropertyImagesModal] = useState(false);
   const [showLangModal, setShowLangModal] = useState(false);
   const [showAiModal, setShowAiModal] = useState(false);
   const [aiMessages, setAiMessages] = useState([
@@ -799,6 +801,13 @@ export default function OwnerProfile({ navigation }) {
               bg="#FEF2F2"
               onPress={() => navigation.navigate('AddExpense')}
             />
+            <QuickActionBtn
+              icon="images-outline"
+              label={t("upload_property_images") || "Upload Property Images"}
+              color="#0284C7"
+              bg="#F0F9FF"
+              onPress={() => setShowPropertyImagesModal(true)}
+            />
           </View>
         </View>
 
@@ -1106,6 +1115,32 @@ export default function OwnerProfile({ navigation }) {
             >
               <Text style={styles.modalCancelText}>{t("cancel") || "Cancel"}</Text>
             </TouchableOpacity>
+          </View>
+        </TouchableOpacity>
+      </Modal>
+
+      {/* Property Images Modal */}
+      <Modal
+        visible={showPropertyImagesModal}
+        transparent={true}
+        animationType="slide"
+        onRequestClose={() => setShowPropertyImagesModal(false)}
+      >
+        <TouchableOpacity
+          style={styles.modalOverlay}
+          activeOpacity={1}
+          onPress={() => setShowPropertyImagesModal(false)}
+        >
+          <View style={[styles.modalContent, { maxHeight: '80%', paddingBottom: 20 }]}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>{t("property_images") || "Property Images"}</Text>
+              <TouchableOpacity onPress={() => setShowPropertyImagesModal(false)}>
+                <Ionicons name="close" size={24} color="#64748B" />
+              </TouchableOpacity>
+            </View>
+            <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 20 }}>
+              <PropertyImagesUpload ownerPhone={editableOwner.phone} />
+            </ScrollView>
           </View>
         </TouchableOpacity>
       </Modal>

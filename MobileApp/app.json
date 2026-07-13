@@ -59,7 +59,8 @@
         }
       ],
       "expo-audio",
-      "expo-asset"
+      "expo-asset",
+      "./withUCropString.js"
     ],
     "experiments": {
   "typedRoutes": true,

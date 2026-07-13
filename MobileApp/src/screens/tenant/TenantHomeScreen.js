@@ -1170,12 +1170,7 @@ export default function TenantHomeScreen({ route }) {
           </View>
 
           {/* Listings */}
-          <View style={homeStyles.listHeader}>
-            <Text style={homeStyles.listTitle}>{selectedType} Listings</Text>
-            <Text style={homeStyles.countText}>
-              {filteredProperties.length} items
-            </Text>
-          </View>
+       
 
           <View style={homeStyles.propertyGrid}>
             {filteredProperties.map((item) => {
@@ -2127,17 +2122,12 @@ export function PropertyDetailsScreen(props) {
                 onPress={openInGoogleMaps}
                 style={styles.map}
               >
-                <View pointerEvents="none" style={styles.map}>
-                  <WebView
-                    source={{
-                      uri: (property.latitude && property.longitude)
-                        ? `https://maps.google.com/maps?q=${property.latitude},${property.longitude}&z=15&output=embed`
-                        : `https://maps.google.com/maps?q=${encodeURIComponent(property.address)}&z=15&output=embed`
-                    }}
-                    style={styles.map}
-                    scrollEnabled={false}
-                  />
-                </View>
+<View pointerEvents="none" style={styles.map}>
+  <Image
+    source={require("../../../assets/images/map3.png")}
+    style={{ width: "100%", height: "100%", resizeMode: "cover" }}
+  />
+</View>
               </TouchableOpacity>
               <View
                 style={{
@@ -3360,17 +3350,11 @@ export function PropertyDetailsScreen(props) {
                   }
                 }}
                 style={{
-                  backgroundColor: COLORS.PRIMARY,
+                  backgroundColor: "#5F259F",
                   paddingVertical: 16,
                   borderRadius: 14,
                   alignItems: "center",
                   marginTop: 30,
-                  opacity: (
-                    (property?.type === "Hostel" && (!etFloor || !etRoom || !etBed)) ||
-                    (property?.type === "Apartment" && (!etFloor || !etRoom || !etSharing)) ||
-                    (property?.type === "Commercial" && (!etFloor || !etRoom)) ||
-                    !aadharId || !selectedFile || !selectedBackFile || !selectedPaymentScreenshot
-                  ) ? 0.5 : 1
                 }}
               >
                 <Text style={{ color: "#fff", fontWeight: "bold", fontSize: 16 }}>BOOK NOW</Text>
