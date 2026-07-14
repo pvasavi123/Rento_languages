@@ -15,6 +15,8 @@ import * as Notifications from "../../utils/NotificationsProxy";
 import * as Device from "expo-device";
 import Constants from "expo-constants";
 import { OwnerAccountContext } from "@/src/context/OwnerAccountContext";
+import { useNetwork } from "../../hooks/useNetwork";
+import OfflineView from "../../components/OfflineView";
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
     shouldShowBanner: true,
@@ -66,6 +68,7 @@ const CONTENT_GAP = 10;
 const CONTAINER_PADDING = 18;
 
 export default function BuildingScreen({ route }) {
+  const { isConnected } = useNetwork();
   const { maintenanceMode } = useMaintenance();
   const isReadOnly = maintenanceMode === "READ_ONLY";
   const checkReadOnly = () => {
@@ -242,6 +245,10 @@ export default function BuildingScreen({ route }) {
         const detailsRes = await fetchWithAuth(
           `${BASE_URL}/api/details/${encodeURIComponent(phone)}/`
         );
+        if (!detailsRes.ok) {
+          setResponseData(null);
+          return;
+        }
         const detailsData = await detailsRes.json();
         setResponseData(detailsData);
         setEditableLayout(detailsData.building_layout || detailsData.step3?.building_layout || []);
@@ -351,7 +358,7 @@ export default function BuildingScreen({ route }) {
     };
 
     fetchData();
-   }, [phone, refreshTrigger, selectedAccount]);
+   }, [phone, refreshTrigger, selectedAccount, isConnected]);
 
   useEffect(() => {
     if (route.params?.autoFillData) {
@@ -1380,6 +1387,10 @@ try {
 
     navigation.navigate("OwnerEditTenantScreen", { tenant, stayType, totalBeds });
   };
+  if (isConnected === false && !response_data) {
+    return <OfflineView />;
+  }
+
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "#F8F8FC" }} edges={["left", "right", "bottom"]}>
       {/* Dynamic Status Bar - Translucent, changing icon colors depending on scroll state */}

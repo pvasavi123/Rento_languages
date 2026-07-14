@@ -72,7 +72,13 @@ export default function MaintenanceScreen() {
   const formatCompletionTime = (timeString) => {
     if (!timeString) return "Soon";
     try {
-      const date = new Date(timeString);
+      let naiveString = timeString;
+      if (naiveString.endsWith("Z")) {
+        naiveString = naiveString.slice(0, -1);
+      } else if (naiveString.includes("+")) {
+        naiveString = naiveString.split("+")[0];
+      }
+      const date = new Date(naiveString);
       if (isNaN(date.getTime())) return timeString;
       return date.toLocaleDateString(undefined, {
         weekday: "short",
@@ -80,6 +86,7 @@ export default function MaintenanceScreen() {
         day: "numeric",
         hour: "2-digit",
         minute: "2-digit",
+        timeZoneName: "short",
       });
     } catch (e) {
       return timeString;

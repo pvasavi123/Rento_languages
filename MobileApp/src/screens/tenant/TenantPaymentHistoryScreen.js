@@ -16,6 +16,10 @@ import { useFocusEffect } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axiosOriginal from 'axios';
 import BASE_URL, { fetchWithAuth } from '../../config/Api';
+import { useLanguage } from '../../utils/LanguageContext';
+import COLORS from '../../theme/colors';
+import { useNetwork } from '../../hooks/useNetwork';
+import OfflineView from '../../components/OfflineView';
 
 const axios = {
   get: async (url, config = {}) => {
@@ -50,12 +54,11 @@ const axios = {
     return { data, status: res.status };
   }
 };
-import { useLanguage } from '../../utils/LanguageContext';
-import COLORS from '../../theme/colors';
 
 const { width, height } = Dimensions.get('window');
 
 export default function TenantPaymentHistoryScreen({ navigation }) {
+  const { isConnected } = useNetwork();
   const { t } = useLanguage();
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -79,8 +82,10 @@ export default function TenantPaymentHistoryScreen({ navigation }) {
 
   useFocusEffect(
     useCallback(() => {
-      fetchHistory();
-    }, [])
+      if (isConnected !== undefined) {
+        fetchHistory();
+      }
+    }, [isConnected])
   );
 
   const onRefresh = () => {
@@ -104,6 +109,10 @@ export default function TenantPaymentHistoryScreen({ navigation }) {
         <Text style={{ marginTop: 12, color: '#64748B' }}>{t("loading") || "Loading..."}</Text>
       </View>
     );
+  }
+
+  if (isConnected === false && payments.length === 0) {
+    return <OfflineView />;
   }
 
   return (

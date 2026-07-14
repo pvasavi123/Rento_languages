@@ -24,7 +24,6 @@ import AnimatedRN, {
 } from "react-native-reanimated";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import THEME from "../theme/colors";
-import SplashScreen from "./Splashscreen";
 import LanguageSelectionScreen from "../screens/LanguageSelectionScreen";
 import { useLanguage } from "../utils/LanguageContext";
 
@@ -46,7 +45,6 @@ export default function App({ route }) {
   const [showHome, setShowHome] = useState(skipSplashParam);
   const pagerRef = useRef(null);
   const intervalRef = useRef(null);
-  const [showSplash, setShowSplash] = useState(!skipSplashParam);
   const [showLangSelect, setShowLangSelect] = useState(false);
 
   const { isLanguageSelected, t, loading } = useLanguage();
@@ -144,7 +142,6 @@ export default function App({ route }) {
   const handleGetStarted = () => setShowHome(true);
 
   if (loading) return null;
-  if (showSplash) return <SplashScreen onFinish={() => setShowSplash(false)} />;
   // if (showLangSelect) return <LanguageSelectionScreen onFinish={() => setShowLangSelect(false)} />;
 
   return (

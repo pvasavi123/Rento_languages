@@ -4,6 +4,8 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import BASE_URL, { fetchWithAuth } from "@/src/config/Api";
 import { useMaintenance } from "../../context/MaintenanceContext";
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
+import { useNetwork } from "../../hooks/useNetwork";
+import OfflineView from "../../components/OfflineView";
 import { LinearGradient } from "expo-linear-gradient";
 import * as ImagePicker from "expo-image-picker";
 import { useLanguage } from "../../utils/LanguageContext";
@@ -30,6 +32,7 @@ import {
 } from "react-native";
 
 export default function OwnerProfile({ navigation }) {
+  const { isConnected } = useNetwork();
   const { maintenanceMode } = useMaintenance();
   const isReadOnly = maintenanceMode === "READ_ONLY";
   const checkReadOnly = () => {
@@ -367,13 +370,15 @@ export default function OwnerProfile({ navigation }) {
 
   useFocusEffect(
     useCallback(() => {
-      setAnimationFinished(false);
-      setCoords(null);
-      loadAccounts();
-      fetchOwnerProfile();
-      fetchPayments();
-      fetchExpenses();
-    }, [])
+      if (isConnected !== undefined) {
+        setAnimationFinished(false);
+        setCoords(null);
+        loadAccounts();
+        fetchOwnerProfile();
+        fetchPayments();
+        fetchExpenses();
+      }
+    }, [isConnected])
   );
 
   const onRefresh = useCallback(async () => {
@@ -668,6 +673,10 @@ export default function OwnerProfile({ navigation }) {
       ]);
     }, 800);
   };
+
+  if (isConnected === false && !editableOwner) {
+    return <OfflineView />;
+  }
 
   return (
     <View style={{ flex: 1, backgroundColor: '#F9FAFB' }}>

@@ -1,6 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const BASE_URL = "http://192.168.31.99:8000";
+const BASE_URL = "http://192.168.1.4:8000";
 // const BASE_URL = "http://10.70.249.174:8000";
 // const BASE_URL = "https://api.rennto.in";
 
@@ -23,7 +23,8 @@ export const fetchWithAuth = async (url, options = {}) => {
     }
 
     const config = { ...options, headers };
-    const response = await fetch(url, config);
+    const { apiFetch } = require('../utils/ApiWrapper');
+    const response = await apiFetch(url, config, fetch);
 
     // Intercept 503 Maintenance Mode and return empty data gracefully
     if (response.status === 503) {

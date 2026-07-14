@@ -7,8 +7,11 @@ import * as Sharing from 'expo-sharing';
 import * as Print from 'expo-print';
 import COLORS from '../../theme/colors';
 import BASE_URL, { fetchWithAuth } from '../../config/Api';
+import { useNetwork } from '../../hooks/useNetwork';
+import OfflineView from '../../components/OfflineView';
 
 export default function OwnerPaymentHistoryScreen({ route, navigation }) {
+    const { isConnected } = useNetwork();
     const { phone } = route.params || {};
     const [payments, setPayments] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -16,7 +19,7 @@ export default function OwnerPaymentHistoryScreen({ route, navigation }) {
 
     useEffect(() => {
         fetchPaymentHistory();
-    }, []);
+    }, [isConnected]);
 
     const fetchPaymentHistory = async () => {
         try {
@@ -218,7 +221,11 @@ export default function OwnerPaymentHistoryScreen({ route, navigation }) {
         );
     }
 
-    return (
+  if (isConnected === false && payments.length === 0) {
+    return <OfflineView />;
+  }
+
+  return (
         <View style={styles.container}>
             <StatusBar barStyle="light-content" backgroundColor="#5F259F" translucent={false} />
             <View style={styles.header}>

@@ -22,6 +22,7 @@ import TenantPaymentHistoryScreen from "../screens/tenant/TenantPaymentHistorySc
 import WaitingScreen from "../screens/auth/WaitingScreen";
 import { useMaintenance } from "../context/MaintenanceContext";
 import MaintenanceScreen from "../screens/MaintenanceScreen";
+import SplashScreen from "./Splashscreen";
 
  
 import TenantHomeScreen from "../screens/tenant/TenantHomeScreen";
@@ -40,6 +41,7 @@ const Stack = createStackNavigator();
 export default function MainNavigator() {
   const { maintenanceMode } = useMaintenance();
   const [initialRoute, setInitialRoute] = useState(null);
+  const [showSplash, setShowSplash] = useState(true);
 
   useEffect(() => {
     const checkSession = async () => {
@@ -56,11 +58,17 @@ export default function MainNavigator() {
         setInitialRoute("RoleSection");
       }
     };
-    checkSession();
-  }, []);
+    if (maintenanceMode !== "FULL_MAINTENANCE") {
+      checkSession();
+    }
+  }, [maintenanceMode]);
 
   if (maintenanceMode === "FULL_MAINTENANCE") {
     return <MaintenanceScreen />;
+  }
+
+  if (showSplash) {
+    return <SplashScreen onFinish={() => setShowSplash(false)} />;
   }
 
   if (!initialRoute) return null;

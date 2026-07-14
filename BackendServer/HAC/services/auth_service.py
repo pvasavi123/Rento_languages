@@ -302,12 +302,12 @@ class AuthService:
  
         raise ValueError("Invalid role")
 
-    ADMIN_PHONE = "6304192151"
+    ADMIN_PHONE = "6281808454"
 
     # ⏰ PASSWORD EXPIRY DURATION
     # For TESTING: timedelta(minutes=2)
     # For PRODUCTION (1 month): timedelta(days=30)
-    PASSWORD_EXPIRY_DURATION = timedelta(minutes=2)
+    PASSWORD_EXPIRY_DURATION = timedelta(days=30)
 
     @staticmethod
     def send_admin_otp(phone):

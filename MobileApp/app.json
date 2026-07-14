@@ -19,9 +19,13 @@
       "googleServicesFile": "./google-services.json",
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
-        "foregroundImage": "./assets/images/rent2.png",
-        "backgroundImage": "./assets/images/rent2.png",
-        "monochromeImage": "./assets/images/rent2.png"
+        "foregroundImage": "./assets/images/rent2.png"
+
+
+        // "backgroundColor": "#E6F4FE",
+        // "foregroundImage": "./assets/images/rent2.png",
+        // "backgroundImage": "./assets/images/rent2.png",
+        // "monochromeImage": "./assets/images/rent2.png"
       },
       "predictiveBackGestureEnabled": false,
       "permissions": [

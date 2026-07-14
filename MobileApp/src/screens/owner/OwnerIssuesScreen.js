@@ -7,6 +7,8 @@ import { useNavigation } from "@react-navigation/native";
 import BASE_URL, { fetchWithAuth } from '../../config/Api';
 import { useLanguage } from "../../utils/LanguageContext";
 import { useMaintenance } from "../../context/MaintenanceContext";
+import { useNetwork } from "../../hooks/useNetwork";
+import OfflineView from "../../components/OfflineView";
 
 import {
   Animated,
@@ -60,6 +62,7 @@ const formatValue = (val) => {
 const initialIssues = [];
 
 export default function OwnerIssues() {
+  const { isConnected } = useNetwork();
   const { maintenanceMode } = useMaintenance();
   const isReadOnly = maintenanceMode === "READ_ONLY";
   const { t } = useLanguage();
@@ -91,14 +94,13 @@ export default function OwnerIssues() {
   };
 
   useEffect(() => {
-    fetchOwnerIssues("", true); // Initial fetch with loading
-
+    fetchOwnerIssues("", true);
     const interval = setInterval(() => {
-      fetchOwnerIssues("", false); // Polling fetch without loading
+      fetchOwnerIssues("", false);
     }, 5000);
 
     return () => clearInterval(interval);
-  }, []);
+  }, [isConnected]);
 
   const handleSearch = (text) => {
     setSearch(text);
@@ -359,6 +361,10 @@ export default function OwnerIssues() {
       // Maintain chronological order for others
       return b.id - a.id;
     });
+
+  if (isConnected === false && issues.length === 0) {
+    return <OfflineView />;
+  }
 
   return (
     <SafeAreaView style={styles.container}>

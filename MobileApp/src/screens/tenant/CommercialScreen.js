@@ -1,4 +1,6 @@
 import React, { useState, useEffect, useContext } from "react";
+import { useNetwork } from "../../hooks/useNetwork";
+import OfflineView from "../../components/OfflineView";
 import * as Location from "expo-location";
 import {
   View,
@@ -100,6 +102,7 @@ const normalizeSearchText = (text, isSearchableText = false) => {
 };
 
 export default function CommercialScreen() {
+  const { isConnected } = useNetwork();
   const navigation = useNavigation();
   const [search, setSearch] = useState("");
 const [isModalVisible, setModalVisible] = useState(false);
@@ -142,7 +145,7 @@ const resetAllFilters = () => {
 
   useEffect(() => {
     fetchCommercial();
-  }, []);
+  }, [isConnected]);
   useEffect(() => {
   getUserLocation();
 }, []);
@@ -172,10 +175,14 @@ const getUserLocation = async () => {
   const fetchCommercial = async () => {
     try {
       const response = await fetchWithAuth(`${BASE_URL}/api/owner_props/`);
+      if (!response.ok) {
+        setProperties([]);
+        return;
+      }
       const result = await response.json();
       const MEDIA_URL = `${BASE_URL}/media/`;
 
-      const formattedData = result.data
+      const formattedData = (result.data || [])
         .filter((item) => item.type === "Commercial")
         .map((item) => {
           let mainImage = item.image
@@ -344,6 +351,10 @@ const filteredCommercial = useMemo(() => {
     }
     return address;
   };
+
+  if (isConnected === false && properties.length === 0) {
+    return <OfflineView />;
+  }
 
   return (
     <SafeAreaView style={styles.container}>

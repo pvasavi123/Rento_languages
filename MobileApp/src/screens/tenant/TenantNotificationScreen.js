@@ -21,7 +21,10 @@ import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import BASE_URL, { fetchWithAuth } from "@/src/config/Api";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import COLORS from "../../theme/colors";
+import { useNetwork } from "../../hooks/useNetwork";
+import OfflineView from "../../components/OfflineView";
 const TenantNotificationScreen = () => {
+  const { isConnected } = useNetwork();
   const ws = useRef(null);
   const navigation = useNavigation();
   const { tenantPhone } = useContext(TenantContext);
@@ -273,8 +276,10 @@ const TenantNotificationScreen = () => {
 
   useFocusEffect(
     useCallback(() => {
-      fetchRequests();
-    }, [phone, tenantPhone, refreshTrigger])
+      if (isConnected !== undefined) {
+        fetchRequests();
+      }
+    }, [phone, tenantPhone, refreshTrigger, isConnected])
   );
 
   // Mark all as seen when requests are loaded
@@ -511,6 +516,10 @@ const TenantNotificationScreen = () => {
       </TouchableOpacity>
     );
   };
+
+  if (isConnected === false && requests.length === 0) {
+    return <OfflineView />;
+  }
 
   return (
     <SafeAreaView style={styles.container} edges={["top"]}>

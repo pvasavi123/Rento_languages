@@ -3106,7 +3106,7 @@ export function PropertyDetailsScreen(props) {
                   </View>
                 )}
 
-                {/* 3. BED / SHARING SELECTION (Depends on Room) */}
+                 {/* 3. BED / SHARING SELECTION (Depends on Room) */}
                 {etFloor !== "" && etRoom !== "" && property?.type === "Hostel" && (
                   <View>
                     <Text style={{ fontSize: 12, color: "#64748b", fontWeight: "800", marginBottom: 10, textTransform: "uppercase" }}>3. Select Bed</Text>
@@ -3145,7 +3145,6 @@ export function PropertyDetailsScreen(props) {
                     </View>
                   </View>
                 )}
-
                 {etFloor !== "" && etRoom !== "" && property?.type === "Apartment" && (
                   <View>
                     <Text style={{ fontSize: 12, color: "#64748b", fontWeight: "800", marginBottom: 10, textTransform: "uppercase" }}>3. Select Type</Text>
@@ -3161,7 +3160,6 @@ export function PropertyDetailsScreen(props) {
                 {etFloor !== "" && etRoom !== "" && (
                   <View style={{ gap: 16, marginTop: 10, borderTopWidth: 1, borderTopColor: "#e2e8f0", paddingTop: 20 }}>
                     <Text style={{ fontSize: 12, color: "#64748b", fontWeight: "800", textTransform: "uppercase" }}>4. Upload Identity & Payment Proof</Text>
-
                     {/* Aadhaar ID */}
                     <Text style={{ fontSize: 13, fontWeight: "700", color: "#1e293b" }}>Aadhaar ID *</Text>
                     <TextInput
@@ -3182,7 +3180,6 @@ export function PropertyDetailsScreen(props) {
                       value={aadharId}
                       onChangeText={(text) => setAadharId(text.replace(/[^0-9]/g, ''))}
                     />
-
                     {/* Aadhaar Image */}
                     <Text style={{ fontSize: 13, fontWeight: "700", color: "#1e293b" }}>Aadhaar Card Image *</Text>
                     <TouchableOpacity
@@ -3205,7 +3202,6 @@ export function PropertyDetailsScreen(props) {
                         <Text style={{ color: "#64748b" }}>Choose Aadhaar Card Image</Text>
                       )}
                     </TouchableOpacity>
-
                     {/* Payment Screenshot */}
                     <Text style={{ fontSize: 13, fontWeight: "700", color: "#1e293b" }}>Payment Proof / Screenshot *</Text>
                     <TouchableOpacity
@@ -3231,7 +3227,6 @@ export function PropertyDetailsScreen(props) {
                   </View>
                 )}
               </View>
-
               <TouchableOpacity
                 disabled={
                   (property?.type === "Hostel" && (!etFloor || !etRoom || !etBed)) ||
@@ -3258,7 +3253,6 @@ export function PropertyDetailsScreen(props) {
                       alert("Aadhaar ID must be exactly 12 numeric digits.");
                       return;
                     }
-
                     // 1. Upload Identity and Payment Proofs first
                     const formData = new FormData();
                     formData.append("phone", tenantPhone);
@@ -3280,7 +3274,6 @@ export function PropertyDetailsScreen(props) {
                       name: selectedPaymentScreenshot.name || "payment_proof.jpg",
                       type: selectedPaymentScreenshot.mimeType || "image/jpeg"
                     });
-
                     const uploadRes = await fetchWithAuth(`${BASE_URL}/api/tenant/submit_verification/`, {
                       method: "POST",
                       body: formData,
@@ -3290,7 +3283,6 @@ export function PropertyDetailsScreen(props) {
                       alert("Failed to upload proofs: " + (uploadData.error || "Unknown error"));
                       return;
                     }
-
                     // 2. Submit Existing Tenant Request
                     const reqData = {
                       tenant_phone: tenantPhone,
@@ -3308,7 +3300,6 @@ export function PropertyDetailsScreen(props) {
                       requested_room: (property?.type === "Hostel" || property?.type === "Commercial") ? etRoom.replace("Room ", "").replace("Unit ", "") : (property?.type === "Apartment" ? etRoom : ""),
                       requested_bed: property?.type === "Hostel" ? etBed.replace("Bed ", "") : "",
                     };
-
                     const response = await fetchWithAuth(
                       `${BASE_URL}/api/existing_tenant_request/`,
                       {
@@ -3328,7 +3319,6 @@ export function PropertyDetailsScreen(props) {
                       console.log("JSON Parse Error on Response:", e);
                       data = { error: textData };
                     }
-
                     if (response.ok) {
                       alert(`Existing Tenant Request Sent! 🎉\nWe will contact you shortly regarding ${property.name}.`);
                       setRequestStatus("pending");
@@ -3339,7 +3329,6 @@ export function PropertyDetailsScreen(props) {
                       alert("Failed to send booking request: " + (data.error || data.message || "Unknown error"));
                       console.log("Server Error:", data);
                     }
-
                     setExistingTenantModalVisible(false);
                     if (typeof setStatusModalVisible === "function") {
                       setStatusModalVisible(true);
@@ -3350,21 +3339,28 @@ export function PropertyDetailsScreen(props) {
                   }
                 }}
                 style={{
-                  backgroundColor: "#5F259F",
+                  backgroundColor: COLORS.PRIMARY,
                   paddingVertical: 16,
                   borderRadius: 14,
                   alignItems: "center",
                   marginTop: 30,
+                opacity: (
+                  (property?.type === "Hostel" && (!etFloor || !etRoom || !etBed)) ||
+                  (property?.type === "Apartment" && (!etFloor || !etRoom || !etSharing)) ||
+                  (property?.type === "Commercial" && (!etFloor || !etRoom)) ||
+                  !aadharId || !selectedFile || !selectedBackFile || !selectedPaymentScreenshot
+                  ) ? 0.5 : 1
                 }}
               >
-                <Text style={{ color: "#fff", fontWeight: "bold", fontSize: 16 }}>BOOK NOW</Text>
+                <Text style={{ color: "#fff", fontWeight: "bold", fontSize: 16 }}>{buttonText}</Text>
               </TouchableOpacity>
             </ScrollView>
           </View>
         </View>
       </Modal>
+                    
 
-      {/* OCCUPIED POPUP MODAL */}
+       {/* OCCUPIED POPUP MODAL */}
       <Modal visible={occupiedPopupVisible} transparent animationType="fade">
         <View style={{ flex: 1, justifyContent: "center", alignItems: "center", backgroundColor: "rgba(0,0,0,0.6)" }}>
           <View style={{ width: "85%", backgroundColor: "#fff", borderRadius: 20, padding: 24, alignItems: "center", shadowColor: "#000", shadowOpacity: 0.2, shadowRadius: 10 }}>
@@ -3428,12 +3424,12 @@ export function PropertyDetailsScreen(props) {
               onChangeText={setNewUnitFloor}
             />
 
-            <Text style={{ fontWeight: "700", color: "#64748b", marginBottom: 8 }}>Unit Number</Text>
+            <Text style={{ fontWeight: "700", color: "#64748b", marginBottom: 8 }}>Floor Number</Text>
             <TextInput
               style={{ backgroundColor: "#f8fafc", borderWidth: 1, borderColor: "#e2e8f0", borderRadius: 12, paddingHorizontal: 16, paddingVertical: 12, marginBottom: 16 }}
               placeholder="e.g. 504"
-              value={newUnitNumber}
-              onChangeText={setNewUnitNumber}
+              value={newUnitFloor}
+              onChangeText={setNewUnitFloor}
             />
 
             <Text style={{ fontWeight: "700", color: "#64748b", marginBottom: 8 }}>Type</Text>

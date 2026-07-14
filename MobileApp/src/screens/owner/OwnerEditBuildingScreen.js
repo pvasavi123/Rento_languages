@@ -18,8 +18,11 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import BASE_URL, { fetchWithAuth } from '../../config/Api';
 import COLORS from '../../theme/colors';
 import { useMaintenance } from '../../context/MaintenanceContext';
+import { useNetwork } from '../../hooks/useNetwork';
+import OfflineView from '../../components/OfflineView';
 
 export default function OwnerEditBuildingScreen({ navigation }) {
+  const { isConnected } = useNetwork();
   const { maintenanceMode } = useMaintenance();
   const isReadOnly = maintenanceMode === 'READ_ONLY';
   const [loading, setLoading] = useState(true);
@@ -31,7 +34,7 @@ export default function OwnerEditBuildingScreen({ navigation }) {
 
   useEffect(() => {
     fetchBuildingDetails();
-  }, []);
+  }, [isConnected]);
 
   const fetchBuildingDetails = async () => {
     try {
@@ -257,6 +260,10 @@ export default function OwnerEditBuildingScreen({ navigation }) {
         <Text style={styles.loadingText}>Loading building layout...</Text>
       </View>
     );
+  }
+
+  if (isConnected === false && buildingLayout.length === 0) {
+    return <OfflineView />;
   }
 
   return (

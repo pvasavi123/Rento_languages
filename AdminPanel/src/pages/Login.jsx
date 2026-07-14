@@ -9,7 +9,7 @@ const Login = ({ onLogin }) => {
     const [password, setPassword] = useState("");
 
     const [otpSent, setOtpSent] = useState(false);
-    const [showPasswordField, setShowPasswordField] = useState(false);
+    const [showPasswordField, setShowPasswordField] = useState(true);
     const [isCreatePassword, setIsCreatePassword] = useState(false);
     const [isPasswordExpired, setIsPasswordExpired] = useState(false);
 
@@ -209,9 +209,7 @@ const Login = ({ onLogin }) => {
                                 setPhone(e.target.value)
                             }
                             required
-                            disabled={
-                                otpSent || showPasswordField
-                            }
+                            disabled={otpSent}
                         />
                     </div>
 

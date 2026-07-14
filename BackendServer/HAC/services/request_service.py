@@ -40,15 +40,18 @@ class RequestService:
                 message = f"Your request for {req.property_name} has been {status_value}."
 
                 tenant = req.tenant
+                
+
+
                 if tenant.push_token:
                     if status_value == "accepted":
-                        NotificationService.send_push_notification(tenant.push_token, "Request Accepted ✅", f"Your request for {req.property_name} was accepted")
+                        NotificationService.send_push_notification(tenant.push_token, "Booking Accepted ✅", f"Congratulations! Your booking for {req.property_name} has been accepted by the owner.")
                     elif status_value == "allotted":
                         NotificationService.send_push_notification(tenant.push_token, "Room Allotted 🎉", f"Your room has been allotted in {req.property_name}")
                     elif status_value == "pending_confirmation":
                         NotificationService.send_push_notification(tenant.push_token, "Room Allotted – Action Required 🏠", f"Your room/bed has been allotted in {req.property_name}. Please open the app and confirm to activate your stay.")
                     elif status_value == "rejected":
-                        NotificationService.send_push_notification(tenant.push_token, "Request Rejected ❌", f"Your request for {req.property_name} was rejected")
+                        NotificationService.send_push_notification(tenant.push_token, "Booking Rejected ❌", f"Your booking request for {req.property_name} has been rejected by the owner.")
 
                 try:
                     channel_layer = get_channel_layer()
@@ -140,6 +143,9 @@ class RequestService:
         try:
             channel_layer = get_channel_layer()
             sanitized_phone = owner.owner_id if owner.owner_id else (owner.phone.replace("+", "") if owner else "")
+            
+
+
             for group in [f"owner_status_{sanitized_phone}", f"user_notifications_{sanitized_phone}"]:
                 async_to_sync(channel_layer.group_send)(
                     group,
@@ -221,7 +227,9 @@ class RequestService:
             raise Exception("Tenant not found")
 
         join_requests = JoinRequest.objects.filter(tenant=tenant).order_by('-created_at')
+        existing_requests = ExistingTenantRequest.objects.filter(tenant=tenant).order_by('-created_at')
         data = []
+        
         for r in join_requests:
             status_val = r.status
             if tenant.owner and tenant.owner != r.owner:
@@ -236,6 +244,18 @@ class RequestService:
                 "type": "JOIN_REQUEST",
                 "propertyName": r.property_name,
                 "status": status_val,
+                "owner_phone": r.owner.phone if r.owner else None,
+                "owner_id": r.owner.owner_id if r.owner and r.owner.owner_id else None,
+                "ownerPhone": r.owner.phone if r.owner else None,
+                "created_at": r.created_at,
+            })
+            
+        for r in existing_requests:
+            data.append({
+                "id": f"exreq_{r.id}",
+                "type": "JOIN_REQUEST",
+                "propertyName": r.property_name,
+                "status": r.status,
                 "owner_phone": r.owner.phone if r.owner else None,
                 "owner_id": r.owner.owner_id if r.owner and r.owner.owner_id else None,
                 "ownerPhone": r.owner.phone if r.owner else None,

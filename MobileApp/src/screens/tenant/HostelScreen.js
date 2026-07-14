@@ -1,4 +1,6 @@
 import React, { useState, useEffect, useContext, useMemo, useRef } from "react";
+import { useNetwork } from "../../hooks/useNetwork";
+import OfflineView from "../../components/OfflineView";
 import * as Location from "expo-location";
 import {
   View,
@@ -149,6 +151,7 @@ const normalizeFacility = (name) => {
 
 
 export default function HostelScreen() {
+  const { isConnected } = useNetwork();
   const navigation = useNavigation();
   const [search, setSearch] = useState("");
   const [isModalVisible, setModalVisible] = useState(false);
@@ -193,7 +196,7 @@ export default function HostelScreen() {
 
   useEffect(() => {
     fetchHostels();
-  }, []);
+  }, [isConnected]);
 
 
   useEffect(() => {
@@ -227,10 +230,14 @@ const getUserLocation = async () => {
     try {
       setLoading(true);
       const response = await fetchWithAuth(`${BASE_URL}/api/owner_props/`);
+      if (!response.ok) {
+        setProperties([]);
+        return;
+      }
       const result = await response.json();
       const MEDIA_URL = `${BASE_URL}/media/`;
 
-      const formattedData = result.data
+      const formattedData = (result.data || [])
         .filter((item) => item.type === "Hostel")
         .map((item) => {
           let mainImage = item.image
@@ -434,6 +441,10 @@ const filteredHostels = useMemo(() => {
     }
     return address;
   };
+
+  if (isConnected === false && properties.length === 0) {
+    return <OfflineView />;
+  }
 
   return (
     <SafeAreaView style={styles.container}>

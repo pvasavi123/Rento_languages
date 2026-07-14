@@ -8,6 +8,8 @@ import * as ImagePicker from "expo-image-picker";
 import COLORS from "../../theme/colors";
 import BASE_URL, { fetchWithAuth } from "@/src/config/Api";
 import { useMaintenance } from "../../context/MaintenanceContext";
+import { useNetwork } from "../../hooks/useNetwork";
+import OfflineView from "../../components/OfflineView";
 import {
   Alert,
   Image,
@@ -47,6 +49,7 @@ const languages = [
 ];
 
 export default function TenantProfile({ navigation }) {
+  const { isConnected } = useNetwork();
   const { maintenanceMode } = useMaintenance();
   const isReadOnly = maintenanceMode === "READ_ONLY";
   const checkReadOnly = () => {
@@ -212,8 +215,10 @@ export default function TenantProfile({ navigation }) {
 
   useFocusEffect(
     useCallback(() => {
-      fetchTenantProfile();
-    }, [fetchTenantProfile])
+      if (isConnected !== undefined) {
+        fetchTenantProfile();
+      }
+    }, [fetchTenantProfile, isConnected])
   );
 
   const onRefresh = useCallback(async () => {
@@ -374,6 +379,10 @@ export default function TenantProfile({ navigation }) {
         <Text style={styles.loaderText}>{t("loading") || "Loading..."}</Text>
       </View>
     );
+  }
+
+  if (isConnected === false && tenantData.name === "...") {
+    return <OfflineView />;
   }
 
   return (

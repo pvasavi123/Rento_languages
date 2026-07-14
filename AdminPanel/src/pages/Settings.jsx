@@ -272,14 +272,34 @@ useEffect(() => {
                     <input
                         type="datetime-local"
                         style={inputStyle}
-                        value={systemSettings.estimated_completion}
+                        value={systemSettings.estimated_completion ? (() => {
+                            let val = systemSettings.estimated_completion;
+                            if (val.includes("T")) {
+                                val = val.split(".")[0];
+                                if (val.endsWith("Z")) val = val.slice(0, -1);
+                                if (val.includes("+")) val = val.split("+")[0];
+                                const parts = val.split(":");
+                                if (parts.length > 2) {
+                                    val = parts[0] + ":" + parts[1];
+                                }
+                            }
+                            return val;
+                        })() : ""}
                         onChange={(e) =>
                             setSystemSettings({ ...systemSettings, estimated_completion: e.target.value })
                         }
                     />
                 ) : (
                     <div style={{ padding: "10px", background: "#f9fafb", borderRadius: "8px", border: "1px solid #e5e7eb", marginTop: "8px" }}>
-                        {systemSettings.estimated_completion ? new Date(systemSettings.estimated_completion).toLocaleString() : "Not set"}
+                        {systemSettings.estimated_completion ? (() => {
+                            let naiveString = systemSettings.estimated_completion;
+                            if (naiveString.endsWith("Z")) {
+                                naiveString = naiveString.slice(0, -1);
+                            } else if (naiveString.includes("+")) {
+                                naiveString = naiveString.split("+")[0];
+                            }
+                            return new Date(naiveString).toLocaleString(undefined, { timeZoneName: 'short' });
+                        })() : "Not set"}
                     </div>
                 )}
             </div>

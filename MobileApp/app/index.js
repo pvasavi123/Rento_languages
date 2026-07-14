@@ -7,6 +7,8 @@ import { LanguageProvider } from "@/src/utils/LanguageContext";
 import MainNavigator from "@/src/navigation/MainNavigator";
 import { MaintenanceProvider } from "@/src/context/MaintenanceContext";
 import MaintenanceBanner from "@/src/components/MaintenanceBanner";
+import { NetworkProvider } from "@/src/context/NetworkContext";
+import OfflineBanner from "@/src/components/OfflineBanner";
 
 
 
@@ -66,18 +68,21 @@ export default function App() {
 
   return (
     <SafeAreaProvider>
-      <LanguageProvider>
-        <BookingProvider>
-          <TenantProvider>
-            <OwnerAccountProvider>
-              <MaintenanceProvider>
-                <MainNavigator />
-                <MaintenanceBanner />
-              </MaintenanceProvider>
-            </OwnerAccountProvider>
-          </TenantProvider>
-        </BookingProvider>
-      </LanguageProvider>
+      <NetworkProvider>
+        <LanguageProvider>
+          <BookingProvider>
+            <TenantProvider>
+              <OwnerAccountProvider>
+                <MaintenanceProvider>
+                  <MainNavigator />
+                  <MaintenanceBanner />
+                  <OfflineBanner />
+                </MaintenanceProvider>
+              </OwnerAccountProvider>
+            </TenantProvider>
+          </BookingProvider>
+        </LanguageProvider>
+      </NetworkProvider>
     </SafeAreaProvider>
   );
 }

@@ -78,13 +78,25 @@ class MaintenanceMiddleware:
     "/api/check-admin-password-status/",
     "/api/admin-login/",
 
+    # Tenant Login
+    "/api/login/",
+    "/api/send-otp/",
+    "/api/verify-otp/",
+    "/api/check-user/",
+
+    # Owner Login
+    "/api/verify/",
+    "/api/check-owner/",
+    "/api/check-owner-status/",
+
     # JWT
     "/api/token/",
     "/api/token/refresh/",
 
     # Push Notifications
     "/api/save-push-token/",
-     "/api/admin/system-settings/",
+    "/api/admin/system-settings/",
+
     # Admin Panel
     "/api/admin_home/",
     "/api/owner-profile-update/",
@@ -120,6 +132,17 @@ class MaintenanceMiddleware:
             # ---------------- NORMAL ----------------
             if maintenance_mode == SystemSettings.NORMAL:
                 return self.get_response(request)
+
+            # ---------------- REGISTRATION BLOCKING ----------------
+            if request.path in ["/api/tenent/", "/api/owner/"] and request.method == "POST":
+                if maintenance_mode in [SystemSettings.READ_ONLY, SystemSettings.FULL_MAINTENANCE]:
+                    return JsonResponse(
+                        {
+                            "success": False,
+                            "message": "New registrations are currently disabled due to system maintenance. Please try again later."
+                        },
+                        status=403
+                    )
 
             # ---------------- READ ONLY ----------------
             if maintenance_mode == SystemSettings.READ_ONLY:

@@ -6,6 +6,8 @@ import { useNavigation, useFocusEffect } from "@react-navigation/native";
 import BASE_URL, { fetchWithAuth } from '../../config/Api';
 import { useLanguage } from "../../utils/LanguageContext";
 import { useMaintenance } from "../../context/MaintenanceContext";
+import { useNetwork } from "../../hooks/useNetwork";
+import OfflineView from "../../components/OfflineView";
 import {
   Alert,
   Image,
@@ -44,6 +46,7 @@ const COLORS = {
 
 
 export default function IssuesScreen() {
+  const { isConnected } = useNetwork();
   const { maintenanceMode } = useMaintenance();
   const isReadOnly = maintenanceMode === "READ_ONLY";
   const checkReadOnly = () => {
@@ -161,7 +164,7 @@ export default function IssuesScreen() {
       }, 30000);
 
       return () => clearInterval(interval);
-    }, [])
+    }, [isConnected])
   );
 
   // Aligned with your specific STATUS colors
@@ -331,6 +334,10 @@ export default function IssuesScreen() {
     setPriority("Medium");
     setImage(null);
   };
+
+  if (isConnected === false && issues.length === 0) {
+    return <OfflineView />;
+  }
 
   return (
     <SafeAreaView style={styles.safeArea}>

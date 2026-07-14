@@ -847,7 +847,7 @@ export default function OwnerCommercialSection({
       }
       result = await ImagePicker.launchCameraAsync({
         mediaTypes: ['images'],
-        allowsEditing: !isMultiple,
+        allowsEditing: false,
         quality: 0.8,
       });
     } else {
@@ -858,7 +858,7 @@ export default function OwnerCommercialSection({
       }
       result = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: ['images'],
-        allowsEditing: !isMultiple,
+        allowsEditing: false,
         allowsMultipleSelection: isMultiple,
         quality: 0.8,
       });
@@ -1750,25 +1750,7 @@ export default function OwnerCommercialSection({
                               </Text>
                             ) : null}
 
-                            {mapRegion && (
-                              <View style={styles.mapWrap}>
-                                <TouchableOpacity
-                                  activeOpacity={0.9}
-                                  onPress={openInGoogleMaps}
-                                  style={styles.map}
-                                >
-                                  <View pointerEvents="none" style={styles.map}>
-                                    <WebView
-                                      source={{
-                                        uri: `https://maps.google.com/maps?q=${mapRegion.latitude},${mapRegion.longitude}&z=15&output=embed`
-                                      }}
-                                      style={styles.map}
-                                      scrollEnabled={false}
-                                    />
-                                  </View>
-                                </TouchableOpacity>
-                              </View>
-                            )}
+
                             {mapRegion && (
                               <View
                                 style={{
@@ -2159,25 +2141,7 @@ export default function OwnerCommercialSection({
                                 </View>
                               )}
 
-                            {mapRegion && (
-                              <View style={styles.mapWrap}>
-                                <TouchableOpacity
-                                  activeOpacity={0.9}
-                                  onPress={openInGoogleMaps}
-                                  style={styles.map}
-                                >
-                                  <View pointerEvents="none" style={styles.map}>
-                                    <WebView
-                                      source={{
-                                        uri: `https://maps.google.com/maps?q=${mapRegion.latitude},${mapRegion.longitude}&z=15&output=embed`
-                                      }}
-                                      style={styles.map}
-                                      scrollEnabled={false}
-                                    />
-                                  </View>
-                                </TouchableOpacity>
-                              </View>
-                            )}
+
                             {mapRegion && (
                               <View
                                 style={{
@@ -2554,25 +2518,7 @@ export default function OwnerCommercialSection({
                                 </View>
                               )}
 
-                            {mapRegion && (
-                               <View style={styles.mapWrap}>
-                                 <TouchableOpacity
-                                   activeOpacity={0.9}
-                                   onPress={openInGoogleMaps}
-                                   style={styles.map}
-                                 >
-                                   <View pointerEvents="none" style={styles.map}>
-                                     <WebView
-                                       source={{
-                                         uri: `https://maps.google.com/maps?q=${mapRegion.latitude},${mapRegion.longitude}&z=15&output=embed`
-                                       }}
-                                       style={styles.map}
-                                       scrollEnabled={false}
-                                     />
-                                   </View>
-                                 </TouchableOpacity>
-                               </View>
-                             )}
+
                             {mapRegion && (
                               <View
                                 style={{
@@ -4967,6 +4913,7 @@ function CommercialLayout({ form, onUpdateFloors }) {
       }
       return prevFloors.slice(0, capped);
     });
+    setBuildingOpen(true);
   };
 
 

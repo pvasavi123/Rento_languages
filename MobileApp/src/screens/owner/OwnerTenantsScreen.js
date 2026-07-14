@@ -19,8 +19,11 @@ import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import BASE_URL, { fetchWithAuth } from '../../config/Api';
 import { useMaintenance } from '../../context/MaintenanceContext';
+import { useNetwork } from '../../hooks/useNetwork';
+import OfflineView from '../../components/OfflineView';
 
 export default function OwnerTenantsScreen({ navigation, route }) {
+  const { isConnected } = useNetwork();
   const { maintenanceMode } = useMaintenance();
   const isReadOnly = maintenanceMode === 'READ_ONLY';
   const [loading, setLoading] = useState(true);
@@ -34,7 +37,7 @@ export default function OwnerTenantsScreen({ navigation, route }) {
 
   useEffect(() => {
     fetchTenants();
-  }, []);
+  }, [isConnected]);
 
   const fetchTenants = async () => {
     try {
@@ -228,6 +231,10 @@ export default function OwnerTenantsScreen({ navigation, route }) {
       </TouchableOpacity>
     </TouchableOpacity>
   );
+
+  if (isConnected === false && tenants.length === 0) {
+    return <OfflineView />;
+  }
 
   return (
     <SafeAreaView style={styles.container}>
