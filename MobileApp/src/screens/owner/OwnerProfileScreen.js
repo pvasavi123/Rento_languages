@@ -803,7 +803,7 @@ export default function OwnerProfile({ navigation }) {
             />
             <QuickActionBtn
               icon="people-outline"
-              label="Tenants Management"
+              label="Tenants"
               color="#059669"
               bg="#ECFDF5"
               onPress={() => navigation.navigate('Tenants')}

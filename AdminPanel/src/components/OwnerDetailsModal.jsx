@@ -190,7 +190,6 @@ function OwnerDetailsModal({ ownerId, onClose }) {
                     {ownerDetails.step1?.name || "N/A"}
                   </h3>
                   <p style={{ margin: "8px 0", color: "#6b7280" }}>
-                    {ownerDetails.step1?.phone || "N/A"} •{" "}
                     {ownerDetails.step1?.phone || "N/A"}
                   </p>
 

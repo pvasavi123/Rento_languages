@@ -302,7 +302,7 @@ class AuthService:
  
         raise ValueError("Invalid role")
 
-    ADMIN_PHONE = "6281808454"
+    ADMIN_PHONE = "6304482909"
 
     # ⏰ PASSWORD EXPIRY DURATION
     # For TESTING: timedelta(minutes=2)

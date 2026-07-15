@@ -162,7 +162,7 @@ export default function WaitingScreen({ navigation, route }) {
         }
       }
 
-      setTimeLeft(Number(data.time_left_seconds) || 86400);
+      setTimeLeft(86400);
     } catch (err) {
       console.log("[WaitingScreen] fetchInitialStatus error:", err);
     } finally {

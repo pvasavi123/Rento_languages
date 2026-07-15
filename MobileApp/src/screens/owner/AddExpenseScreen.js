@@ -71,6 +71,7 @@ export default function OwnerExpenseScreen({ navigation }) {
                     <TextInput
                         style={styles.input}
                         placeholder="e.g. Repairs, Electricity, Cleaning"
+                        placeholderTextColor="#9E9E9E"
                         value={category}
                         onChangeText={setCategory}
                     />
@@ -79,6 +80,7 @@ export default function OwnerExpenseScreen({ navigation }) {
                     <TextInput
                         style={styles.input}
                         placeholder="0.00"
+                        placeholderTextColor="#9E9E9E"
                         keyboardType="numeric"
                         value={amount}
                         onChangeText={setAmount}
@@ -88,6 +90,7 @@ export default function OwnerExpenseScreen({ navigation }) {
                     <TextInput
                         style={styles.input}
                         placeholder="2024-05-15"
+                        placeholderTextColor="#9E9E9E"
                         value={date}
                         onChangeText={setDate}
                     />
@@ -96,6 +99,7 @@ export default function OwnerExpenseScreen({ navigation }) {
                     <TextInput
                         style={[styles.input, styles.textArea]}
                         placeholder="Details about the expense..."
+                        placeholderTextColor="#9E9E9E"
                         multiline
                         numberOfLines={4}
                         value={description}

@@ -665,7 +665,7 @@ const styles = StyleSheet.create({
     padding: 12,
     flexDirection: "row",
     marginBottom: 15,
-    height: 135,
+    minHeight: 135,
     elevation: 4,
     shadowColor: "#000",
     shadowOpacity: 0.05,

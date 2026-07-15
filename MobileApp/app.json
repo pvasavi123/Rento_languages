@@ -20,12 +20,6 @@
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
         "foregroundImage": "./assets/images/rent2.png"
-
-
-        // "backgroundColor": "#E6F4FE",
-        // "foregroundImage": "./assets/images/rent2.png",
-        // "backgroundImage": "./assets/images/rent2.png",
-        // "monochromeImage": "./assets/images/rent2.png"
       },
       "predictiveBackGestureEnabled": false,
       "permissions": [
@@ -52,7 +46,7 @@
           "dark": {
             "backgroundColor": "#000000"
           }
-        } 
+        }
       ],
       "@react-native-community/datetimepicker",
       [
@@ -64,12 +58,13 @@
       ],
       "expo-audio",
       "expo-asset",
-      "./withUCropString.js"
+      "./withUCropString.js",
+      "expo-localization"
     ],
     "experiments": {
-  "typedRoutes": true,
-  "reactCompiler": false
-},
+      "typedRoutes": true,
+      "reactCompiler": false
+    },
     "extra": {
       "router": {},
       "eas": {
