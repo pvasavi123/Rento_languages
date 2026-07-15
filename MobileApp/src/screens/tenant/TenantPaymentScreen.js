@@ -542,8 +542,8 @@ const TenantPaymentScreen = () => {
     if (paymentData.status === 'Paid') {
       return {
         enabled: false,
-        message: "This month rent was completed",
-        subMessage: "Your payment has been verified by the owner."
+        message: t("this_month_rent_completed") || "This month rent was completed",
+        subMessage: t("payment_verified_by_owner") || "Your payment has been verified by the owner."
       };
     }
 
@@ -604,7 +604,7 @@ const TenantPaymentScreen = () => {
             <View style={styles.cardHeader}>
               <View style={styles.propertyBadge}>
                 <Ionicons name="business" size={14} color="#FFF" />
-                <Text style={styles.propertyBadgeText}>{paymentData?.propertyName || 'Property'}</Text>
+                <Text style={styles.propertyBadgeText}>{paymentData?.propertyName || t("property") || 'Property'}</Text>
               </View>
               <View style={styles.headerActions}>
                 <TouchableOpacity style={styles.scanBtn} onPress={() => setQrModalVisible(true)}>
@@ -616,7 +616,7 @@ const TenantPaymentScreen = () => {
             <View style={styles.tenantSection}>
               {/* <Text style={styles.tenantName}>{paymentData?.tenantName || 'Tenant Name'}</Text> */}
               <View style={styles.ownerContactRow}>
-                <Text style={styles.ownerText}>Owner: {paymentData?.ownerName || 'Owner'}</Text>
+                <Text style={styles.ownerText}>{t("owner") || "Owner"}: {paymentData?.ownerName || t("owner") || 'Owner'}</Text>
                 {paymentData?.ownerPhone && (
                   <TouchableOpacity
                     style={styles.copyPhoneBtn}
@@ -632,7 +632,7 @@ const TenantPaymentScreen = () => {
             <View style={styles.rentSection}>
               <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-end' }}>
                 <View>
-                  <Text style={styles.rentLabel}>Monthly Rent</Text>
+                  <Text style={styles.rentLabel}>{t("monthly_rent") || "Monthly Rent"}</Text>
                   <View style={styles.amountContainer}>
                     <Text style={styles.currency}>₹</Text>
                     <Text style={styles.amount}>{paymentData?.rent?.toLocaleString() || '0'}</Text>
@@ -641,7 +641,7 @@ const TenantPaymentScreen = () => {
 
                 {paymentData?.remaining_balance > 0 && (
                   <View style={{ alignItems: 'flex-end' }}>
-                    <Text style={[styles.rentLabel, { color: '#FEE2E2' }]}>Remaining Balance</Text>
+                    <Text style={[styles.rentLabel, { color: '#FEE2E2' }]}>{t("remaining_balance") || "Remaining Balance"}</Text>
                     <View style={styles.amountContainer}>
                       <Text style={[styles.currency, { color: '#EF4444' }]}>₹</Text>
                       <Text style={[styles.amount, { color: '#EF4444', fontSize: 28 }]}>
@@ -655,11 +655,15 @@ const TenantPaymentScreen = () => {
 
             <View style={styles.cardFooter}>
               <View style={styles.footerItem}>
-                <Text style={styles.footerLabel}>Due Date</Text>
+                <Text style={styles.footerLabel}>{t("due_date") || "Due Date"}</Text>
                 <Text style={styles.footerValue}>{getNextDueDate()}</Text>
               </View>
               <View style={[styles.statusBadge, { backgroundColor: getStatusColor(paymentData?.status) }]}>
-                <Text style={styles.statusText}>{paymentData?.status || 'Pending'}</Text>
+                <Text style={styles.statusText}>
+                  {paymentData?.status
+                    ? (t(paymentData.status.toLowerCase().replace(/ /g, '_')) || t(paymentData.status.toLowerCase()) || paymentData.status)
+                    : (t("pending") || "Pending")}
+                </Text>
               </View>
             </View>
           </LinearGradient>
@@ -708,14 +712,14 @@ const TenantPaymentScreen = () => {
               onPress={() => setActiveTab('upi')}
             >
               <Ionicons name="qr-code" size={20} color={activeTab === 'upi' ? '#4F46E5' : '#64748B'} />
-              <Text style={[styles.tabText, activeTab === 'upi' && styles.activeTabText]}>UPI Payment</Text>
+              <Text style={[styles.tabText, activeTab === 'upi' && styles.activeTabText]}>{t("upi_payment") || "UPI Payment"}</Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={[styles.tab, activeTab === 'cash' && styles.activeTab]}
               onPress={() => setActiveTab('cash')}
             >
               <Ionicons name="cash-outline" size={20} color={activeTab === 'cash' ? '#22C55E' : '#64748B'} />
-              <Text style={[styles.tabText, activeTab === 'cash' && styles.activeTabText]}>Cash Payment</Text>
+              <Text style={[styles.tabText, activeTab === 'cash' && styles.activeTabText]}>{t("cash_payment") || "Cash Payment"}</Text>
             </TouchableOpacity>
           </View>
         )}
@@ -725,14 +729,14 @@ const TenantPaymentScreen = () => {
           {!getPaymentAccessibility().enabled ? (
             <View style={styles.disabledState}>
               <Ionicons name="lock-closed" size={48} color="#94A3B8" />
-              <Text style={styles.disabledTitle}>Payment is Locked</Text>
+              <Text style={styles.disabledTitle}>{t("payment_locked") || "Payment is Locked"}</Text>
               <Text style={styles.disabledSubtitle}>{getPaymentAccessibility().subMessage}</Text>
             </View>
           ) : activeTab === 'upi' ? (
             <>
               <View style={styles.upiCopyRow}>
                 <View style={styles.upiIdInfo}>
-                  <Text style={styles.upiIdLabelTab}>{t("upi id") || "UPI ID"}</Text>
+                  <Text style={styles.upiIdLabelTab}>{t("upi_id") || "UPI ID"}</Text>
                   <Text style={styles.upiIdValueTab}>{paymentData?.upiId || 'No UPI ID'}</Text>
                 </View>
                 <TouchableOpacity
@@ -743,7 +747,7 @@ const TenantPaymentScreen = () => {
                 </TouchableOpacity>
               </View>
 
-              <Text style={styles.sectionLabel}>{t("pay using upi app") || "Pay using any UPI App"}</Text>
+              <Text style={styles.sectionLabel}>{t("pay_using_upi_app") || "Pay using any UPI App"}</Text>
               <View style={styles.upiGrid}>
                 {upiProviders.map((app) => (
                   <TouchableOpacity
@@ -776,17 +780,17 @@ const TenantPaymentScreen = () => {
                     <Ionicons name="ellipsis-horizontal" size={24} color="#64748B" />
                   </View>
                   <Text style={[styles.upiName, { color: '#64748B' }]} numberOfLines={1}>
-                    More
+                    {t("more") || "More"}
                   </Text>
                 </TouchableOpacity>
               </View>
 
-              <Text style={[styles.sectionLabel, { marginTop: 24 }]}>{t("upload payment screenshot") || "Upload Payment Screenshot"}</Text>
+              <Text style={[styles.sectionLabel, { marginTop: 24 }]}>{t("upload_payment_screenshot") || "Upload Payment Screenshot"}</Text>
 
               <View style={styles.digitalInputWrapper}>
                 <TextInput
                   style={styles.digitalNoteInput}
-                  placeholder={t("add note") || "Add a note..."}
+                  placeholder={t("add_note") || "Add a note..."}
                   placeholderTextColor="#94A3B8"
                   value={screenshotDescription}
                   onChangeText={setScreenshotDescription}
@@ -797,8 +801,8 @@ const TenantPaymentScreen = () => {
                 <View style={styles.uploadIconCircle}>
                   <Ionicons name="cloud-upload-outline" size={24} color="#4F46E5" />
                 </View>
-                <Text style={styles.uploadTitle}>Tap to upload screenshot</Text>
-                <Text style={styles.uploadSubtitle}>After payment, upload your screenshot here</Text>
+                <Text style={styles.uploadTitle}>{t("tap_upload_screenshot") || "Tap to upload screenshot"}</Text>
+                <Text style={styles.uploadSubtitle}>{t("after_payment_upload") || "After payment, upload your screenshot here"}</Text>
               </TouchableOpacity>
 
               {paymentProof && (
@@ -824,7 +828,7 @@ const TenantPaymentScreen = () => {
                 ) : (
                   <>
                     <Ionicons name="send" size={18} color="#FFF" style={{ marginRight: 8 }} />
-                    <Text style={styles.sendBtnText}>Send To Owner</Text>
+                    <Text style={styles.sendBtnText}>{t("send_to_owner") || "Send To Owner"}</Text>
                   </>
                 )}
               </TouchableOpacity>
@@ -836,8 +840,8 @@ const TenantPaymentScreen = () => {
                   <MaterialCommunityIcons name="cash-check" size={40} color="#22C55E" />
                 </View>
                 <View>
-                  <Text style={styles.cashTitlePremium}>{t("i have paid cash") || "I Have Paid Cash"}</Text>
-                  <Text style={styles.cashSubtitlePremium}>{t("report to owner") || "Report your cash payment to the owner"}</Text>
+                  <Text style={styles.cashTitlePremium}>{t("i_have_paid_cash") || "I Have Paid Cash"}</Text>
+                  <Text style={styles.cashSubtitlePremium}>{t("report_to_owner") || "Report your cash payment to the owner"}</Text>
                 </View>
               </View>
 
@@ -868,7 +872,7 @@ const TenantPaymentScreen = () => {
                   ) : (
                     <>
                       <Ionicons name="send" size={18} color="#FFF" />
-                      <Text style={styles.cashSendBtnText}>{t("send to owner") || "Send to Owner"}</Text>
+                      <Text style={styles.cashSendBtnText}>{t("send_to_owner") || "Send To Owner"}</Text>
                     </>
                   )}
                 </LinearGradient>
@@ -881,12 +885,12 @@ const TenantPaymentScreen = () => {
         <View style={styles.footerNote}>
           <View style={styles.securityItem}>
             <Ionicons name="shield-checkmark-outline" size={16} color="#22C55E" />
-            <Text style={styles.securityText}>100% Secure Payment</Text>
+            <Text style={styles.securityText}>{t("secure_payment_100") || "100% Secure Payment"}</Text>
           </View>
           <View style={styles.divider} />
           <View style={styles.securityItem}>
             <Ionicons name="lock-closed-outline" size={16} color="#64748B" />
-            <Text style={styles.securityText}>Your data is safe with us</Text>
+            <Text style={styles.securityText}>{t("data_safe") || "Your data is safe with us"}</Text>
           </View>
         </View>
 
@@ -899,7 +903,7 @@ const TenantPaymentScreen = () => {
           <View style={styles.bottomSheetOverlay}>
             <View style={styles.bottomSheetContent}>
               <View style={styles.bottomSheetHeader}>
-                <Text style={styles.bottomSheetTitle}>More Payment Apps</Text>
+                <Text style={styles.bottomSheetTitle}>{t("more_payment_apps") || "More Payment Apps"}</Text>
                 <TouchableOpacity onPress={() => setShowMoreAppsModal(false)}>
                   <Ionicons name="close-circle" size={28} color="#94A3B8" />
                 </TouchableOpacity>
@@ -937,7 +941,7 @@ const TenantPaymentScreen = () => {
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
             <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>Scan QR to Pay</Text>
+              <Text style={styles.modalTitle}>{t("scan_qr_to_pay") || "Scan QR to Pay"}</Text>
               <TouchableOpacity onPress={() => setQrModalVisible(false)}>
                 <Ionicons name="close" size={24} color="#1E293B" />
               </TouchableOpacity>
@@ -951,14 +955,14 @@ const TenantPaymentScreen = () => {
                 />
               ) : (
                 <Text style={{ color: '#64748B', fontSize: 16, textAlign: 'center', paddingVertical: 40 }}>
-                  Payment QR not available.
+                  {t("payment_qr_not_available") || "Payment QR not available."}
                 </Text>
               )}
             </View>
             <Text style={styles.qrName}>{paymentData?.ownerName || 'Property Owner'}</Text>
             <Text style={styles.qrUpi}>{paymentData?.upiId || 'No UPI ID'}</Text>
             <TouchableOpacity style={styles.closeBtn} onPress={() => setQrModalVisible(false)}>
-              <Text style={styles.closeBtnText}>Close</Text>
+              <Text style={styles.closeBtnText}>{t("close") || "Close"}</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -1007,7 +1011,7 @@ const TenantPaymentScreen = () => {
               )}
 
               <TouchableOpacity style={styles.issueCloseBtn} onPress={handleAcknowledgeReminder}>
-                <Text style={styles.issueCloseBtnText}>{t("i understand") || "I Understand"}</Text>
+                <Text style={styles.issueCloseBtnText}>{t("i_understand") || "I Understand"}</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -1021,12 +1025,12 @@ const TenantPaymentScreen = () => {
             <View style={styles.successIconCircle}>
               <Ionicons name="checkmark" size={60} color="#FFF" />
             </View>
-            <Text style={styles.successTitle}>Payment Verified!</Text>
+            <Text style={styles.successTitle}>{t("payment_verified") || "Payment Verified!"}</Text>
             <Text style={styles.successMessage}>
-              Your rent payment for {paymentData?.propertyName || 'your property'} has been successfully verified by the owner.
+              {t("rent_payment_verified_msg", { propertyName: paymentData?.propertyName || t('your_property') }) || `Your rent payment for ${paymentData?.propertyName || 'your property'} has been successfully verified by the owner.`}
             </Text>
             <TouchableOpacity style={styles.successOkBtn} onPress={handleAcknowledgeSuccess}>
-              <Text style={styles.successOkText}>Awesome!</Text>
+              <Text style={styles.successOkText}>{t("awesome") || "Awesome!"}</Text>
             </TouchableOpacity>
           </View>
         </View>

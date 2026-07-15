@@ -2,8 +2,10 @@ import { Ionicons, MaterialCommunityIcons, Feather } from "@expo/vector-icons";
 import React from "react";
 import { StyleSheet, Text, View, TouchableOpacity, ScrollView } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useLanguage } from "../../utils/LanguageContext";
 
 export default function IssuesScreen({ navigation }) {
+  const { t } = useLanguage();
   return (
     <SafeAreaView style={styles.container}>
 
@@ -12,7 +14,7 @@ export default function IssuesScreen({ navigation }) {
         <TouchableOpacity onPress={() => navigation?.goBack()} style={styles.backCircle}>
           <Ionicons name="chevron-back" size={24} color="#1E293B" />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Report Issue</Text>
+        <Text style={styles.headerTitle}>{t("report_issue") || "Report Issue"}</Text>
       </View>
 
       <ScrollView contentContainerStyle={styles.centerContent}>
@@ -39,16 +41,16 @@ export default function IssuesScreen({ navigation }) {
         </View>
 
         {/* 3. CONSISTENT TEXT CONTENT */}
-        <Text style={styles.emptyTitle}>Verification Required</Text>
+        <Text style={styles.emptyTitle}>{t("verification_required") || "Verification Required"}</Text>
 
         <Text style={styles.emptySub}>
-          You cannot report maintenance issues yet. Please wait for the owner to accept your residency request and verify your room details.
+          {t("cannot_report_issues_desc") || "You cannot report maintenance issues yet. Please wait for the owner to accept your residency request and verify your room details."}
         </Text>
 
         {/* 4. STATUS INDICATOR */}
         <View style={styles.statusLabelContainer}>
           <View style={styles.pulseDot} />
-          <Text style={styles.statusText}>Checking Resident Status...</Text>
+          <Text style={styles.statusText}>{t("checking_resident_status") || "Checking Resident Status..."}</Text>
         </View>
 
         {/* Action Suggestion */}

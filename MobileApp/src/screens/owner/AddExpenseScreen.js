@@ -5,8 +5,10 @@ import COLORS from '../../theme/colors';
 import BASE_URL, { fetchWithAuth } from '@/src/config/Api';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useMaintenance } from '../../context/MaintenanceContext';
+import { useLanguage } from '../../utils/LanguageContext';
 
 export default function OwnerExpenseScreen({ navigation }) {
+    const { t } = useLanguage();
     const { maintenanceMode } = useMaintenance();
     const isReadOnly = maintenanceMode === 'READ_ONLY';
     const [loading, setLoading] = useState(false);
@@ -61,22 +63,22 @@ export default function OwnerExpenseScreen({ navigation }) {
                 <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
                     <Ionicons name="arrow-back" size={24} color={COLORS.TEXT_PRIMARY} />
                 </TouchableOpacity>
-                <Text style={styles.headerTitle}>Add Expense</Text>
+                <Text style={styles.headerTitle}>{t("add_expense") || "Add Expense"}</Text>
                 <View style={{ width: 24 }} />
             </View>
 
             <ScrollView contentContainerStyle={styles.content}>
                 <View style={styles.formCard}>
-                    <Text style={styles.label}>Category *</Text>
+                    <Text style={styles.label}>{t("category_label") || "Category *"}</Text>
                     <TextInput
                         style={styles.input}
-                        placeholder="e.g. Repairs, Electricity, Cleaning"
+                        placeholder={t("category_placeholder") || "e.g. Repairs, Electricity, Cleaning"}
                         placeholderTextColor="#9E9E9E"
                         value={category}
                         onChangeText={setCategory}
                     />
 
-                    <Text style={styles.label}>Amount (₹) *</Text>
+                    <Text style={styles.label}>{t("amount_label") || "Amount (₹) *"}</Text>
                     <TextInput
                         style={styles.input}
                         placeholder="0.00"
@@ -86,19 +88,19 @@ export default function OwnerExpenseScreen({ navigation }) {
                         onChangeText={setAmount}
                     />
 
-                    <Text style={styles.label}>Date * (YYYY-MM-DD)</Text>
+                    <Text style={styles.label}>{t("date_format_label") || "Date * (YYYY-MM-DD)"}</Text>
                     <TextInput
                         style={styles.input}
-                        placeholder="2024-05-15"
+                        placeholder="2026-07-15"
                         placeholderTextColor="#9E9E9E"
                         value={date}
                         onChangeText={setDate}
                     />
 
-                    <Text style={styles.label}>Description (Optional)</Text>
+                    <Text style={styles.label}>{t("description_optional_label") || "Description (Optional)"}</Text>
                     <TextInput
                         style={[styles.input, styles.textArea]}
-                        placeholder="Details about the expense..."
+                        placeholder={t("description_placeholder") || "Details about the expense..."}
                         placeholderTextColor="#9E9E9E"
                         multiline
                         numberOfLines={4}
@@ -115,7 +117,7 @@ export default function OwnerExpenseScreen({ navigation }) {
                             <ActivityIndicator color="#FFF" />
                         ) : (
                             <Text style={styles.submitBtnText}>
-                                {isReadOnly ? "Unavailable During Maintenance" : "Save Expense"}
+                                {isReadOnly ? (t("unavailable_maintenance") || "Unavailable During Maintenance") : (t("save_expense") || "Save Expense")}
                             </Text>
                         )}
                     </TouchableOpacity>

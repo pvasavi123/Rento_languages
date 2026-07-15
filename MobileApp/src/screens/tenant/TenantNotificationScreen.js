@@ -23,7 +23,9 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import COLORS from "../../theme/colors";
 import { useNetwork } from "../../hooks/useNetwork";
 import OfflineView from "../../components/OfflineView";
+import { useLanguage } from "../../utils/LanguageContext";
 const TenantNotificationScreen = () => {
+  const { t } = useLanguage();
   const { isConnected } = useNetwork();
   const ws = useRef(null);
   const navigation = useNavigation();
@@ -298,8 +300,8 @@ const TenantNotificationScreen = () => {
       const pStatus = (item.status || "PENDING").toUpperCase();
       if (pStatus === "SUCCESS") {
         return {
-          title: "Payment Approved",
-          message: `Your payment of ₹${item.amount} for ${item.propertyName} has been verified.`,
+          title: t("payment_approved") || "Payment Approved",
+          message: t("payment_verified_desc", { amount: item.amount, propertyName: item.propertyName }) || `Your payment of ₹${item.amount} for ${item.propertyName} has been verified.`,
           icon: "card",
           color: COLORS.SUCCESS,
           lightColor: "#E8F5E9",
@@ -307,16 +309,16 @@ const TenantNotificationScreen = () => {
       }
       if (pStatus === "FAILED" || pStatus === "REJECTED") {
         return {
-          title: "Payment Declined",
-          message: `Your payment of ₹${item.amount} was rejected. Please contact the owner.`,
+          title: t("payment_declined") || "Payment Declined",
+          message: t("payment_rejected_desc", { amount: item.amount }) || `Your payment of ₹${item.amount} was rejected. Please contact the owner.`,
           icon: "close-circle",
           color: COLORS.ERROR,
           lightColor: "#FFEBEE",
         };
       }
       return {
-        title: "Payment Processing",
-        message: `Your payment of ₹${item.amount} is currently under verification.`,
+        title: t("payment_processing") || "Payment Processing",
+        message: t("payment_processing_desc", { amount: item.amount }) || `Your payment of ₹${item.amount} is currently under verification.`,
         icon: "time-outline",
         color: COLORS.WARNING,
         lightColor: "#FFF8E1",
@@ -336,8 +338,8 @@ const TenantNotificationScreen = () => {
     const status = (item.status || "pending").toLowerCase();
     if (status === "accepted") {
       return {
-        title: "Booking Approved",
-        message: "Great news! Your booking request has been approved.",
+        title: t("booking_approved") || "Booking Approved",
+        message: t("booking_approved_desc") || "Great news! Your booking request has been approved.",
         icon: "checkmark-circle",
         color: COLORS.SUCCESS,
         lightColor: "#E8F5E9",
@@ -345,8 +347,8 @@ const TenantNotificationScreen = () => {
     }
     if (status === "rejected") {
       return {
-        title: "Booking Declined",
-        message: "We're sorry, your booking request was not accepted.",
+        title: t("booking_declined") || "Booking Declined",
+        message: t("booking_declined_desc") || "We're sorry, your booking request was not accepted.",
         icon: "close-circle",
         color: COLORS.ERROR,
         lightColor: "#FFEBEE",
@@ -354,8 +356,8 @@ const TenantNotificationScreen = () => {
     }
     if (status === "withdrawn") {
       return {
-        title: "Request Withdrawn",
-        message: "You have cancelled your join request for this property.",
+        title: t("request_withdrawn") || "Request Withdrawn",
+        message: t("request_withdrawn_desc") || "You have cancelled your join request for this property.",
         icon: "close-circle-outline",
         color: COLORS.TEXT_LIGHT,
         lightColor: "#F5F5F5",
@@ -363,20 +365,20 @@ const TenantNotificationScreen = () => {
     }
     if (status === "completed") {
       return {
-        title: "Booking Completed",
-        message: "You have successfully joined this property. Welcome home!",
+        title: t("booking_completed") || "Booking Completed",
+        message: t("booking_completed_desc") || "You have successfully joined this property. Welcome home!",
         icon: "home",
         color: COLORS.SUCCESS,
         lightColor: "#E8F5E9",
       };
     }
     return {
-      title: "Request Pending",
-      message: "Your application is currently being reviewed by the owner.",
+      title: t("request_pending") || "Request Pending",
+      message: t("request_pending_desc") || "Your application is currently being reviewed by the owner.",
       icon: "time",
       color: COLORS.WARNING,
       lightColor: "#FFF8E1",
-    };
+      };
   };
 
   const groupNotifications = (notifs) => {
@@ -484,7 +486,7 @@ const TenantNotificationScreen = () => {
               joiningIds.includes(item.id) ? (
                 <View style={[styles.actionBtn, styles.alreadyJoinedBtn]}>
                   <Ionicons name="checkmark-circle" size={16} color={COLORS.WHITE} style={{ marginRight: 6 }} />
-                  <Text style={styles.actionBtnText}>Already Joined</Text>
+                  <Text style={styles.actionBtnText}>{t("already_joined") || "Already Joined"}</Text>
                 </View>
               ) : (
                 <View style={styles.actionRow}>
@@ -492,13 +494,13 @@ const TenantNotificationScreen = () => {
                     style={[styles.actionBtn, { backgroundColor: COLORS.SUCCESS }]}
                     onPress={() => handleJoinNow(item)}
                   >
-                    <Text style={styles.actionBtnText}>Join Now</Text>
+                    <Text style={styles.actionBtnText}>{t("join_now") || "Join Now"}</Text>
                   </TouchableOpacity>
                   <TouchableOpacity
                     style={[styles.actionBtn, { backgroundColor: COLORS.ERROR, marginLeft: 10 }]}
                     onPress={() => handleReject(item)}
                   >
-                    <Text style={styles.actionBtnText}>Reject</Text>
+                    <Text style={styles.actionBtnText}>{t("reject") || "Reject"}</Text>
                   </TouchableOpacity>
                 </View>
               )
@@ -506,7 +508,7 @@ const TenantNotificationScreen = () => {
             {(item.status || "").toLowerCase() === "completed" && (
               <View style={[styles.actionBtn, styles.alreadyJoinedBtn]}>
                 <Ionicons name="home" size={16} color={COLORS.WHITE} style={{ marginRight: 6 }} />
-                <Text style={styles.actionBtnText}>Joined ✓</Text>
+                <Text style={styles.actionBtnText}>{t("joined") || "Joined ✓"}</Text>
               </View>
             )}
           </View>
@@ -531,8 +533,8 @@ const TenantNotificationScreen = () => {
             <Ionicons name="arrow-back" size={24} color={COLORS.TEXT_PRIMARY} />
           </TouchableOpacity>
           <View>
-            <Text style={styles.headerTitle}>Notifications</Text>
-            <Text style={styles.headerSubtitle}>Stay updated on your booking status</Text>
+            <Text style={styles.headerTitle}>{t("notifications") || "Notifications"}</Text>
+            <Text style={styles.headerSubtitle}>{t("stay_updated_booking_status") || "Stay updated on your booking status"}</Text>
           </View>
         </View>
         <View style={styles.headerActions}>
@@ -541,18 +543,18 @@ const TenantNotificationScreen = () => {
               onPress={() => {
                 import("react-native").then(({ Alert }) => {
                   Alert.alert(
-                    "Clear All",
-                    "Are you sure you want to clear all notifications?",
+                    t("clear_all") || "Clear All",
+                    t("clear_all_confirm") || "Are you sure you want to clear all notifications?",
                     [
-                      { text: "Cancel", style: "cancel" },
-                      { text: "Clear All", onPress: clearAllNotifications, style: "destructive" }
+                      { text: t("cancel") || "Cancel", style: "cancel" },
+                      { text: t("clear_all") || "Clear All", onPress: clearAllNotifications, style: "destructive" }
                     ]
                   );
                 });
               }}
               style={styles.clearBtn}
             >
-              <Text style={styles.clearBtnText}>Clear All</Text>
+              <Text style={styles.clearBtnText}>{t("clear_all") || "Clear All"}</Text>
             </TouchableOpacity>
           )}
           <TouchableOpacity onPress={fetchRequests} style={styles.refreshIcon}>
@@ -573,8 +575,8 @@ const TenantNotificationScreen = () => {
             <View style={styles.emptyIconBg}>
               <Ionicons name="notifications-done" size={80} color={COLORS.PRIMARY_LIGHT} />
             </View>
-            <Text style={styles.emptyTitle}>All cleared!</Text>
-            <Text style={styles.emptyText}>You're all caught up with your notifications.</Text>
+            <Text style={styles.emptyTitle}>{t("all_cleared") || "All cleared!"}</Text>
+            <Text style={styles.emptyText}>{t("all_caught_up_notifications") || "You're all caught up with your notifications."}</Text>
           </View>
         ) : (
           Object.entries(grouped).map(([title, items]) => (

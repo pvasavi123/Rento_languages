@@ -65,7 +65,7 @@ export default function OwnerNavigation({ route, navigation }) {
           });
         }, 350);
       } else {
-        Alert.alert("Error", res.error || "Failed to switch account");
+        Alert.alert(t("error") || "Error", res.error || t("failed_to_switch_account") || "Failed to switch account");
       }
     } catch (e) {
       console.log('Switch account error:', e);
@@ -162,7 +162,7 @@ export default function OwnerNavigation({ route, navigation }) {
             reasonText,
             [
               {
-                text: "OK",
+                text: t("ok") || "OK",
                 onPress: async () => {
                   await AsyncStorage.multiRemove(["userToken", "ownerPhone"]);
                   // Also remove from logged in accounts if desired, but they will be blocked anyway on next login
@@ -178,9 +178,9 @@ export default function OwnerNavigation({ route, navigation }) {
           Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
 
           Alert.alert(
-            "New Booking Request! \uD83D\uDD14",
-            msg.message || "You have a new join request from a tenant.",
-            [{ text: "View Details", onPress: () => navigation.navigate("OwnerNotificationScreen", { phone: activePhone }) }]
+            t("new_booking_request_alert") || "New Booking Request! \uD83D\uDD14",
+            msg.message || t("new_join_request_msg") || "You have a new join request from a tenant.",
+            [{ text: t("view_details") || "View Details", onPress: () => navigation.navigate("OwnerNotificationScreen", { phone: activePhone }) }]
           );
         } else if (msg.type === "ISSUE") {
           // Play custom sound and vibrate
@@ -188,9 +188,9 @@ export default function OwnerNavigation({ route, navigation }) {
           Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
 
           Alert.alert(
-            "New Issue Raised! \u26A0\uFE0F",
-            msg.message || "A tenant has reported a new issue.",
-            [{ text: "View Details", onPress: () => navigation.navigate("OwnerNavigation", { screen: "Issues" }) }]
+            t("new_issue_alert") || "New Issue Raised! \u26A0\uFE0F",
+            msg.message || t("tenant_reported_issue_msg") || "A tenant has reported a new issue.",
+            [{ text: t("view_details") || "View Details", onPress: () => navigation.navigate("OwnerNavigation", { screen: "Issues" }) }]
           );
         } else if (msg.type === "PAYMENT") {
           // Play custom sound and vibrate
@@ -198,9 +198,9 @@ export default function OwnerNavigation({ route, navigation }) {
           Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
 
           Alert.alert(
-            "New Payment \uD83D\uDCB0",
-            msg.message || "A tenant has made a payment.",
-            [{ text: "View Details", onPress: () => navigation.navigate("OwnerNavigation", { screen: "Payment" }) }]
+            t("new_payment_alert") || "New Payment \uD83D\uDCB0",
+            msg.message || t("tenant_made_payment_msg") || "A tenant has made a payment.",
+            [{ text: t("view_details") || "View Details", onPress: () => navigation.navigate("OwnerNavigation", { screen: "Payment" }) }]
           );
         }
       } catch (err) { }
@@ -289,7 +289,7 @@ export default function OwnerNavigation({ route, navigation }) {
           component={OwnerProfileScreen}
           initialParams={{ phone: activePhone }}
           options={{
-            tabBarLabel: t('Account'),
+            tabBarLabel: t('account') || t('Account'),
             tabBarButton: (props) => (
               <Pressable
                 {...props}

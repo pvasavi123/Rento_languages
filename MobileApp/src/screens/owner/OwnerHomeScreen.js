@@ -1471,12 +1471,12 @@ try {
           <View style={styles.greetingsRow}>
             <View style={{ flex: 1 }}>
               <Text style={styles.greetingTitle}>
-                Welcome Back,{"\n"}{ownerName || "Owner"} 👋
+                {t("welcome_back") || "Welcome Back"},{"\n"}{ownerName || t("owner")} 👋
               </Text>
               <View style={styles.premiumPropertyBadge}>
                 <View style={styles.pulsingIndicator} />
                 <Text style={styles.premiumPropertyText} numberOfLines={1}>
-                  {response_data?.name || response_data?.property_name || t('my_property')} {stayType === 'hostel' ? `(${totalRooms} Rooms)` : ''}
+                  {response_data?.name || response_data?.property_name || t('my_property')} {stayType === 'hostel' ? `(${totalRooms} ${t("rooms") || "Rooms"})` : ''}
                 </Text>
               </View>
             </View>
@@ -1516,7 +1516,7 @@ try {
               <Ionicons name="apps" size={18} color="#6C2BD9" />
             </View>
             <Text style={styles.statsNumber}>{stayType === "hostel" ? totalBedsCount : totalRooms}</Text>
-            <Text style={styles.statsLabel}>{stayType === "hostel" ? "Total Beds" : "Total Rooms"}</Text>
+            <Text style={styles.statsLabel}>{stayType === "hostel" ? t("total_beds") : t("total_rooms")}</Text>
           </TouchableOpacity>
 
           {/* Card 2: Occupied */}
@@ -1540,7 +1540,7 @@ try {
               <Ionicons name="people" size={18} color="#22C55E" />
             </View>
             <Text style={styles.statsNumber}>{stayType === "hostel" ? occupiedBedsCount : occupiedRooms}</Text>
-            <Text style={styles.statsLabel}>{stayType === "hostel" ? "Beds Occupied" : "Occupied"}</Text>
+            <Text style={styles.statsLabel}>{stayType === "hostel" ? t("beds_occupied") : t("occupied")}</Text>
           </TouchableOpacity>
 
           {/* Card 3: Vacant */}
@@ -1564,7 +1564,7 @@ try {
               <Ionicons name="home" size={18} color="#EF4444" />
             </View>
             <Text style={styles.statsNumber}>{stayType === "hostel" ? emptyBedsCount : emptyRooms}</Text>
-            <Text style={styles.statsLabel}>{stayType === "hostel" ? "Beds Vacant" : "Vacant"}</Text>
+            <Text style={styles.statsLabel}>{stayType === "hostel" ? t("beds_vacant") : t("vacant")}</Text>
           </TouchableOpacity>
         </View>
 
@@ -1607,7 +1607,7 @@ try {
           >
             <View style={[styles.overviewHeaderRow, { marginTop: 0, marginBottom: 0 }]}>
               <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                <Text style={styles.overviewTitle}>Building Overview</Text>
+                <Text style={styles.overviewTitle}>{t("building_overview") || "Building Overview"}</Text>
                 {!editMode && (
                   <TouchableOpacity onPress={() => { setEditMode(true); setEditableLayout(response_data?.building_layout || []); }} style={{ marginLeft: 8, padding: 4 }}>
                     <Ionicons name="pencil" size={20} color="#6C2BD9" />
@@ -1621,7 +1621,7 @@ try {
                   activeOpacity={0.7}
                 >
                   <Text style={[styles.toggleText, viewMode === "floor" && styles.toggleTextActive]}>
-                    Floor View
+                    {t("floor_view") || "Floor View"}
                   </Text>
                 </TouchableOpacity>
                 <TouchableOpacity
@@ -1630,7 +1630,7 @@ try {
                   activeOpacity={0.7}
                 >
                   <Text style={[styles.toggleText, viewMode === "list" && styles.toggleTextActive]}>
-                    List View
+                    {t("list_view") || "List View"}
                   </Text>
                 </TouchableOpacity>
               </View>
@@ -1725,7 +1725,7 @@ try {
                       <View style={styles.roomGridHeader}>
                         <View style={{ flexDirection: "row", alignItems: "center", flex: 1, flexWrap: "wrap", gap: 6, paddingVertical: 4 }}>
                           <Ionicons name="layers-outline" size={18} color="#6C2BD9" style={{ marginRight: 6 }} />
-                          <Text style={styles.roomGridTitle}>{item.floor}</Text>
+                          <Text style={styles.roomGridTitle}>{item.floor.replace("Floor", t("floor_step") || "Floor")}</Text>
                           {editMode && (
                             <>
                               <TouchableOpacity
@@ -1742,7 +1742,7 @@ try {
                               >
                                 <Ionicons name="layers" size={14} color="white" />
                                 <Text style={{ color: "white", fontSize: 11, fontWeight: "600", marginLeft: 2 }}>
-                                  Add Floor
+                                   {t("add_floor") || "Add Floor"}
                                 </Text>
                               </TouchableOpacity>
                               <TouchableOpacity
@@ -1761,7 +1761,7 @@ try {
                               >
                                 <Ionicons name="add" size={14} color="white" />
                                 <Text style={{ color: "white", fontSize: 11, fontWeight: "600", marginLeft: 2 }}>
-                                  {stayType === "hostel" ? "Add Room" : stayType === "apartment" ? "Add Flat" : "Add Section"}
+                                  {stayType === "hostel" ? (t("add_room") || "Add Room") : stayType === "apartment" ? (t("add_flat") || "Add Flat") : (t("add_section") || "Add Section")}
                                 </Text>
                               </TouchableOpacity>
                               <TouchableOpacity
@@ -1800,7 +1800,7 @@ try {
                                 return true;
                               }).length
                             }{" "}
-                            {stayType === "hostel" ? "Rooms" : stayType === "apartment" ? "Flats" : "Sections"}
+                            {stayType === "hostel" ? t("rooms") : stayType === "apartment" ? t("flats") || "Flats" : t("sections") || "Sections"}
                           </Text>
                         )}
                       </View>
@@ -1829,25 +1829,25 @@ try {
                               // Dynamic state mapping matching mockup
                               let badgeBg = "rgba(239, 68, 68, 0.1)";
                               let badgeTextCol = "#EF4444";
-                              let statusText = "Vacant";
+                              let statusText = t("vacant") || "Vacant";
                               let dotCol = "#22C55E";
-                              let paymentLabel = "Available for rent";
-                              let bedsLabel = stayType === "hostel" ? `${count}/${unit.beds} Beds` : stayType === "apartment" ? `${unit.type}` : `${unit.area} sq.ft`;
+                              let paymentLabel = t("available_for_rent") || "Available for rent";
+                              let bedsLabel = stayType === "hostel" ? `${count}/${unit.beds} ${t("beds") || "Beds"}` : stayType === "apartment" ? `${unit.type}` : `${unit.area} ${t("sqft") || "sq.ft"}`;
 
                               if (isOccupiedRoom) {
                                 if (stayType === "hostel" && count < totalBeds) {
                                   // Partial Occupancy
                                   badgeBg = "rgba(245, 158, 11, 0.15)";
                                   badgeTextCol = "#D97706";
-                                  statusText = "Partial";
+                                  statusText = t("partial") || "Partial";
                                   dotCol = "#F59E0B";
-                                  paymentLabel = "Partially Occupied";
+                                  paymentLabel = t("partially_occupied") || "Partially Occupied";
                                 } else {
                                   badgeBg = "rgba(34, 197, 94, 0.1)";
                                   badgeTextCol = "#22C55E";
-                                  statusText = (stayType !== "hostel" && roomTenants.length > 0) ? roomTenants[0].name.substring(0, 10) : "Occupied";
+                                  statusText = (stayType !== "hostel" && roomTenants.length > 0) ? roomTenants[0].name.substring(0, 10) : (t("occupied") || "Occupied");
                                   dotCol = "#22C55E";
-                                  paymentLabel = "Paid";
+                                  paymentLabel = t("paid") || "Paid";
                                 }
                               }
 
@@ -1892,7 +1892,7 @@ try {
                                           >
                                             <Ionicons name="remove-circle-outline" size={18} color="#4B5563" />
                                           </TouchableOpacity>
-                                          <Text style={{ fontWeight: "700", color: "#111827", fontSize: 13 }}>{unit.beds} Beds</Text>
+                                          <Text style={{ fontWeight: "700", color: "#111827", fontSize: 13 }}>{unit.beds} {t("beds") || "Beds"}</Text>
                                           <TouchableOpacity
                                             onPress={(e) => { e.stopPropagation(); updateUnit(item.floorNo || parseInt(item.floor.replace("Floor ", "")), unit.roomNo || unit.flatNo || unit.sectionNo, 'increment_beds'); }}
                                             style={{ padding: 6 }}
@@ -1926,7 +1926,7 @@ try {
                                         activeOpacity={0.7}
                                       >
                                         <Ionicons name="trash" size={14} color="#EF4444" style={{ marginRight: 4 }} />
-                                        <Text style={{ color: "#EF4444", fontSize: 12, fontWeight: "600" }}>Delete</Text>
+                                        <Text style={{ color: "#EF4444", fontSize: 12, fontWeight: "600" }}>{t("delete") || "Delete"}</Text>
                                       </TouchableOpacity>
                                     </View>
                                   ) : (
@@ -2026,23 +2026,23 @@ try {
               }
 
               // 3. Render the filtered list of tenants
-              return tenantsList.map((t, idx) => (
-                <View key={`${t.roomKey}-${idx}`} style={styles.listTenantCard}>
+              return tenantsList.map((tenantItem, idx) => (
+                <View key={`${tenantItem.roomKey}-${idx}`} style={styles.listTenantCard}>
                   <View style={styles.listTenantTop}>
                     <View style={styles.listAvatar}>
                       <Text style={styles.listAvatarText}>
-                        {(t.name || "T").charAt(0).toUpperCase()}
+                        {(tenantItem.name || "T").charAt(0).toUpperCase()}
                       </Text>
                     </View>
                     <View style={{ flex: 1, marginLeft: 12 }}>
-                      <Text style={styles.listTenantName}>{t.name}</Text>
+                      <Text style={styles.listTenantName}>{tenantItem.name}</Text>
                       <Text style={styles.listTenantDetails}>
-                        {t.floorName} • {stayType === "hostel" ? `Room ${t.roomLabel}` : stayType === "apartment" ? `Flat ${t.roomLabel}` : `Section ${t.roomLabel}`}
+                        {tenantItem.floorName} • {stayType === "hostel" ? `Room ${tenantItem.roomLabel}` : stayType === "apartment" ? `Flat ${tenantItem.roomLabel}` : `Section ${tenantItem.roomLabel}`}
                       </Text>
                     </View>
                     <TouchableOpacity
                       onPress={() => {
-                        const tel = `tel:${t.phone}`;
+                        const tel = `tel:${tenantItem.phone}`;
                         Linking.openURL(tel).catch(() => { });
                       }}
                       style={styles.listCallBtn}
@@ -2056,23 +2056,23 @@ try {
 
                   <View style={styles.listTenantBottom}>
                     <View style={{ flexDirection: "row", gap: 12 }}>
-                      {!!t.rent && (
+                      {!!tenantItem.rent && (
                         <View style={styles.listMetaPill}>
                           <Ionicons name="cash" size={14} color="#6C2BD9" />
-                          <Text style={styles.listMetaText}>₹{t.rent}</Text>
+                          <Text style={styles.listMetaText}>₹{tenantItem.rent}</Text>
                         </View>
                       )}
-                      {!!t.bed && stayType === "hostel" && (
+                      {!!tenantItem.bed && stayType === "hostel" && (
                         <View style={styles.listMetaPill}>
                           <Ionicons name="bed" size={14} color="#8B5CF6" />
-                          <Text style={styles.listMetaText}>Bed {t.bed}</Text>
+                          <Text style={styles.listMetaText}>Bed {tenantItem.bed}</Text>
                         </View>
                       )}
                     </View>
 
                     <View style={{ flexDirection: "row", gap: 10 }}>
                       <TouchableOpacity
-                        onPress={() => blockTenant(t)}
+                        onPress={() => blockTenant(tenantItem)}
                         style={[styles.listActionBtn, { backgroundColor: "rgba(243, 156, 18, 0.08)" }]}
                         activeOpacity={0.7}
                       >
@@ -2080,7 +2080,7 @@ try {
                       </TouchableOpacity>
 
                       <TouchableOpacity
-                        onPress={() => editTenant(t)}
+                        onPress={() => editTenant(tenantItem)}
                         style={[styles.listActionBtn, { backgroundColor: "rgba(108, 43, 217, 0.08)" }]}
                         activeOpacity={0.7}
                       >
@@ -2088,7 +2088,7 @@ try {
                       </TouchableOpacity>
 
                       <TouchableOpacity
-                        onPress={() => deleteTenant(t)}
+                        onPress={() => deleteTenant(tenantItem)}
                         style={[styles.listActionBtn, { backgroundColor: "rgba(239, 68, 68, 0.08)" }]}
                         activeOpacity={0.7}
                       >
@@ -2121,7 +2121,7 @@ try {
           shadowOpacity: 0.1,
           shadowRadius: 4
         }}>
-          <Text style={{ fontWeight: "700", color: "#1F2937" }}>Edit Building Mode</Text>
+          <Text style={{ fontWeight: "700", color: "#1F2937" }}>{t("edit_building_mode") || "Edit Building Mode"}</Text>
           <View style={{ flexDirection: "row" }}>
             <TouchableOpacity
               onPress={() => {
@@ -2138,7 +2138,7 @@ try {
                 marginRight: 8
               }}
             >
-              <Text style={{ color: "#374151", fontWeight: "700", fontSize: 13 }}>Cancel</Text>
+              <Text style={{ color: "#374151", fontWeight: "700", fontSize: 13 }}>{t("cancel") || "Cancel"}</Text>
             </TouchableOpacity>
             <TouchableOpacity
               onPress={async () => {
@@ -2174,7 +2174,7 @@ try {
                 borderRadius: 8
               }}
             >
-              <Text style={{ color: "white", fontWeight: "700", fontSize: 13 }}>Save Layout</Text>
+              <Text style={{ color: "white", fontWeight: "700", fontSize: 13 }}>{t("save_layout") || "Save Layout"}</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -2616,28 +2616,28 @@ try {
               </TouchableOpacity>
             </View>
             <ScrollView style={{ padding: 15 }} contentContainerStyle={{ paddingBottom: 20 }}>
-              {tenantsList.length > 0 ? tenantsList.map((t, idx) => (
+              {tenantsList.length > 0 ? tenantsList.map((tenantItem, idx) => (
                 <View key={idx} style={{ marginBottom: 12, backgroundColor: "#F9FAFB", padding: 16, borderRadius: 16 }}>
                   <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
                     <View>
-                      <Text style={{ fontSize: 16, fontWeight: "700", color: COLORS.TEXT_PRIMARY }}>{t.name}</Text>
-                      <Text style={{ fontSize: 13, color: COLORS.TEXT_SECONDARY, marginTop: 2 }}>Bed {t.bed}</Text>
+                      <Text style={{ fontSize: 16, fontWeight: "700", color: COLORS.TEXT_PRIMARY }}>{tenantItem.name}</Text>
+                      <Text style={{ fontSize: 13, color: COLORS.TEXT_SECONDARY, marginTop: 2 }}>Bed {tenantItem.bed}</Text>
                     </View>
                   </View>
                   <View style={{ height: 1, backgroundColor: "#EEE", marginVertical: 12 }} />
 
                   <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 10 }}>
                     <View style={{ flexDirection: "row", gap: 15, width: "100%", paddingBottom: 8 }}>
-                      {!!t.rent && (
+                      {!!tenantItem.rent && (
                         <View style={{ flexDirection: "row", alignItems: "center" }}>
                           <Ionicons name="cash-outline" size={14} color={COLORS.PRIMARY} style={{ marginRight: 6 }} />
-                          <Text style={{ fontSize: 14, fontWeight: "600", color: COLORS.PRIMARY }}>₹{t.rent}</Text>
+                          <Text style={{ fontSize: 14, fontWeight: "600", color: COLORS.PRIMARY }}>₹{tenantItem.rent}</Text>
                         </View>
                       )}
-                      {!!t.idUri && (
+                      {!!tenantItem.idUri && (
                         <TouchableOpacity
                           onPress={() => {
-                            setPreviewUri(getAbsoluteUri(t.idUri));
+                            setPreviewUri(getAbsoluteUri(tenantItem.idUri));
                             setIdPreviewVisible(true);
                           }}
                           style={{ flexDirection: "row", alignItems: "center" }}
@@ -2651,7 +2651,7 @@ try {
                     <View style={{ flexDirection: "row", gap: 10, flexWrap: "wrap", justifyContent: "space-between", width: "100%" }}>
                       <TouchableOpacity
                         onPress={() => {
-                          const tel = `tel:${t.phone}`;
+                          const tel = `tel:${tenantItem.phone}`;
                           Linking.openURL(tel).catch(() => { });
                         }}
                         style={{ flexDirection: "row", alignItems: "center", paddingVertical: 6, paddingHorizontal: 12, borderRadius: 12, backgroundColor: "rgba(39, 174, 96, 0.1)" }}
@@ -2661,7 +2661,7 @@ try {
                       </TouchableOpacity>
 
                       <TouchableOpacity
-                        onPress={() => blockTenant(t)}
+                        onPress={() => blockTenant(tenantItem)}
                         style={{ flexDirection: "row", alignItems: "center", paddingVertical: 6, paddingHorizontal: 12, borderRadius: 12, backgroundColor: "rgba(243, 156, 18, 0.1)" }}
                       >
                         <Ionicons name="ban-outline" size={16} color="#F39C12" style={{ marginRight: 4 }} />
@@ -2669,7 +2669,7 @@ try {
                       </TouchableOpacity>
 
                       <TouchableOpacity
-                        onPress={() => editTenant(t)}
+                        onPress={() => editTenant(tenantItem)}
                         style={{ flexDirection: "row", alignItems: "center", paddingVertical: 6, paddingHorizontal: 12, borderRadius: 12, backgroundColor: "rgba(95, 37, 159, 0.05)" }}
                       >
                         <Ionicons name="create-outline" size={16} color={COLORS.PRIMARY} style={{ marginRight: 4 }} />
@@ -2677,11 +2677,11 @@ try {
                       </TouchableOpacity>
 
                       <TouchableOpacity
-                        onPress={() => deleteTenant(t)}
+                        onPress={() => deleteTenant(tenantItem)}
                         style={{ flexDirection: "row", alignItems: "center", paddingVertical: 6, paddingHorizontal: 12, borderRadius: 12, backgroundColor: "rgba(231, 76, 60, 0.05)" }}
                       >
                         <Ionicons name="trash-outline" size={16} color="#E74C3C" style={{ marginRight: 4 }} />
-                        <Text style={{ fontSize: 12, fontWeight: "600", color: "#E74C3C" }}>Delete</Text>
+                        <Text style={{ fontSize: 12, fontWeight: "600", color: "#E74C3C" }}>{t("delete") || "Delete"}</Text>
                       </TouchableOpacity>
                     </View>
                   </View>

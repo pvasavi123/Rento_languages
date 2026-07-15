@@ -12,6 +12,7 @@ import { useEffect, useRef, useState, useCallback, useMemo } from "react";
 import { TenantContext } from "@/src/context/TenantContext";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import BASE_URL, { fetchWithAuth } from "@/src/config/Api";
+import { useLanguage } from "../../utils/LanguageContext";
 import { useMaintenance } from "../../context/MaintenanceContext";
 import { LinearGradient } from "expo-linear-gradient";
 import FilterBottomSheet from "../../../components/FilterBottomScreen";
@@ -204,6 +205,7 @@ const categories = [
 ];
 
 export default function TenantHomeScreen({ route }) {
+  const { t } = useLanguage();
   const { maintenanceMode } = useMaintenance();
   const isReadOnly = maintenanceMode === "READ_ONLY";
   const checkReadOnly = () => {
@@ -597,7 +599,7 @@ export default function TenantHomeScreen({ route }) {
   };
 
 
-  const [locationName, setLocationName] = useState("Fetching location...");
+  const [locationName, setLocationName] = useState(t("fetching_location") || "Fetching location...");
   const [isModalVisible, setModalVisible] = useState(false);
   const [mainSearch, setMainSearch] = useState("");
   const [selectedType, setSelectedType] = useState("All");
@@ -714,10 +716,10 @@ export default function TenantHomeScreen({ route }) {
 
   const getLocation = async () => {
     try {
-      setLocationName("Fetching location...");
+      setLocationName(t("fetching_location") || "Fetching location...");
       let { status } = await Location.requestForegroundPermissionsAsync();
       if (status !== "granted") {
-        setLocationName("Location permission denied");
+        setLocationName(t("permission_denied") || "Location permission denied");
         return null;
       }
 
@@ -971,7 +973,7 @@ export default function TenantHomeScreen({ route }) {
               <View style={homeStyles.topRow}>
                 <View style={homeStyles.joinedStatusBadge}>
                   <Ionicons name="checkmark-circle" size={14} color="#FFF" />
-                  <Text style={homeStyles.joinedStatusText}>Joined Property</Text>
+                  <Text style={homeStyles.joinedStatusText}>{t("joined_property") || "Joined Property"}</Text>
                 </View>
 
                 <View style={homeStyles.heroIcons}>
@@ -998,7 +1000,7 @@ export default function TenantHomeScreen({ route }) {
               {/* PROPERTY INFORMATION */}
               <View style={homeStyles.joinedHeroContent}>
                 <Text style={homeStyles.joinedPropertyType}>
-                  {(joinedProperty.property_type || "Joined").toUpperCase()}
+                  {(joinedProperty.property_type ? (t(joinedProperty.property_type.toLowerCase()) || joinedProperty.property_type) : (t("joined") || "Joined")).toUpperCase()}
                 </Text>
                 <Text style={homeStyles.joinedPropertyName} numberOfLines={1}>
                   {joinedProperty.property_name}
@@ -1020,7 +1022,7 @@ export default function TenantHomeScreen({ route }) {
                 />
                 <TextInput
                   style={homeStyles.newSearchInput}
-                  placeholder="Search location, property..."
+                  placeholder={t("search_location_property") || "Search location, property..."}
                   placeholderTextColor="#999"
                   value={mainSearch}
                   onChangeText={(text) => setMainSearch(text)}
@@ -1039,7 +1041,7 @@ export default function TenantHomeScreen({ route }) {
                     color="#6C63FF"
                   />
                   <Text style={homeStyles.filterText}>
-                    Filters
+                    {t("filters") || "Filters"}
                     {activeFilterCount > 0
                       ? ` (${activeFilterCount})`
                       : ""}
@@ -1093,10 +1095,10 @@ export default function TenantHomeScreen({ route }) {
               {/* TITLE */}
               <View style={homeStyles.heroContent}>
                 <Text style={homeStyles.heroTitle}>
-                  Find Your{"\n"}Perfect Space
+                  {t("find_perfect_space") || "Find Your\nPerfect Space"}
                 </Text>
                 <Text style={homeStyles.heroSubtitle}>
-                  Hostels, Apartments & Commercial spaces near you
+                  {t("perfect_space_subtitle") || "Hostels, Apartments & Commercial spaces near you"}
                 </Text>
               </View>
 
@@ -1109,7 +1111,7 @@ export default function TenantHomeScreen({ route }) {
                 />
                 <TextInput
                   style={homeStyles.newSearchInput}
-                  placeholder="Search location, property..."
+                  placeholder={t("search_location_placeholder") || "Search location, property..."}
                   placeholderTextColor="#999"
                   value={mainSearch}
                   onChangeText={(text) => setMainSearch(text)}
@@ -1128,7 +1130,7 @@ export default function TenantHomeScreen({ route }) {
                     color="#6C63FF"
                   />
                   <Text style={homeStyles.filterText}>
-                    Filters
+                    {t("filter") || "Filters"}
                     {activeFilterCount > 0
                       ? ` (${activeFilterCount})`
                       : ""}
@@ -1142,7 +1144,7 @@ export default function TenantHomeScreen({ route }) {
           <View style={{ backgroundColor: "#fff", paddingBottom: 5 }}>
             <View style={homeStyles.categoryHeadingRow}>
               <Text style={homeStyles.categoryHeading}>
-                Explore by Categories
+                {t("explore_categories") || "Explore by Categories"}
               </Text>
             </View>
             <View style={homeStyles.customCategoryWrapper}>
@@ -1159,7 +1161,7 @@ export default function TenantHomeScreen({ route }) {
                 />
 
                 <Text style={homeStyles.customCardTitle}>
-                  Hostels
+                  {t("hostels") || "Hostels"}
                 </Text>
 
               </TouchableOpacity>
@@ -1176,7 +1178,7 @@ export default function TenantHomeScreen({ route }) {
                 />
 
                 <Text style={homeStyles.customCardTitle}>
-                  Apartments
+                  {t("apartments") || "Apartments"}
                 </Text>
 
 
@@ -1194,7 +1196,7 @@ export default function TenantHomeScreen({ route }) {
                 />
 
                 <Text style={homeStyles.customCardTitle}>
-                  Commercial
+                  {t("commercial") || "Commercial"}
                 </Text>
 
               </TouchableOpacity>
@@ -1260,35 +1262,35 @@ export default function TenantHomeScreen({ route }) {
                                 latestReq.status?.toLowerCase() === "completed" ||
                                   latestReq.status?.toLowerCase() === "joined" ||
                                   latestReq.status?.toLowerCase() === "active"
-                                  ? "JOINED"
+                                  ? (t("joined") || "JOINED").toUpperCase()
 
                                   : latestReq.status?.toLowerCase() === "accepted" ||
                                     latestReq.status?.toLowerCase() === "allotted"
-                                    ? "ACCEPTED"
+                                    ? (t("accepted") || "ACCEPTED").toUpperCase()
 
-                                    : latestReq.status?.toUpperCase()
+                                    : (t(latestReq.status?.toLowerCase()) || latestReq.status)?.toUpperCase()
                               }
                             </Text>
                           </View>
                         ) : (
                           item.isAvailable && (
                             <View style={[homeStyles.statusBadge, { backgroundColor: "#3498db" }]}>
-                              <Text style={homeStyles.statusText}>VACANT</Text>
+                              <Text style={homeStyles.statusText}>{(t("vacant") || "VACANT").toUpperCase()}</Text>
                             </View>
                           )
                         )}
                       </View>
                       <Text style={homeStyles.cardSub} numberOfLines={2}>
-                        {item.type} • {item.address}
+                        {t(item.type?.toLowerCase()) || item.type} • {item.address}
                       </Text>
                       {item.rent ? (
                         <Text style={[homeStyles.cardSub, { fontWeight: "bold", color: "#6C63FF", marginTop: 4 }]}>
-                          ₹{item.rent} / month
+                          ₹{item.rent} / {t("month_suffix") || "month"}
                         </Text>
                       ) : null}
                       {item.distance_km != null && (
                         <Text style={[homeStyles.cardSub, { color: "#555", marginTop: 2 }]}>
-                          {item.distance_km} km away
+                          {item.distance_km} {t("km_away") || "km away"}
                         </Text>
                       )}
                     </View>
@@ -1318,6 +1320,7 @@ export default function TenantHomeScreen({ route }) {
 }
 
 export function PropertyDetailsScreen(props) {
+  const { t } = useLanguage();
   const { maintenanceMode } = useMaintenance();
   const isReadOnly = maintenanceMode === 'READ_ONLY';
   const checkReadOnly = () => {
@@ -1394,7 +1397,7 @@ export function PropertyDetailsScreen(props) {
 
   // Removed auto-redirect loop to WelcomeScreen for accepted properties
 
-  let buttonText = "Book Now";
+  let buttonText = t("book_now") || "Book Now";
   let buttonAction = "book";
   let buttonDisabled = false;
   let buttonColor = COLORS.PRIMARY;
@@ -1402,7 +1405,7 @@ export function PropertyDetailsScreen(props) {
   const normalizedStatus = (requestStatus || "").toLowerCase();
 
   if (normalizedStatus === "pending") {
-    buttonText = "Withdraw Request";
+    buttonText = t("withdraw_request") || "Withdraw Request";
     buttonAction = "withdraw";
     buttonDisabled = false;
     buttonColor = "#e74c3c"; // Red color for withdraw
@@ -1410,25 +1413,25 @@ export function PropertyDetailsScreen(props) {
   else if (
     ["completed", "joined", "active", "occupied"].includes(normalizedStatus)
   ) {
-    buttonText = "Joined";
+    buttonText = t("joined") || "Joined";
     buttonAction = "none";
     buttonDisabled = true;
     buttonColor = "#27ae60";
   }
   else if (["accepted", "allotted"].includes(normalizedStatus)) {
-    buttonText = "Accepted"; // As per prompt requirement
+    buttonText = t("accepted") || "Accepted"; // As per prompt requirement
     buttonAction = "status";
     buttonDisabled = false;
     buttonColor = "#2ecc71";
   }
   else if (normalizedStatus === "rejected" || normalizedStatus === "withdrawn") {
-    buttonText = "Book Now Again"; // As per prompt requirement
+    buttonText = t("book_now_again") || "Book Now Again"; // As per prompt requirement
     buttonAction = "book";
     buttonColor = COLORS.PRIMARY;
     buttonDisabled = false;
   }
   else {
-    buttonText = "Book Now";
+    buttonText = t("book_now") || "Book Now";
     buttonAction = "book";
     buttonColor = COLORS.PRIMARY;
   }
@@ -2039,7 +2042,7 @@ export function PropertyDetailsScreen(props) {
         <View style={styles.content}>
           <View style={styles.row}>
             <Text style={styles.name}>
-              {requestStatus === "accepted" ? `Welcome to ${property.name}` : property.name}
+              {requestStatus === "accepted" ? `${t("welcome_to") || "Welcome to"} ${property.name}` : property.name}
             </Text>
             <View style={[
               styles.statusBadge,
@@ -2064,19 +2067,19 @@ export function PropertyDetailsScreen(props) {
                   requestStatus === "completed" ||
                     requestStatus === "joined" ||
                     requestStatus === "active"
-                    ? "Joined"
+                    ? (t("joined") || "Joined")
 
                     : requestStatus === "accepted" ||
                       requestStatus === "allotted"
-                      ? "Accepted"
+                      ? (t("accepted") || "Accepted")
 
                       : requestStatus === "pending"
-                        ? "Pending"
+                        ? (t("pending") || "Pending")
 
                         : requestStatus === "rejected"
-                          ? "Rejected"
+                          ? (t("rejected") || "Rejected")
 
-                          : (property.isAvailable ? "Vacant" : "Full")
+                          : (property.isAvailable ? (t("vacant") || "Vacant") : (t("full") || "Full"))
                 }
               </Text>
             </View>
@@ -2097,7 +2100,7 @@ export function PropertyDetailsScreen(props) {
           ) : null}
           {property.type === "Apartment" && property.floors && property.floors.length > 0 && (
             <View style={{ marginTop: 20 }}>
-              <Text style={styles.sectionTitle}>Available Units</Text>
+              <Text style={styles.sectionTitle}>{t("available_units") || "Available Units"}</Text>
               {property.floors.map((floorData, idx) => (
                 <View key={`floor-${idx}`} style={{
                   backgroundColor: "#f8f9fa",
@@ -2108,7 +2111,7 @@ export function PropertyDetailsScreen(props) {
                   borderColor: "#eee"
                 }}>
                   <Text style={{ fontWeight: "700", fontSize: 15, color: "#333", marginBottom: 8 }}>
-                    Floor {floorData.floor}
+                    {t("floor") || "Floor"} {floorData.floor}
                   </Text>
                   <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8 }}>
                     {Object.entries(floorData.units).map(([unitType, count], uIdx) => (
@@ -2121,7 +2124,7 @@ export function PropertyDetailsScreen(props) {
                         borderColor: COLORS.PRIMARY + "30",
                       }}>
                         <Text style={{ color: COLORS.PRIMARY, fontWeight: "600", fontSize: 13 }}>
-                          {unitType}  ({count} {count === 1 ? 'Flat' : 'Flats'})
+                          {unitType}  ({count} {count === 1 ? (t("flat") || 'Flat') : (t("flats") || 'Flats')})
                         </Text>
                       </View>
                     ))}
@@ -2131,7 +2134,7 @@ export function PropertyDetailsScreen(props) {
             </View>
           )}
 
-          <Text style={styles.sectionTitle}>Facilities</Text>
+          <Text style={styles.sectionTitle}>{t("facilities") || "Facilities"}</Text>
 
           <View style={styles.amenitiesGrid}>
             {property.facilities?.map((facility, index) => {
@@ -2145,12 +2148,12 @@ export function PropertyDetailsScreen(props) {
                     size={22}
                     color={COLORS.PRIMARY}
                   />
-                  <Text style={styles.amenityLabel}>{formatted}</Text>
+                  <Text style={styles.amenityLabel}>{t(facility.toLowerCase()) || formatted}</Text>
                 </View>
               );
             })}
           </View>
-          <Text style={styles.sectionTitle}>Location</Text>
+          <Text style={styles.sectionTitle}>{t("location") || "Location"}</Text>
 
           {((property.latitude && property.longitude) || property.address) ? (
             <View style={styles.mapContainer}>
@@ -2213,7 +2216,7 @@ export function PropertyDetailsScreen(props) {
                       fontSize: 11,
                     }}
                   >
-                    Open Maps
+                    {t("open_maps") || "Open Maps"}
                   </Text>
                 </TouchableOpacity>
               </View>
@@ -2262,12 +2265,12 @@ export function PropertyDetailsScreen(props) {
                     fontWeight: "bold",
                   }}
                 >
-                  Open in Google Maps
+                  {t("open_in_google_maps") || "Open in Google Maps"}
                 </Text>
               </TouchableOpacity>
             </View>
           )}
-          <Text style={styles.sectionTitle}>Property Gallery</Text>
+          <Text style={styles.sectionTitle}>{t("property_gallery") || "Property Gallery"}</Text>
           <ScrollView
             horizontal
             showsHorizontalScrollIndicator={false}
@@ -3005,7 +3008,7 @@ export function PropertyDetailsScreen(props) {
       <Modal visible={tenantTypeModalVisible} transparent animationType="fade">
         <View style={{ flex: 1, backgroundColor: "rgba(0,0,0,0.5)", justifyContent: "center", alignItems: "center" }}>
           <View style={{ width: "80%", backgroundColor: "#fff", borderRadius: 16, padding: 24 }}>
-            <Text style={{ fontSize: 20, fontWeight: "800", color: "#1e293b", marginBottom: 20, textAlign: "center" }}>Select Tenant Type</Text>
+            <Text style={{ fontSize: 20, fontWeight: "800", color: "#1e293b", marginBottom: 20, textAlign: "center" }}>{t("select_tenant_type") || "Select Tenant Type"}</Text>
 
             <TouchableOpacity
               onPress={() => {
@@ -3014,7 +3017,7 @@ export function PropertyDetailsScreen(props) {
               }}
               style={{ backgroundColor: COLORS.PRIMARY, paddingVertical: 14, borderRadius: 12, alignItems: "center", marginBottom: 12 }}
             >
-              <Text style={{ color: "#fff", fontWeight: "700", fontSize: 16 }}>New Tenant</Text>
+              <Text style={{ color: "#fff", fontWeight: "700", fontSize: 16 }}>{t("new_tenant") || "New Tenant"}</Text>
             </TouchableOpacity>
 
             <TouchableOpacity
@@ -3032,11 +3035,11 @@ export function PropertyDetailsScreen(props) {
               }}
               style={{ backgroundColor: "#f1f5f9", paddingVertical: 14, borderRadius: 12, alignItems: "center", marginBottom: 20, borderWidth: 1, borderColor: "#cbd5e1" }}
             >
-              <Text style={{ color: "#475569", fontWeight: "700", fontSize: 16 }}>Existing Tenant</Text>
+              <Text style={{ color: COLORS.PRIMARY, fontWeight: "700", fontSize: 16 }}>{t("existing_tenant") || "Existing Tenant"}</Text>
             </TouchableOpacity>
 
             <TouchableOpacity onPress={() => setTenantTypeModalVisible(false)} style={{ alignItems: "center" }}>
-              <Text style={{ color: "#ef4444", fontWeight: "600", fontSize: 14 }}>Cancel</Text>
+              <Text style={{ color: "#ef4444", fontWeight: "700", fontSize: 16, marginTop: 20 }}>{t("cancel") || "Cancel"}</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -3047,25 +3050,26 @@ export function PropertyDetailsScreen(props) {
         <View style={{ flex: 1, justifyContent: "flex-end", backgroundColor: "rgba(0,0,0,0.5)" }}>
           <View style={{ backgroundColor: "#fff", borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: 24, paddingBottom: 40, maxHeight: "80%" }}>
             <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
-              <Text style={{ fontSize: 20, fontWeight: "800", color: "#1e293b" }}>Existing Tenant Selection</Text>
+              <Text style={{ fontSize: 20, fontWeight: "800", color: "#1e293b" }}>{t("existing_tenant_selection") || "Existing Tenant Selection"}</Text>
               <TouchableOpacity onPress={() => setExistingTenantModalVisible(false)}>
                 <Ionicons name="close-circle" size={28} color="#94a3b8" />
               </TouchableOpacity>
             </View>
 
             <ScrollView showsVerticalScrollIndicator={false}>
-              <Text style={{ fontSize: 14, color: "#64748b", fontWeight: "700", marginBottom: 16 }}>Building: {property?.name || "Selected Property"}</Text>
+              <Text style={{ fontSize: 14, color: "#64748b", fontWeight: "700", marginBottom: 16 }}>{t("building") || "Building"}: {property?.name || t("selected_property") || "Selected Property"}</Text>
 
               <View style={{ gap: 20 }}>
                 {/* 1. FLOOR SELECTION */}
                 <View>
-                  <Text style={{ fontSize: 12, color: "#64748b", fontWeight: "800", marginBottom: 10, textTransform: "uppercase" }}>1. Select Floor</Text>
+                  <Text style={{ fontSize: 12, color: "#64748b", fontWeight: "800", marginBottom: 10, textTransform: "uppercase" }}>{t("select_floor") || "1. Select Floor"}</Text>
                   <View style={{ flexDirection: "row", gap: 10, flexWrap: "wrap" }}>
                     {(propertyStructure?.building_layout || []).map(floorObj => {
-                      const floorStr = `Floor ${floorObj.floorNo}`;
+                      const floorKey = `Floor ${floorObj.floorNo}`;
+                      const floorStr = `${t("floor") || "Floor"} ${floorObj.floorNo}`;
                       return (
-                        <TouchableOpacity key={floorStr} onPress={() => { setEtFloor(floorStr); setEtRoom(""); setEtBed(""); setEtSharing(""); }} style={{ paddingHorizontal: 16, paddingVertical: 10, borderRadius: 8, backgroundColor: etFloor === floorStr ? COLORS.PRIMARY : "#f1f5f9" }}>
-                          <Text style={{ color: etFloor === floorStr ? "#fff" : "#475569", fontWeight: "700" }}>{floorStr}</Text>
+                        <TouchableOpacity key={floorKey} onPress={() => { setEtFloor(floorKey); setEtRoom(""); setEtBed(""); setEtSharing(""); }} style={{ paddingHorizontal: 16, paddingVertical: 10, borderRadius: 8, backgroundColor: etFloor === floorKey ? COLORS.PRIMARY : "#f1f5f9" }}>
+                          <Text style={{ color: etFloor === floorKey ? "#fff" : "#475569", fontWeight: "700" }}>{floorStr}</Text>
                         </TouchableOpacity>
                       )
                     })}
@@ -3076,10 +3080,10 @@ export function PropertyDetailsScreen(props) {
                 {etFloor !== "" && (
                   <View>
                     <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
-                      <Text style={{ fontSize: 12, color: "#64748b", fontWeight: "800", textTransform: "uppercase" }}>2. Select {property?.type === "Hostel" ? "Room" : property?.type === "Apartment" ? "Flat" : "Unit"}</Text>
+                      <Text style={{ fontSize: 12, color: "#64748b", fontWeight: "800", textTransform: "uppercase" }}>{t("select") || "2. Select"} {property?.type === "Hostel" ? (t("room") || "Room") : property?.type === "Apartment" ? (t("flat") || "Flat") : (t("unit") || "Unit")}</Text>
                       {property?.type === "Apartment" && (
                         <TouchableOpacity onPress={() => setAddUnitModalVisible(true)} style={{ backgroundColor: "#e2e8f0", paddingHorizontal: 10, paddingVertical: 4, borderRadius: 6 }}>
-                          <Text style={{ fontSize: 11, fontWeight: "700", color: "#475569" }}>+ ADD UNIT</Text>
+                          <Text style={{ fontSize: 11, fontWeight: "700", color: "#475569" }}>+ {t("add_unit") || "ADD UNIT"}</Text>
                         </TouchableOpacity>
                       )}
                     </View>
@@ -3124,14 +3128,14 @@ export function PropertyDetailsScreen(props) {
                                   }}
                                 >
                                   <Text style={{ color: etRoom === rStr ? "#fff" : "#475569", fontWeight: "700" }}>
-                                    {property?.type === "Hostel" ? `Room ${rStr}` : property?.type === "Apartment" ? `Flat ${rStr}` : `Unit ${rStr}`}
+                                    {property?.type === "Hostel" ? `${t("room") || "Room"} ${rStr}` : property?.type === "Apartment" ? `${t("flat") || "Flat"} ${rStr}` : `${t("unit") || "Unit"} ${rStr}`}
                                   </Text>
                                 </TouchableOpacity>
                               );
                             });
                           }
                         }
-                        return <Text style={{ fontSize: 12, color: "#94a3b8" }}>No units available for this floor.</Text>;
+                        return <Text style={{ fontSize: 12, color: "#94a3b8" }}>{t("no_units_available") || "No units available for this floor."}</Text>;
                       })()}
                       {/* Render dynamically added units for this floor */}
                       {addedUnits.filter(u => `Floor ${u.floor}` === etFloor).map((u, i) => (
@@ -3146,7 +3150,7 @@ export function PropertyDetailsScreen(props) {
                 {/* 3. BED / SHARING SELECTION (Depends on Room) */}
                 {etFloor !== "" && etRoom !== "" && property?.type === "Hostel" && (
                   <View>
-                    <Text style={{ fontSize: 12, color: "#64748b", fontWeight: "800", marginBottom: 10, textTransform: "uppercase" }}>3. Select Bed</Text>
+                    <Text style={{ fontSize: 12, color: "#64748b", fontWeight: "800", marginBottom: 10, textTransform: "uppercase" }}>{t("select_bed") || "3. Select Bed"}</Text>
                     <View style={{ flexDirection: "row", gap: 10, flexWrap: "wrap" }}>
                       {(() => {
                         const floorObj = (propertyStructure?.building_layout || []).find(f => `Floor ${f.floorNo}` === etFloor);
@@ -3160,6 +3164,7 @@ export function PropertyDetailsScreen(props) {
                           if (room && room.beds > 0) {
                             return Array.from({ length: room.beds }, (_, i) => i + 1).map(b => {
                               const bKey = `Bed ${b}`;
+                              const bStr = `${t("bed") || "Bed"} ${b}`;
                               return (
                                 <TouchableOpacity
                                   key={bKey}
@@ -3171,20 +3176,20 @@ export function PropertyDetailsScreen(props) {
                                     backgroundColor: etBed === bKey ? COLORS.PRIMARY : "#f1f5f9",
                                   }}
                                 >
-                                  <Text style={{ color: etBed === bKey ? "#fff" : "#475569", fontWeight: "700" }}>{bKey}</Text>
+                                  <Text style={{ color: etBed === bKey ? "#fff" : "#475569", fontWeight: "700" }}>{bStr}</Text>
                                 </TouchableOpacity>
                               );
                             });
                           }
                         }
-                        return <Text style={{ fontSize: 12, color: "#94a3b8" }}>No beds available for this room.</Text>;
+                        return <Text style={{ fontSize: 12, color: "#94a3b8" }}>{t("no_beds_available") || "No beds available for this room."}</Text>;
                       })()}
                     </View>
                   </View>
                 )}
                 {etFloor !== "" && etRoom !== "" && property?.type === "Apartment" && (
                   <View>
-                    <Text style={{ fontSize: 12, color: "#64748b", fontWeight: "800", marginBottom: 10, textTransform: "uppercase" }}>3. Select Type</Text>
+                    <Text style={{ fontSize: 12, color: "#64748b", fontWeight: "800", marginBottom: 10, textTransform: "uppercase" }}>{t("select_type") || "3. Select Type"}</Text>
                     <View style={{ flexDirection: "row", gap: 10, flexWrap: "wrap" }}>
                       {["1BHK", "2BHK", "3BHK"].map(t => (
                         <TouchableOpacity key={t} onPress={() => setEtSharing(t)} style={{ paddingHorizontal: 16, paddingVertical: 10, borderRadius: 8, backgroundColor: etSharing === t ? COLORS.PRIMARY : "#f1f5f9" }}>
@@ -3196,9 +3201,9 @@ export function PropertyDetailsScreen(props) {
                 )}
                 {etFloor !== "" && etRoom !== "" && (
                   <View style={{ gap: 16, marginTop: 10, borderTopWidth: 1, borderTopColor: "#e2e8f0", paddingTop: 20 }}>
-                    <Text style={{ fontSize: 12, color: "#64748b", fontWeight: "800", textTransform: "uppercase" }}>4. Upload Identity & Payment Proof</Text>
+                    <Text style={{ fontSize: 12, color: "#64748b", fontWeight: "800", textTransform: "uppercase" }}>{t("upload_identity_payment") || "4. Upload Identity & Payment Proof"}</Text>
                     {/* Aadhaar ID */}
-                    <Text style={{ fontSize: 13, fontWeight: "700", color: "#1e293b" }}>Aadhaar ID *</Text>
+                    <Text style={{ fontSize: 13, fontWeight: "700", color: "#1e293b" }}>{t("aadhaar_id") || "Aadhaar ID *"}</Text>
                     <TextInput
                       style={{
                         backgroundColor: "#f8fafc",
@@ -3210,7 +3215,7 @@ export function PropertyDetailsScreen(props) {
                         fontSize: 14,
                         color: "#1e293b",
                       }}
-                      placeholder="Enter 12-digit Aadhaar ID"
+                      placeholder={t("enter_aadhaar") || "Enter 12-digit Aadhaar ID"}
                       placeholderTextColor="#94a3b8"
                       keyboardType="numeric"
                       maxLength={12}
@@ -3218,7 +3223,7 @@ export function PropertyDetailsScreen(props) {
                       onChangeText={(text) => setAadharId(text.replace(/[^0-9]/g, ''))}
                     />
                     {/* Aadhaar Image */}
-                    <Text style={{ fontSize: 13, fontWeight: "700", color: "#1e293b" }}>Aadhaar Card Image *</Text>
+                    <Text style={{ fontSize: 13, fontWeight: "700", color: "#1e293b" }}>{t("aadhaar_image") || "Aadhaar Card Image *"}</Text>
                     <TouchableOpacity
                       onPress={() => handlePickDocument("front")}
                       style={{
@@ -3233,14 +3238,14 @@ export function PropertyDetailsScreen(props) {
                     >
                       {selectedFile ? (
                         <Text style={{ color: COLORS.PRIMARY, fontWeight: "600" }} numberOfLines={1}>
-                          ✓ {selectedFile.name || "Aadhaar Card Image Selected"}
+                          ✓ {selectedFile.name || t("aadhaar_image_selected") || "Aadhaar Card Image Selected"}
                         </Text>
                       ) : (
-                        <Text style={{ color: "#64748b" }}>Choose Aadhaar Card Image</Text>
+                        <Text style={{ color: "#64748b" }}>{t("choose_aadhaar") || "Choose Aadhaar Card Image"}</Text>
                       )}
                     </TouchableOpacity>
                     {/* Payment Screenshot */}
-                    <Text style={{ fontSize: 13, fontWeight: "700", color: "#1e293b" }}>Payment Proof / Screenshot *</Text>
+                    <Text style={{ fontSize: 13, fontWeight: "700", color: "#1e293b" }}>{t("payment_proof") || "Payment Proof / Screenshot *"}</Text>
                     <TouchableOpacity
                       onPress={() => handlePickDocument("payment")}
                       style={{
@@ -3258,7 +3263,7 @@ export function PropertyDetailsScreen(props) {
                           ✓ {selectedPaymentScreenshot.name || "Payment Proof Selected"}
                         </Text>
                       ) : (
-                        <Text style={{ color: "#64748b" }}>Choose Payment Proof / Screenshot</Text>
+                        <Text style={{ color: "#64748b" }}>{t("choose_payment_proof") || "Choose Payment Proof / Screenshot"}</Text>
                       )}
                     </TouchableOpacity>
                   </View>

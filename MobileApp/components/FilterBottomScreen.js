@@ -24,6 +24,7 @@ import {
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import Slider from '@react-native-community/slider';
+import { useLanguage } from '../src/utils/LanguageContext';
 
 const { width, height } = Dimensions.get('window');
 
@@ -124,6 +125,7 @@ const SORT_OPTIONS = [
 ];
 
 const FilterBottomSheet = forwardRef(({ onApply, onReset, allProperties = [], screenType = 'Home' }, ref) => {
+  const { t } = useLanguage();
   // Bottom Sheet Visibility
   const [visible, setVisible] = useState(false);
 
@@ -349,8 +351,8 @@ const FilterBottomSheet = forwardRef(({ onApply, onReset, allProperties = [], sc
                     <Ionicons name="options-outline" size={20} color="#6C63FF" />
                   </View>
                   <View style={styles.headerTitleContainer}>
-                    <Text style={styles.headerTitle}>Filters</Text>
-                    <Text style={styles.headerSubtitle}>Find your perfect space</Text>
+                    <Text style={styles.headerTitle}>{t("filters") || t("filter") || "Filters"}</Text>
+                    <Text style={styles.headerSubtitle}>{t("find_perfect_space") || "Find your perfect space"}</Text>
                   </View>
                 </View>
                 <TouchableOpacity
@@ -367,7 +369,7 @@ const FilterBottomSheet = forwardRef(({ onApply, onReset, allProperties = [], sc
               >
                 {/* 1. STATE */}
                 <View style={styles.section}>
-                  <Text style={styles.sectionTitle}>State</Text>
+                  <Text style={styles.sectionTitle}>{t("state") || "State"}</Text>
                   <TouchableOpacity
                     style={styles.dropdownInput}
                     onPress={() => openSelector('state')}
@@ -375,7 +377,7 @@ const FilterBottomSheet = forwardRef(({ onApply, onReset, allProperties = [], sc
                     <View style={styles.dropdownLeft}>
                       <Ionicons name="location-outline" size={18} color="#6C63FF" style={styles.inputIcon} />
                       <Text style={[styles.inputText, !selectedState && styles.placeholderText]}>
-                        {selectedState || 'Select State'}
+                        {selectedState || (t('select_state') || 'Select State')}
                       </Text>
                     </View>
                     <Ionicons name="chevron-down" size={18} color="#999" />
@@ -384,7 +386,7 @@ const FilterBottomSheet = forwardRef(({ onApply, onReset, allProperties = [], sc
 
                 {/* 2. CITY */}
                 <View style={styles.section}>
-                  <Text style={styles.sectionTitle}>City</Text>
+                  <Text style={styles.sectionTitle}>{t("city") || "City"}</Text>
                   <TouchableOpacity
                     style={[styles.dropdownInput, !selectedState && styles.disabledInput]}
                     disabled={!selectedState}
@@ -393,7 +395,7 @@ const FilterBottomSheet = forwardRef(({ onApply, onReset, allProperties = [], sc
                     <View style={styles.dropdownLeft}>
                       <Ionicons name="location-outline" size={18} color={selectedState ? '#6C63FF' : '#ccc'} style={styles.inputIcon} />
                       <Text style={[styles.inputText, !selectedCity && styles.placeholderText]}>
-                        {selectedCity || (selectedState ? 'Select City' : 'Select State first')}
+                        {selectedCity || (selectedState ? (t('select_city') || 'Select City') : (t('select_state_first') || 'Select State first'))}
                       </Text>
                     </View>
                     <Ionicons name="chevron-down" size={18} color="#999" />
@@ -402,7 +404,7 @@ const FilterBottomSheet = forwardRef(({ onApply, onReset, allProperties = [], sc
 
                 {/* 3. AREA */}
                 <View style={styles.section}>
-                  <Text style={styles.sectionTitle}>Area</Text>
+                  <Text style={styles.sectionTitle}>{t("area") || "Area"}</Text>
                   <TouchableOpacity
                     style={[styles.dropdownInput, !selectedCity && styles.disabledInput]}
                     disabled={!selectedCity}
@@ -411,7 +413,7 @@ const FilterBottomSheet = forwardRef(({ onApply, onReset, allProperties = [], sc
                     <View style={styles.dropdownLeft}>
                       <Ionicons name="location-outline" size={18} color={selectedCity ? '#6C63FF' : '#ccc'} style={styles.inputIcon} />
                       <Text style={[styles.inputText, !selectedArea && styles.placeholderText]}>
-                        {selectedArea || (selectedCity ? 'Select Area' : 'Select City first')}
+                        {selectedArea || (selectedCity ? (t('select_area') || 'Select Area') : (t('select_city_first') || 'Select City first'))}
                       </Text>
                     </View>
                     <Ionicons name="chevron-down" size={18} color="#999" />
@@ -420,7 +422,7 @@ const FilterBottomSheet = forwardRef(({ onApply, onReset, allProperties = [], sc
 
                 {/* 4. DISTANCE */}
                 <View style={styles.section}>
-                  <Text style={styles.sectionTitle}>Near By (Distance)</Text>
+                  <Text style={styles.sectionTitle}>{t("nearby_distance") || "Near By (Distance)"}</Text>
                   <View style={styles.distanceGrid}>
                     {DISTANCES.map((item) => {
                       const active = distance === item.km;
@@ -442,11 +444,11 @@ const FilterBottomSheet = forwardRef(({ onApply, onReset, allProperties = [], sc
                               color={active ? '#6C63FF' : '#999'}
                             />
                             <Text style={[styles.distanceLabel, active && styles.distanceLabelActive]}>
-                              {item.label}
+                              {item.km} {t("km") || "KM"}
                             </Text>
                           </View>
                           <Text style={[styles.distanceSub, active && styles.distanceSubActive]}>
-                            {item.sub}
+                            {t("within_km", { count: item.km }) || `Within ${item.km} KM`}
                           </Text>
                         </TouchableOpacity>
                       );
@@ -457,7 +459,7 @@ const FilterBottomSheet = forwardRef(({ onApply, onReset, allProperties = [], sc
                 {/* 5. DYNAMIC CATEGORY/SUB-FILTERS */}
                 {(!screenType || screenType === 'Home') && (
                   <View style={styles.section}>
-                    <Text style={styles.sectionTitle}>Category</Text>
+                    <Text style={styles.sectionTitle}>{t("category") || "Category"}</Text>
                     <View style={styles.categoryGrid}>
                       {CATEGORIES.map((item) => {
                         const active = category === item.name;
@@ -481,7 +483,7 @@ const FilterBottomSheet = forwardRef(({ onApply, onReset, allProperties = [], sc
                               />
                             )}
                             <Text style={[styles.categoryCardText, active && styles.categoryCardTextActive]}>
-                              {item.name}
+                              {t(item.name.toLowerCase()) || item.name}
                             </Text>
                           </TouchableOpacity>
                         );
@@ -492,23 +494,23 @@ const FilterBottomSheet = forwardRef(({ onApply, onReset, allProperties = [], sc
 
                 {screenType === 'Hostel' && (
                   <View style={styles.section}>
-                    <Text style={styles.sectionTitle}>Hostel Type</Text>
+                    <Text style={styles.sectionTitle}>{t("hostel_type") || "Hostel Type"}</Text>
                     <View style={styles.categoryGrid}>
-                      {['Boys', 'Girls', 'Coliving'].map((t) => {
-                        const active = selectedHostelType === t;
+                      {['Boys', 'Girls', 'Coliving'].map((item) => {
+                        const active = selectedHostelType === item;
                         return (
                           <TouchableOpacity
-                            key={t}
+                            key={item}
                             style={[styles.categoryCard, active && styles.categoryCardActive]}
-                            onPress={() => setSelectedHostelType(selectedHostelType === t ? '' : t)}
+                            onPress={() => setSelectedHostelType(selectedHostelType === item ? '' : item)}
                           >
                             <Ionicons
-                              name={t === 'Boys' ? 'male-outline' : t === 'Girls' ? 'female-outline' : 'people-outline'}
+                              name={item === 'Boys' ? 'male-outline' : item === 'Girls' ? 'female-outline' : 'people-outline'}
                               size={24}
                               color={active ? '#6C63FF' : '#555'}
                             />
                             <Text style={[styles.categoryCardText, active && styles.categoryCardTextActive]}>
-                              {t}
+                              {t(item.toLowerCase()) || item}
                             </Text>
                           </TouchableOpacity>
                         );
@@ -519,19 +521,19 @@ const FilterBottomSheet = forwardRef(({ onApply, onReset, allProperties = [], sc
 
                 {screenType === 'Apartment' && (
                   <View style={styles.section}>
-                    <Text style={styles.sectionTitle}>BHK Type</Text>
+                    <Text style={styles.sectionTitle}>{t("bhk_type") || "BHK Type"}</Text>
                     <View style={styles.categoryGrid}>
-                      {['1BHK', '2BHK', '3BHK', '4BHK', '5BHK'].map((t) => {
-                        const active = selectedBhkType === t;
+                      {['1BHK', '2BHK', '3BHK', '4BHK', '5BHK'].map((item) => {
+                        const active = selectedBhkType === item;
                         return (
                           <TouchableOpacity
-                            key={t}
+                            key={item}
                             style={[
                               styles.categoryCard, 
                               active && styles.categoryCardActive,
                               { width: (width - 64) / 3 }
                             ]}
-                            onPress={() => setSelectedBhkType(selectedBhkType === t ? '' : t)}
+                            onPress={() => setSelectedBhkType(selectedBhkType === item ? '' : item)}
                           >
                             <MaterialCommunityIcons
                               name="home-outline"
@@ -539,7 +541,7 @@ const FilterBottomSheet = forwardRef(({ onApply, onReset, allProperties = [], sc
                               color={active ? '#6C63FF' : '#555'}
                             />
                             <Text style={[styles.categoryCardText, active && styles.categoryCardTextActive]}>
-                              {t}
+                              {item}
                             </Text>
                           </TouchableOpacity>
                         );
@@ -550,23 +552,23 @@ const FilterBottomSheet = forwardRef(({ onApply, onReset, allProperties = [], sc
 
                 {screenType === 'Commercial' && (
                   <View style={styles.section}>
-                    <Text style={styles.sectionTitle}>Space Type</Text>
+                    <Text style={styles.sectionTitle}>{t("space_type") || "Space Type"}</Text>
                     <View style={styles.categoryGrid}>
-                      {['Office', 'Shop', 'Coworking', 'Warehouse'].map((t) => {
-                        const active = selectedCommercialType === t;
+                      {['Office', 'Shop', 'Coworking', 'Warehouse'].map((item) => {
+                        const active = selectedCommercialType === item;
                         return (
                           <TouchableOpacity
-                            key={t}
+                            key={item}
                             style={[styles.categoryCard, active && styles.categoryCardActive]}
-                            onPress={() => setSelectedCommercialType(selectedCommercialType === t ? '' : t)}
+                            onPress={() => setSelectedCommercialType(selectedCommercialType === item ? '' : item)}
                           >
                             <MaterialCommunityIcons
-                              name={t === 'Office' ? 'briefcase-outline' : t === 'Shop' ? 'storefront-outline' : t === 'Coworking' ? 'account-group-outline' : 'warehouse'}
+                              name={item === 'Office' ? 'briefcase-outline' : item === 'Shop' ? 'storefront-outline' : item === 'Coworking' ? 'account-group-outline' : 'warehouse'}
                               size={24}
                               color={active ? '#6C63FF' : '#555'}
                             />
                             <Text style={[styles.categoryCardText, active && styles.categoryCardTextActive]}>
-                              {t}
+                              {t(item.toLowerCase()) || item}
                             </Text>
                           </TouchableOpacity>
                         );
@@ -578,9 +580,9 @@ const FilterBottomSheet = forwardRef(({ onApply, onReset, allProperties = [], sc
                 {/* 6. AMENITIES */}
                 <View style={styles.section}>
                   <View style={styles.amenitiesHeadingRow}>
-                    <Text style={styles.sectionTitle}>Amenities</Text>
+                    <Text style={styles.sectionTitle}>{t("facilities") || t("amenities") || "Amenities"}</Text>
                     <TouchableOpacity onPress={() => {}}>
-                      <Text style={styles.seeAllText}>See All &gt;</Text>
+                      <Text style={styles.seeAllText}>{t("see_all") || "See All"} &gt;</Text>
                     </TouchableOpacity>
                   </View>
                   <View style={styles.amenitiesGrid}>
@@ -609,7 +611,7 @@ const FilterBottomSheet = forwardRef(({ onApply, onReset, allProperties = [], sc
                               />
                             )}
                             <Text style={[styles.amenityText, active && styles.amenityTextActive]}>
-                              {item.name}
+                              {t(item.name.toLowerCase()?.replace(/\s+/g, '_')) || item.name}
                             </Text>
                             {active && (
                               <View style={styles.pillCheckBadge}>
@@ -623,19 +625,16 @@ const FilterBottomSheet = forwardRef(({ onApply, onReset, allProperties = [], sc
                   </View>
                 </View>
 
-                {/* 7. PRICE RANGE */}
+                {/* 7. PRICE SLIDER */}
                 <View style={styles.section}>
-                  <Text style={styles.sectionTitle}>Price Range</Text>
-
+                  <Text style={styles.sectionTitle}>{t("price_range") || "Price Range"}</Text>
                   <Slider
-                    style={styles.slider}
+                    style={{ width: '100%', height: 40 }}
                     minimumValue={0}
                     maximumValue={100000}
-                    step={500}
+                    step={1000}
                     value={priceSliderValue}
-                    onValueChange={(val) => {
-                      setPriceSliderValue(val);
-                    }}
+                    onValueChange={(val) => setPriceSliderValue(val)}
                     minimumTrackTintColor="#6C63FF"
                     maximumTrackTintColor="#DDD"
                     thumbTintColor="#6C63FF"
@@ -650,7 +649,7 @@ const FilterBottomSheet = forwardRef(({ onApply, onReset, allProperties = [], sc
 
                 {/* 8. SORT BY */}
                 <View style={styles.section}>
-                  <Text style={styles.sectionTitle}>Sort By</Text>
+                  <Text style={styles.sectionTitle}>{t("sort_by") || "Sort By"}</Text>
                   <TouchableOpacity
                     style={styles.dropdownInput}
                     onPress={() => openSelector('sortBy')}
@@ -658,7 +657,7 @@ const FilterBottomSheet = forwardRef(({ onApply, onReset, allProperties = [], sc
                     <View style={styles.dropdownLeft}>
                       <Ionicons name="swap-vertical-outline" size={18} color="#6C63FF" style={styles.inputIcon} />
                       <Text style={styles.inputText}>
-                        {sortBy}
+                        {t(sortBy?.toLowerCase()?.replace(/\s+/g, '_')?.replace('-', '_')) || sortBy}
                       </Text>
                     </View>
                     <Ionicons name="chevron-down" size={18} color="#999" />
@@ -673,7 +672,7 @@ const FilterBottomSheet = forwardRef(({ onApply, onReset, allProperties = [], sc
                   onPress={handleReset}
                 >
                   <Ionicons name="refresh-outline" size={18} color="#6C63FF" style={{ marginRight: 6 }} />
-                  <Text style={styles.resetBtnText}>Reset All</Text>
+                  <Text style={styles.resetBtnText}>{t("reset_all") || "Reset All"}</Text>
                 </TouchableOpacity>
 
                 <TouchableOpacity
@@ -687,7 +686,7 @@ const FilterBottomSheet = forwardRef(({ onApply, onReset, allProperties = [], sc
                     style={styles.gradientBtn}
                   >
                     <Ionicons name="options-outline" size={18} color="#fff" style={{ marginRight: 6 }} />
-                    <Text style={styles.applyBtnText}>Apply Filters</Text>
+                    <Text style={styles.applyBtnText}>{t("apply_filters") || "Apply Filters"}</Text>
                   </LinearGradient>
                 </TouchableOpacity>
               </View>
@@ -710,9 +709,9 @@ const FilterBottomSheet = forwardRef(({ onApply, onReset, allProperties = [], sc
           <View style={styles.selectorContainer}>
             <View style={styles.selectorHeader}>
               <Text style={styles.selectorTitle}>
-                {selectorType === 'state' ? 'Select State' :
-                 selectorType === 'city' ? 'Select City' :
-                 selectorType === 'area' ? 'Select Area' : 'Sort By'}
+                {selectorType === 'state' ? (t('select_state') || 'Select State') :
+                 selectorType === 'city' ? (t('select_city') || 'Select City') :
+                 selectorType === 'area' ? (t('select_area') || 'Select Area') : (t('sort_by') || 'Sort By')}
               </Text>
               <TouchableOpacity onPress={() => setSelectorVisible(false)}>
                 <Ionicons name="close-circle" size={24} color="#ccc" />
@@ -725,7 +724,7 @@ const FilterBottomSheet = forwardRef(({ onApply, onReset, allProperties = [], sc
                 <Ionicons name="search" size={16} color="#999" style={{ marginRight: 8 }} />
                 <TextInput
                   style={styles.searchInput}
-                  placeholder="Search item..."
+                  placeholder={t("search_item_placeholder") || "Search item..."}
                   placeholderTextColor="#999"
                   value={selectorSearch}
                   onChangeText={setSelectorSearch}
@@ -752,7 +751,7 @@ const FilterBottomSheet = forwardRef(({ onApply, onReset, allProperties = [], sc
                     onPress={() => handleSelect(item)}
                   >
                     <Text style={[styles.selectorItemText, active && styles.selectorItemTextActive]}>
-                      {item}
+                      {selectorType === 'sortBy' ? (t(item?.toLowerCase()?.replace(/\s+/g, '_')?.replace('-', '_')) || item) : item}
                     </Text>
                     {active && <Ionicons name="checkmark-sharp" size={18} color="#6C63FF" />}
                   </TouchableOpacity>

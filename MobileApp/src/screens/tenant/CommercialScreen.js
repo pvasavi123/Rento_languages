@@ -24,6 +24,7 @@ import COLORS from "../../theme/colors";
 import { TenantContext } from "@/src/context/TenantContext";
 import { BookingContext } from "@/src/context/BookingContext";
 import FilterBottomSheet from "../../../components/FilterBottomScreen";
+import { useLanguage } from "../../utils/LanguageContext";
 import { useMemo, useRef } from "react";
 
 const { width } = Dimensions.get("window");
@@ -148,6 +149,7 @@ const normalizeFacility = (name) => {
 };
 
 export default function CommercialScreen() {
+  const { t } = useLanguage();
   const { isConnected } = useNetwork();
   const navigation = useNavigation();
   const [search, setSearch] = useState("");
@@ -483,8 +485,8 @@ const filteredCommercial = useMemo(() => {
 
           <View style={styles.heroContent}>
             <View style={styles.heroTextContainer}>
-              <Text style={styles.heroTitle}>Commercial</Text>
-              <Text style={styles.heroSubtitle}>Grow Your Business</Text>
+              <Text style={styles.heroTitle}>{t("commercial") || "Commercial"}</Text>
+              <Text style={styles.heroSubtitle}>{t("commercial_subtitle") || "Grow Your Business"}</Text>
             </View>
             <Image
               source={require("../../../assets/images/commercialLogo.png")}
@@ -500,7 +502,7 @@ const filteredCommercial = useMemo(() => {
             <Ionicons name="search" size={20} color="#999" />
             <TextInput
               style={styles.searchInput}
-              placeholder="Search location, property or owner..."
+              placeholder={t("search_property_owner_placeholder") || "Search location, property or owner..."}
               value={search}
               onChangeText={setSearch}
             />
@@ -509,13 +511,13 @@ const filteredCommercial = useMemo(() => {
   onPress={() => filterSheetRef.current?.present()}
 >
               <Ionicons name="options-outline" size={20} color="#f97316" />
-              <Text style={styles.filterText}>Filters</Text>
+              <Text style={styles.filterText}>{t("filter") || "Filters"}</Text>
             </TouchableOpacity>
           </View>
         </View>
 
         <View style={styles.content}>
-          <Text style={styles.sectionTitle}>Popular Commercial Spaces</Text>
+          <Text style={styles.sectionTitle}>{t("popular_commercial_spaces") || "Popular Commercial Spaces"}</Text>
 
           {filteredCommercial.map((item) => (
             <TouchableOpacity
@@ -531,18 +533,18 @@ const filteredCommercial = useMemo(() => {
 
                 <View style={styles.tagRow}>
                   <View style={styles.tag}>
-                    <Text style={styles.tagText}>{item.category}</Text>
+                    <Text style={styles.tagText}>{t(item.category?.toLowerCase()) || item.category}</Text>
                   </View>
                   {item.facilities.slice(0, 2).map((fac, idx) => (
                     <View key={idx} style={styles.tag}>
-                      <Text style={styles.tagText}>{fac}</Text>
+                      <Text style={styles.tagText}>{t(fac.toLowerCase()) || fac}</Text>
                     </View>
                   ))}
                 </View>
 
                 <View style={styles.priceRow}>
                   <Text style={styles.priceText}>₹{item.price}</Text>
-                  <Text style={styles.pricePeriod}>/month</Text>
+                  <Text style={styles.pricePeriod}>/{t("month_suffix") || "month"}</Text>
                 </View>
               </View>
             </TouchableOpacity>
@@ -551,7 +553,7 @@ const filteredCommercial = useMemo(() => {
           {filteredCommercial.length === 0 && (
             <View style={styles.emptyContainer}>
               <Ionicons name="search-outline" size={60} color="#ccc" />
-              <Text style={styles.emptyText}>No commercial spaces found</Text>
+              <Text style={styles.emptyText}>{t("no_commercial_spaces_found") || "No commercial spaces found"}</Text>
             </View>
           )}
         </View>

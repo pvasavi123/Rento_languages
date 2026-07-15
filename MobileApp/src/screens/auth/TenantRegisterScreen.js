@@ -532,9 +532,9 @@ console.log(
                 resizeMode="contain"
               />
             </View>
-            <Text style={styles.headerTitle}>Welcome Tenant</Text>
+            <Text style={styles.headerTitle}>{t("welcome_tenant") || "Welcome Tenant"}</Text>
             <Text style={styles.headerSubtitle}>
-              Let's get you started with your rental search
+              {t("tenant_login_subtitle") || "Let&apos;s get you started with your rental search"}
             </Text>
           </View>
 
@@ -557,8 +557,8 @@ console.log(
             </View>
 
             {/* TITLE */}
-            <Text style={styles.title}>Get Started</Text>
-            <Text style={styles.subtitle}>Enter your mobile number to continue</Text>
+            <Text style={styles.title}>{t("get_started") || "Get Started"}</Text>
+            <Text style={styles.subtitle}>{t("enter_mobile_number_to_continue") || "Enter your mobile number to continue"}</Text>
 
             {/* PHONE INPUT */}
             <View style={[
@@ -571,7 +571,7 @@ console.log(
                 color={isPhoneVerified ? COLORS.TEXT_SECONDARY : LIGHT_PURPLE}
               />
               <TextInput
-                placeholder="Enter Mobile Number"
+                placeholder={t("enter_mobile_number") || "Enter Mobile Number"}
                 placeholderTextColor="#8A8F98"
                 style={styles.input}
                 keyboardType="number-pad"
@@ -588,7 +588,7 @@ console.log(
               {isPhoneVerified && (
                 <View style={styles.verifiedBadge}>
                   <Ionicons name="checkmark-circle" size={20} color="green" />
-                  <Text style={styles.verifiedText}>Verified</Text>
+                  <Text style={styles.verifiedText}>{t("verified") || "Verified"}</Text>
                 </View>
               )}
             </View>
@@ -707,7 +707,7 @@ console.log(
                     <ActivityIndicator color={WHITE} size="small" />
                   ) : (
                     <Text style={styles.buttonText}>
-                      {showOTPField ? "Verify OTP" : "Get OTP"}
+                      {showOTPField ? (t("verify_otp") || "Verify OTP") : (t("get_otp") || "Get OTP")}
                     </Text>
                   )}
                 </LinearGradient>
@@ -739,7 +739,7 @@ console.log(
           {/* ── FOOTER ── */}
           <View style={styles.footer}>
             <Ionicons name="shield-checkmark-outline" size={14} color="#6B7280" />
-            <Text style={styles.footerText}>  Secure • Fast • Trusted Platform</Text>
+            <Text style={styles.footerText}>  {t("secure_fast_trusted") || "Secure • Fast • Trusted Platform"}</Text>
           </View>
 
         </KeyboardAvoidingView>

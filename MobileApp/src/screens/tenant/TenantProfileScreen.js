@@ -4,6 +4,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { useLanguage } from "../../utils/LanguageContext";
+import LanguageSelector from "../../components/LanguageSelector";
 import * as ImagePicker from "expo-image-picker";
 import COLORS from "../../theme/colors";
 import BASE_URL, { fetchWithAuth } from "@/src/config/Api";
@@ -40,14 +41,6 @@ const initialTenant = {
   status: "Pending Join"
 };
 
-const languages = [
-  { id: 'en', name: 'English', subName: 'Default', icon: '🇺🇸' },
-  { id: 'hi', name: 'हिन्दी', subName: 'Hindi', icon: '🟠' },
-  { id: 'te', name: 'తెలుగు', subName: 'Telugu', icon: '🔵' },
-  { id: 'kn', name: 'ಕನ್ನಡ', subName: 'Kannada', icon: '🟢' },
-  { id: 'ta', name: 'தமிழ்', subName: 'Tamil', icon: '🟣' },
-];
-
 export default function TenantProfile({ navigation }) {
   const { isConnected } = useNetwork();
   const { maintenanceMode } = useMaintenance();
@@ -62,7 +55,7 @@ export default function TenantProfile({ navigation }) {
     }
     return false;
   };
-  const { t, language, changeLanguage } = useLanguage();
+  const { t } = useLanguage();
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [showProfileModal, setShowProfileModal] = useState(false);
@@ -74,9 +67,12 @@ export default function TenantProfile({ navigation }) {
 
   // --- AI Assistant Draggable State & Chat ---
   const [showAiModal, setShowAiModal] = useState(false);
-  const [aiMessages, setAiMessages] = useState([
-    { id: '1', text: "Hello! I am your Rennto AI Assistant. Ask me anything about using the app (e.g., issues, payments, hostels).", sender: 'ai' }
-  ]);
+  const [aiMessages, setAiMessages] = useState([]);
+  useEffect(() => {
+    setAiMessages([
+      { id: '1', text: t("ai_assistant_greeting_tenant") || "Hello! I am your Rennto AI Assistant. Ask me anything about using the app (e.g., issues, payments, hostels).", sender: 'ai' }
+    ]);
+  }, [t]);
   const [aiInputText, setAiInputText] = useState("");
 
   const aiPan = useRef(new Animated.ValueXY()).current;
@@ -366,9 +362,9 @@ export default function TenantProfile({ navigation }) {
   };
 
   const handleLogout = async () => {
-    Alert.alert(t("logout") || "Logout", t("logout_confirm") || "Are you sure?", [
+    Alert.alert(t("logout") || "Logout", t("logout_confirm_msg") || "Are you sure you want to logout?", [
       { text: t("cancel") || "Cancel", style: "cancel" },
-       { text: t("logout") || "Logout", onPress: async () => { await AsyncStorage.multiRemove(["tenantPhone", "tenantName", "userToken", "tenantEmail", "tenantId", "userRole"]); navigation.reset({ index: 0, routes: [{ name: 'RoleSection', params: { skipSplash: true } }] }) } }
+      { text: t("logout") || "Logout", onPress: async () => { await AsyncStorage.multiRemove(["tenantPhone", "tenantName", "userToken", "tenantEmail", "tenantId", "userRole"]); navigation.reset({ index: 0, routes: [{ name: 'RoleSection', params: { skipSplash: true } }] }) } }
     ]);
   };
 
@@ -427,7 +423,9 @@ export default function TenantProfile({ navigation }) {
             <Text style={[styles.name, { color: '#FFFFFF' }]}>{tenantData.name}</Text>
             <View style={[styles.roleBadge, { backgroundColor: 'rgba(255, 255, 255, 0.25)' }]}>
               <Ionicons name="checkmark-circle" size={14} color="#FFFFFF" />
-              <Text style={[styles.roleText, { color: '#FFFFFF' }]}>{tenantData.role}</Text>
+              <Text style={[styles.roleText, { color: '#FFFFFF' }]}>
+                {tenantData.role === "Resident" ? t("resident") : tenantData.role === "Verified Resident" ? t("verified_resident") : tenantData.role === "Pending Join" ? t("pending_join") : (t(tenantData.role) || tenantData.role)}
+              </Text>
             </View>
           </View>
         </LinearGradient>
@@ -647,66 +645,10 @@ export default function TenantProfile({ navigation }) {
       </Modal>
 
       {/* Language Selection Modal */}
-      <Modal
+      <LanguageSelector
         visible={showLangModal}
-        transparent={true}
-        animationType="slide"
-        onRequestClose={() => setShowLangModal(false)}
-      >
-        <TouchableOpacity
-          style={styles.modalOverlay}
-          activeOpacity={1}
-          onPress={() => setShowLangModal(false)}
-        >
-          <View style={styles.modalContent}>
-            <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>{t("select_language")}</Text>
-              <TouchableOpacity onPress={() => setShowLangModal(false)}>
-                <Ionicons name="close" size={24} color="#64748B" />
-              </TouchableOpacity>
-            </View>
-
-            <ScrollView showsVerticalScrollIndicator={false}>
-              {languages.map((item) => (
-                <TouchableOpacity
-                  key={item.id}
-                  style={[
-                    styles.modalOption,
-                    language === item.id && { backgroundColor: '#F5F3FF', borderRadius: 16 }
-                  ]}
-                  onPress={() => {
-                    changeLanguage(item.id);
-                    setShowLangModal(false);
-                  }}
-                >
-                  <View style={[styles.optionIcon, { backgroundColor: 'white' }]}>
-                    <Text style={{ fontSize: 24 }}>{item.icon}</Text>
-                  </View>
-                  <View style={{ flex: 1 }}>
-                    <Text style={[
-                      styles.optionLabel,
-                      language === item.id && { color: '#7A3FC4' }
-                    ]}>
-                      {item.name}
-                    </Text>
-                    <Text style={{ fontSize: 12, color: '#94A3B8' }}>{item.subName}</Text>
-                  </View>
-                  {language === item.id && (
-                    <Ionicons name="checkmark-circle" size={24} color="#7A3FC4" />
-                  )}
-                </TouchableOpacity>
-              ))}
-            </ScrollView>
-
-            <TouchableOpacity
-              style={styles.modalCancelBtn}
-              onPress={() => setShowLangModal(false)}
-            >
-              <Text style={styles.modalCancelText}>{t("cancel") || "Cancel"}</Text>
-            </TouchableOpacity>
-          </View>
-        </TouchableOpacity>
-      </Modal>
+        onClose={() => setShowLangModal(false)}
+      />
 
       {/* Draggable AI Assistant FAB */}
       <Animated.View
@@ -758,7 +700,7 @@ export default function TenantProfile({ navigation }) {
             >
               <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                 <MaterialIcons name="support-agent" size={24} color="#FFF" style={{ marginRight: 8 }} />
-                <Text style={{ fontSize: 20, fontWeight: 'bold', color: '#FFF' }}>Support Agent</Text>
+                <Text style={{ fontSize: 20, fontWeight: 'bold', color: '#FFF' }}>{t("support_agent") || "Support Agent"}</Text>
               </View>
               <TouchableOpacity onPress={() => setShowAiModal(false)}>
                 <Ionicons name="close-circle" size={28} color="rgba(255,255,255,0.8)" />
@@ -789,7 +731,7 @@ export default function TenantProfile({ navigation }) {
               <View style={{ flexDirection: 'row', padding: 12, borderTopWidth: 1, borderTopColor: '#E5E7EB', backgroundColor: '#FFF' }}>
                 <TextInput
                   style={{ flex: 1, backgroundColor: '#F3F4F6', borderRadius: 20, paddingHorizontal: 16, paddingVertical: 10, fontSize: 15, maxHeight: 100, color: '#1F2937' }}
-                  placeholder="Ask a question..."
+                  placeholder={t("ask_a_question") || "Ask a question..."}
                   placeholderTextColor="#9CA3AF"
                   value={aiInputText}
                   onChangeText={setAiInputText}

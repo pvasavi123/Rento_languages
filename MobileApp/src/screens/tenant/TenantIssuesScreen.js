@@ -114,15 +114,15 @@ export default function IssuesScreen() {
       const result = await response.json();
 
       if (response.ok) {
-        Alert.alert("Success", "Issue updated");
+        Alert.alert(t("success") || "Success", t("issue_updated") || "Issue updated");
         setEditingId(null);
         fetchIssues();
       } else {
-        Alert.alert("Error", result.error || "Failed to update issue");
+        Alert.alert(t("error") || "Error", result.error || t("failed_update_issue") || "Failed to update issue");
       }
     } catch (err) {
       console.log(err);
-      Alert.alert("Error", err.message);
+      Alert.alert(t("error") || "Error", err.message);
     } finally {
       setLoading(false);
     }
@@ -230,7 +230,7 @@ export default function IssuesScreen() {
   const submitIssue = async () => {
     if (checkReadOnly()) return;
     if (!title || !description) {
-      Alert.alert("Error", "Please fill in all fields");
+      Alert.alert(t("error") || "Error", t("please_fill_fields") || "Please fill in all fields");
       return;
     }
 
@@ -259,7 +259,7 @@ export default function IssuesScreen() {
       );
 
       if (response.status === 201) {
-        Alert.alert("Success", "Issue submitted successfully");
+        Alert.alert(t("success") || "Success", t("issue_submitted_success") || "Issue submitted successfully");
         setTitle("");
         setDescription("");
         setPriority("Medium");
@@ -268,11 +268,11 @@ export default function IssuesScreen() {
         fetchIssues();
       } else {
         const err = await response.json();
-        Alert.alert("Error", err.error || "Failed to submit issue");
+        Alert.alert(t("error") || "Error", err.error || t("failed_submit_issue") || "Failed to submit issue");
       }
     } catch (error) {
       console.log("Submit Issue Error:", error);
-      Alert.alert("Error", "Network error");
+      Alert.alert(t("error") || "Error", t("network_error") || "Network error");
     }
   };
 
@@ -286,10 +286,10 @@ export default function IssuesScreen() {
 
   const deleteIssue = async (id) => {
     if (checkReadOnly()) return;
-    Alert.alert("Confirm Deletion", "Remove this issue permanently?", [
-      { text: "Cancel", style: "cancel" },
+    Alert.alert(t("confirm_deletion") || "Confirm Deletion", t("remove_issue_confirm") || "Remove this issue permanently?", [
+      { text: t("cancel") || "Cancel", style: "cancel" },
       {
-        text: "Delete",
+        text: t("delete") || "Delete",
         style: "destructive",
         onPress: async () => {
           try {
@@ -303,13 +303,13 @@ export default function IssuesScreen() {
               // remove from UI AFTER backend success
               setIssues(issues.filter((i) => i.id !== id));
 
-              Alert.alert("Success", "Issue deleted successfully");
+              Alert.alert(t("success") || "Success", t("issue_deleted_success") || "Issue deleted successfully");
             } else {
-              Alert.alert("Error", "Failed to delete issue");
+              Alert.alert(t("error") || "Error", t("failed_delete_issue") || "Failed to delete issue");
             }
           } catch (error) {
             console.log("Delete Error:", error);
-            Alert.alert("Error", "Network error");
+            Alert.alert(t("error") || "Error", t("network_error") || "Network error");
           }
         },
       },
@@ -429,7 +429,7 @@ export default function IssuesScreen() {
               placeholderTextColor={COLORS.TEXT_LIGHT}
             />
 
-            <Text style={styles.inputLabel}>SEVERITY LEVEL</Text>
+            <Text style={styles.inputLabel}>{t("severity_level") || "SEVERITY LEVEL"}</Text>
             <View style={styles.priorityGroup}>
               {priorities.map((p) => (
                 <TouchableOpacity
@@ -449,7 +449,7 @@ export default function IssuesScreen() {
                       priority === p.label && { color: COLORS.WHITE },
                     ]}
                   >
-                    {p.label}
+                    {t(p.label?.toLowerCase()) || p.label}
                   </Text>
                 </TouchableOpacity>
               ))}
@@ -463,7 +463,7 @@ export default function IssuesScreen() {
                   color={COLORS.PRIMARY}
                 />
                 <Text style={styles.attachText}>
-                  {image ? "Attached" : "Attach File"}
+                  {image ? (t("attached") || "Attached") : (t("attach_file") || "Attach File")}
                 </Text>
               </TouchableOpacity>
 
@@ -472,7 +472,7 @@ export default function IssuesScreen() {
                 onPress={editingId ? handleUpdate : submitIssue}
               >
                 <Text style={styles.submitBtnText}>
-                  {editingId ? "Save Changes" : "Submit Issue"}
+                  {editingId ? (t("save_changes") || "Save Changes") : (t("submit_issue") || "Submit Issue")}
                 </Text>
                 <Ionicons
                   name="send"
@@ -491,7 +491,7 @@ export default function IssuesScreen() {
 
         {/* LIST FILTERS */}
         <View style={styles.listHeaderRow}>
-          <Text style={styles.listTitle}>Priority Filter</Text>
+          <Text style={styles.listTitle}>{t("priority_filter") || "Priority Filter"}</Text>
           <ScrollView
             horizontal
             showsHorizontalScrollIndicator={false}
@@ -517,7 +517,7 @@ export default function IssuesScreen() {
                     priorityFilter === f && { color: COLORS.WHITE },
                   ]}
                 >
-                  {f}
+                  {t(f?.toLowerCase()) || f}
                 </Text>
               </TouchableOpacity>
             ))}
@@ -532,8 +532,8 @@ export default function IssuesScreen() {
               size={54}
               color={COLORS.TEXT_LIGHT}
             />
-            <Text style={styles.emptyTitle}>No issues found</Text>
-            <Text style={styles.emptySub}>You're all caught up for now.</Text>
+            <Text style={styles.emptyTitle}>{t("no_issues_found") || "No issues found"}</Text>
+            <Text style={styles.emptySub}>{t("you_are_all_caught_up") || "You're all caught up for now."}</Text>
           </View>
         ) : (
           filteredIssues.map((item) => {
@@ -569,26 +569,26 @@ export default function IssuesScreen() {
                 {isEditing ? (
                   /* INLINE EDIT FORM */
                   <View style={styles.inlineForm}>
-                    <Text style={styles.inlineFormHeader}>Edit Issue</Text>
+                    <Text style={styles.inlineFormHeader}>{t("edit_issue") || "Edit Issue"}</Text>
 
-                    <Text style={styles.inlineInputLabel}>Title</Text>
+                    <Text style={styles.inlineInputLabel}>{t("title") || "Title"}</Text>
                     <TextInput
                       style={styles.inlineInput}
                       value={title}
                       onChangeText={setTitle}
-                      placeholder="Issue title"
+                      placeholder={t("issue_title_placeholder") || "Issue title"}
                     />
 
-                    <Text style={styles.inlineInputLabel}>Description</Text>
+                    <Text style={styles.inlineInputLabel}>{t("description") || "Description"}</Text>
                     <TextInput
                       style={[styles.inlineInput, { height: 80, textAlignVertical: "top" }]}
                       multiline
                       value={description}
                       onChangeText={setDescription}
-                      placeholder="Issue description"
+                      placeholder={t("issue_desc_placeholder") || "Issue description"}
                     />
 
-                    <Text style={styles.inlineInputLabel}>Severity</Text>
+                    <Text style={styles.inlineInputLabel}>{t("severity") || "Severity"}</Text>
                     <View style={styles.inlinePriorityGroup}>
                       {priorities.map((p) => (
                         <TouchableOpacity
@@ -608,17 +608,17 @@ export default function IssuesScreen() {
                               priority === p.label && { color: COLORS.WHITE },
                             ]}
                           >
-                            {p.label}
+                            {t(p.label?.toLowerCase()) || p.label}
                           </Text>
                         </TouchableOpacity>
                       ))}
                     </View>
 
-                    <Text style={styles.inlineInputLabel}>Image</Text>
+                    <Text style={styles.inlineInputLabel}>{t("image") || "Image"}</Text>
                     <View style={styles.inlineImageRow}>
                       <TouchableOpacity style={styles.inlineAttachBtn} onPress={pickImage}>
                         <Feather name="camera" size={16} color={COLORS.PRIMARY} />
-                        <Text style={styles.inlineAttachText}>{image ? "Change Photo" : "Add Photo"}</Text>
+                        <Text style={styles.inlineAttachText}>{image ? (t("change_photo") || "Change Photo") : (t("add_photo") || "Add Photo")}</Text>
                       </TouchableOpacity>
                       {image && (
                         <View style={styles.inlinePreviewContainer}>
@@ -635,11 +635,11 @@ export default function IssuesScreen() {
 
                     <View style={styles.inlineFormFooter}>
                       <TouchableOpacity style={styles.inlineCancelBtn} onPress={cancelEdit}>
-                        <Text style={styles.inlineCancelBtnText}>Cancel</Text>
+                        <Text style={styles.inlineCancelBtnText}>{t("cancel") || "Cancel"}</Text>
                       </TouchableOpacity>
 
                       <TouchableOpacity style={styles.inlineSaveBtn} onPress={handleUpdate}>
-                        <Text style={styles.inlineSaveBtnText}>Save</Text>
+                        <Text style={styles.inlineSaveBtnText}>{t("save") || "Save"}</Text>
                         <Ionicons name="checkmark" size={16} color={COLORS.WHITE} style={{ marginLeft: 4 }} />
                       </TouchableOpacity>
                     </View>
@@ -668,7 +668,7 @@ export default function IssuesScreen() {
                     {/* OWNER RESPONSE */}
                     {item.owner_comment && (
                       <View style={styles.ownerResponseBox}>
-                        <Text style={styles.ownerResponseTitle}>Owner Response:</Text>
+                        <Text style={styles.ownerResponseTitle}>{t("owner_response") || "Owner Response"}:</Text>
                         <Text style={styles.ownerResponseText}>{item.owner_comment}</Text>
                       </View>
                     )}
@@ -682,7 +682,7 @@ export default function IssuesScreen() {
                         ]}
                       >
                         <Text style={[styles.severityText, { color: pData.color }]}>
-                          {item.severity || "Medium"} Severity
+                          {t(item.severity?.toLowerCase() || "medium")} {t("severity_suffix") || "Severity"}
                         </Text>
                       </View>
 

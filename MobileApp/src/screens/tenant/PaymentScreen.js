@@ -2,8 +2,10 @@ import { Ionicons, MaterialCommunityIcons, FontAwesome5 } from "@expo/vector-ico
 import React from "react";
 import { StyleSheet, Text, View, TouchableOpacity, ScrollView } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useLanguage } from "../../utils/LanguageContext";
 
 export default function PaymentScreen1({ navigation }) {
+  const { t } = useLanguage();
   return (
     <SafeAreaView style={styles.container}>
 
@@ -12,7 +14,7 @@ export default function PaymentScreen1({ navigation }) {
         <TouchableOpacity onPress={() => navigation?.goBack()} style={styles.backCircle}>
           <Ionicons name="chevron-back" size={24} color="#1E293B" />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Payments Method</Text>
+        <Text style={styles.headerTitle}>{t("payments_method") || "Payments Method"}</Text>
       </View>
 
       <ScrollView contentContainerStyle={styles.centerContent}>
@@ -38,15 +40,15 @@ export default function PaymentScreen1({ navigation }) {
           </View>
         </View>
 
-        <Text style={styles.emptyTitle}>Approval Pending</Text>
+        <Text style={styles.emptyTitle}>{t("approval_pending") || "Approval Pending"}</Text>
 
         <Text style={styles.emptySub}>
-          Your residency request has been submitted. For security reasons, payment methods are enabled only after the owner verifies your profile.
+          {t("residency_request_submitted_desc") || "Your residency request has been submitted. For security reasons, payment methods are enabled only after the owner verifies your profile."}
         </Text>
 
         <View style={styles.statusLabelContainer}>
           <View style={styles.pulseDot} />
-          <Text style={styles.statusText}>Waiting for Owner's Verification</Text>
+          <Text style={styles.statusText}>{t("waiting_owner_verification") || "Waiting for Owner's Verification"}</Text>
         </View>
 
       </ScrollView>

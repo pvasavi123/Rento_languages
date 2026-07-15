@@ -113,6 +113,12 @@ const languages = [
   { id: 'te', name: 'తెలుగు', subName: 'Telugu' },
   { id: 'kn', name: 'ಕನ್ನಡ', subName: 'Kannada' },
   { id: 'ta', name: 'தமிழ்', subName: 'Tamil' },
+  { id: 'ml', name: 'മലയാളം', subName: 'Malayalam' },
+  { id: 'mr', name: 'मराठी', subName: 'Marathi' },
+  { id: 'bn', name: 'বাংলা', subName: 'Bengali' },
+  { id: 'gu', name: 'ગુજરાતી', subName: 'Gujarati' },
+  { id: 'pa', name: 'ਪੰਜਾਬੀ', subName: 'Punjabi' },
+  { id: 'or', name: 'ଓଡ଼ିଆ', subName: 'Odia' },
 ];
 
 const PARTICLES = [

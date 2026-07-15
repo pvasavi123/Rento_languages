@@ -4,6 +4,7 @@ import { useRef, useState, useContext } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { OwnerAccountContext } from "../../context/OwnerAccountContext";
 import { LinearGradient } from "expo-linear-gradient";
+import { useLanguage } from "../../utils/LanguageContext";
 
 import {
   ActivityIndicator,
@@ -30,6 +31,7 @@ const LIGHT_PURPLE = COLORS.PRIMARY_LIGHT;
 
 export default function OwnerLoginScreen({ navigation, route }) {
   const { refreshAccounts } = useContext(OwnerAccountContext);
+  const { t } = useLanguage();
 
   const [phone, setPhone] = useState("");
   const [otp, setOtp] = useState(["", "", "", ""]);
@@ -50,7 +52,7 @@ export default function OwnerLoginScreen({ navigation, route }) {
 const handleSendOTP = async () => {
 
   if (!validatePhone(phone)) {
-    setErrors({ phone: "Enter valid mobile number" });
+    setErrors({ phone: t("enter_valid_mobile_err") || "Enter valid mobile number" });
     return;
   }
 
@@ -79,14 +81,14 @@ const handleSendOTP = async () => {
       setShowOTPField(true);
       setOtp(["", "", "", ""]);
       setErrors({});
-      Alert.alert("Success", "OTP Sent Successfully");
+      Alert.alert(t("success") || "Success", t("otp_sent_success") || "OTP Sent Successfully");
     } else {
-      Alert.alert("Error", data.error || "Failed To Send OTP");
+      Alert.alert(t("error") || "Error", data.error || t("failed_to_send_otp") || "Failed To Send OTP");
     }
 
   } catch (error) {
     console.log("SEND OTP ERROR:", error);
-    Alert.alert("Error", "Something went wrong");
+    Alert.alert(t("error") || "Error", t("something_went_wrong") || "Something went wrong");
   } finally {
     setLoading(false);
   }
@@ -97,7 +99,7 @@ const handleVerifyOTP = async () => {
   const otpString = otp.join("");
 
   if (otpString.length !== 4) {
-    setErrors({ otp: "Enter valid 4-digit OTP" });
+    setErrors({ otp: t("enter_valid_otp_err") || "Enter valid 4-digit OTP" });
     return;
   }
 
@@ -198,8 +200,8 @@ await AsyncStorage.setItem("userRole", "owner");
   });
 } else {
   Alert.alert(
-    "Access Denied",
-    "This mobile number is registered as a tenant."
+    t("access_denied_title") || "Access Denied",
+    t("registered_as_tenant_err") || "This mobile number is registered as a tenant."
   );
 }
 
@@ -207,15 +209,15 @@ await AsyncStorage.setItem("userRole", "owner");
       setOtp(["", "", "", ""]);
       otpInputs.current[0]?.focus();
       setErrors({
-        otp: data.error || "Invalid OTP",
+        otp: data.error || t("invalid_otp_err") || "Invalid OTP",
       });
     }
 
   } catch (error) {
     console.log("VERIFY OTP ERROR:", error);
     Alert.alert(
-      "Error",
-      "OTP Verification Failed"
+      t("error") || "Error",
+      t("otp_verification_failed_err") || "OTP Verification Failed"
     );
   } finally {
     setLoading(false);
@@ -254,9 +256,9 @@ const handleResendOTP = () => {
                 resizeMode="contain"
               />
             </View>
-            <Text style={styles.headerTitle}>Welcome Owner</Text>
+            <Text style={styles.headerTitle}>{t("welcome_owner") || "Welcome Owner"}</Text>
             <Text style={styles.headerSubtitle}>
-              Let's get you started with your property management
+              {t("owner_intro_subtitle") || "Let's get you started with your property management"}
             </Text>
           </View>
 
@@ -271,8 +273,8 @@ const handleResendOTP = () => {
             </View>
 
             {/* TITLE */}
-            <Text style={styles.title}>Get Started</Text>
-            <Text style={styles.subtitle}>Enter your mobile number to continue</Text>
+            <Text style={styles.title}>{t("get_started") || "Get Started"}</Text>
+            <Text style={styles.subtitle}>{t("enter_mobile_continue") || "Enter your mobile number to continue"}</Text>
 
             {/* PHONE INPUT */}
             <View style={[
@@ -285,7 +287,7 @@ const handleResendOTP = () => {
                 color={showOTPField ? COLORS.TEXT_SECONDARY : PRIMARY}
               />
               <TextInput
-                placeholder="Enter Mobile Number"
+                placeholder={t("enter_mobile_placeholder") || "Enter Mobile Number"}
                 placeholderTextColor="#8A8F98"
                 style={styles.input}
                 keyboardType="number-pad"
@@ -361,8 +363,8 @@ const handleResendOTP = () => {
                   disabled={loading}
                 >
                   <Text style={styles.resendText}>
-                    Wrong number or didn't receive OTP?{" "}
-                    <Text style={styles.resendLink}>Resend</Text>
+                    {t("otp_wrong_resend") || "Wrong number or didn't receive OTP? "}
+                    <Text style={styles.resendLink}>{t("resend") || "Resend"}</Text>
                   </Text>
                 </TouchableOpacity>
               </View>
@@ -385,7 +387,7 @@ const handleResendOTP = () => {
                   <ActivityIndicator color={WHITE} size="small" />
                 ) : (
                   <Text style={styles.buttonText}>
-                    {showOTPField ? "Verify OTP" : "Get OTP"}
+                    {showOTPField ? (t("verify_otp_btn") || "Verify OTP") : (t("get_otp") || "Get OTP")}
                   </Text>
                 )}
               </LinearGradient>
@@ -396,7 +398,7 @@ const handleResendOTP = () => {
           {/* ── FOOTER ── */}
           <View style={styles.footer}>
             <Ionicons name="shield-checkmark-outline" size={14} color="#6B7280" />
-            <Text style={styles.footerText}>  Secure • Fast • Trusted Platform</Text>
+            <Text style={styles.footerText}>  {t("secure_fast_trusted") || "Secure • Fast • Trusted Platform"}</Text>
           </View>
 
         </KeyboardAvoidingView>

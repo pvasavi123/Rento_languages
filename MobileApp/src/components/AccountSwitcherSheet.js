@@ -11,6 +11,7 @@ import {
   StatusBar,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useLanguage } from "../utils/LanguageContext";
 import { LinearGradient } from 'expo-linear-gradient';
 import Animated, {
   useSharedValue,
@@ -38,6 +39,7 @@ const AccountSwitcherSheet = forwardRef(({
   onAddAccount,
   onClose,
 }, ref) => {
+  const { t } = useLanguage();
   const translateY = useSharedValue(SHEET_HEIGHT);
   const backdropOpacity = useSharedValue(0);
   const isOpen = useSharedValue(false);
@@ -151,9 +153,9 @@ const AccountSwitcherSheet = forwardRef(({
                 <Ionicons name="people" size={18} color="#FFF" />
               </LinearGradient>
               <View>
-                <Text style={styles.headerTitle}>Switch Account</Text>
+                <Text style={styles.headerTitle}>{t('switch_account') || 'Switch Account'}</Text>
                 <Text style={styles.headerSubtitle}>
-                  {accounts.length} account{accounts.length !== 1 ? 's' : ''} logged in
+                  {accounts.length} {t('account')}{accounts.length !== 1 ? 's' : ''} {t('logged_in') || 'logged in'}
                 </Text>
               </View>
             </View>
@@ -205,8 +207,8 @@ const AccountSwitcherSheet = forwardRef(({
                 <Ionicons name="add" size={24} color="#7C3AED" />
               </LinearGradient>
               <View style={styles.addAccountTextContainer}>
-                <Text style={styles.addAccountText}>Add Another Account</Text>
-                <Text style={styles.addAccountSubtext}>Login with a different account</Text>
+                <Text style={styles.addAccountText}>{t('add_another_account') || 'Add Another Account'}</Text>
+                <Text style={styles.addAccountSubtext}>{t('login_with_another_account') || 'Login with a different account'}</Text>
               </View>
               <Ionicons name="chevron-forward" size={18} color="#9CA3AF" />
             </TouchableOpacity>
@@ -219,6 +221,7 @@ const AccountSwitcherSheet = forwardRef(({
 
 // Individual account row with micro-animations
 function AccountRow({ account, isActive, index, onPress }) {
+  const { t } = useLanguage();
   const scale = useSharedValue(1);
   const rowOpacity = useSharedValue(0);
   const rowTranslateY = useSharedValue(20);
@@ -290,7 +293,7 @@ function AccountRow({ account, isActive, index, onPress }) {
         {isActive && (
           <View style={styles.activeLabel}>
             <View style={styles.activeDot} />
-            <Text style={styles.activeLabelText}>Active Now</Text>
+            <Text style={styles.activeLabelText}>{t('active_now') || 'Active Now'}</Text>
           </View>
         )}
       </View>
@@ -305,7 +308,7 @@ function AccountRow({ account, isActive, index, onPress }) {
         </LinearGradient>
       ) : (
         <View style={styles.switchLabel}>
-          <Text style={styles.switchLabelText}>Switch</Text>
+          <Text style={styles.switchLabelText}>{t('switch') || 'Switch'}</Text>
         </View>
       )}
     </AnimatedTouchable>

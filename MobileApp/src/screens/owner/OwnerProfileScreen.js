@@ -9,6 +9,7 @@ import OfflineView from "../../components/OfflineView";
 import { LinearGradient } from "expo-linear-gradient";
 import * as ImagePicker from "expo-image-picker";
 import { useLanguage } from "../../utils/LanguageContext";
+import LanguageSelector from "../../components/LanguageSelector";
 import { OwnerAccountContext } from "@/src/context/OwnerAccountContext";
 import PropertyImagesUpload from "../../components/PropertyImagesUpload";
 import {
@@ -45,7 +46,7 @@ export default function OwnerProfile({ navigation }) {
     }
     return false;
   };
-  const { t, language, changeLanguage } = useLanguage();
+  const { t } = useLanguage();
   const {
     accounts,
     selectedAccount,
@@ -68,18 +69,15 @@ export default function OwnerProfile({ navigation }) {
   const [showPropertyImagesModal, setShowPropertyImagesModal] = useState(false);
   const [showLangModal, setShowLangModal] = useState(false);
   const [showAiModal, setShowAiModal] = useState(false);
-  const [aiMessages, setAiMessages] = useState([
-    { id: '1', text: "Hello! I am your Rennto AI Assistant. Ask me anything about managing your project (e.g., adding tenants, editing building, payments).", sender: 'ai' }
-  ]);
+  const [aiMessages, setAiMessages] = useState([]);
+  React.useEffect(() => {
+    setAiMessages([
+      { id: '1', text: t("ai_assistant_greeting_owner") || "Hello! I am your Rennto AI Assistant. Ask me anything about managing your project (e.g., adding tenants, editing building, payments).", sender: 'ai' }
+    ]);
+  }, [t]);
   const [aiInputText, setAiInputText] = useState("");
 
-  const languages = [
-    { id: 'en', name: 'English', subName: 'Default' },
-    { id: 'hi', name: 'हिन्दी', subName: 'Hindi' },
-    { id: 'te', name: 'తెలుగు', subName: 'Telugu' },
-    { id: 'kn', name: 'ಕನ್ನಡ', subName: 'Kannada' },
-    { id: 'ta', name: 'தமிழ்', subName: 'Tamil' },
-  ];
+
 
   const initialOwner = {
     name: "Loading...",
@@ -527,7 +525,7 @@ export default function OwnerProfile({ navigation }) {
   };
 
   const handleLogout = async () => {
-    Alert.alert(t("logout") || "Logout", t("logout_confirm") || "Are you sure?", [
+    Alert.alert(t("logout") || "Logout", t("logout_confirm_msg") || "Are you sure you want to logout?", [
       { text: t("cancel") || "Cancel", style: "cancel" },
      { text: t("logout") || "Logout", onPress: async () => { await AsyncStorage.multiRemove(["ownerPhone", "userToken", "userRole", "loggedInOwnerAccounts"]); navigation.reset({ index: 0, routes: [{ name: 'RoleSection', params: { skipSplash: true } }] }) } }
     ]);
@@ -721,7 +719,9 @@ export default function OwnerProfile({ navigation }) {
               <Text style={[styles.profileName, { color: '#FFFFFF' }]}>{editableOwner.name}</Text>
 
             </View>
-            <Text style={[styles.profileRole, { color: 'rgba(255,255,255,0.8)' }]}>{editableOwner.role}</Text>
+            <Text style={[styles.profileRole, { color: 'rgba(255,255,255,0.8)' }]}>
+              {editableOwner.role === "Hostel Owner" ? t("hostel_owner") : editableOwner.role === "Apartment Owner" ? t("apartment_owner") : editableOwner.role === "Commercial Owner" ? t("commercial_owner") : (t(editableOwner.role) || editableOwner.role)}
+            </Text>
           </View>
         </LinearGradient>
 
@@ -790,34 +790,34 @@ export default function OwnerProfile({ navigation }) {
           <View style={styles.sectionHeader}>
             <Text style={styles.sectionTitle}>{t("quick_actions") || "Quick Actions"}</Text>
             <TouchableOpacity>
-              <Text style={styles.viewReportText}>See All</Text>
+              <Text style={styles.viewReportText}>{t("see_all") || "See All"}</Text>
             </TouchableOpacity>
           </View>
           <View style={[styles.quickActionsGrid, { gap: 10 }]}>
             <QuickActionBtn
               icon="business-outline"
-              label="Edit Building"
+              label={t("edit_building") || "Edit Building"}
               color="#7C3AED"
               bg="#F5F3FF"
               onPress={() => navigation.navigate('Home', { editMode: true, ts: Date.now() })}
             />
             <QuickActionBtn
               icon="people-outline"
-              label="Tenants"
+              label={t("tenants") || "Tenants"}
               color="#059669"
               bg="#ECFDF5"
               onPress={() => navigation.navigate('Tenants')}
             />
             <QuickActionBtn
               icon="receipt-outline"
-              label="Add Expense"
+              label={t("add_expense") || "Add Expense"}
               color="#DC2626"
               bg="#FEF2F2"
               onPress={() => navigation.navigate('AddExpense')}
             />
             <QuickActionBtn
               icon="images-outline"
-              label="Upload Images"
+              label={t("upload_images") || "Upload Images"}
               color="#0284C7"
               bg="#F0F9FF"
               onPress={() => setShowPropertyImagesModal(true)}
@@ -1160,66 +1160,10 @@ export default function OwnerProfile({ navigation }) {
       </Modal>
 
       {/* Language Selection Modal */}
-      <Modal
+      <LanguageSelector
         visible={showLangModal}
-        transparent={true}
-        animationType="slide"
-        onRequestClose={() => setShowLangModal(false)}
-      >
-        <TouchableOpacity
-          style={styles.modalOverlay}
-          activeOpacity={1}
-          onPress={() => setShowLangModal(false)}
-        >
-          <View style={styles.modalContent}>
-            <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>{t("select_language") || "Select Language"}</Text>
-              <TouchableOpacity onPress={() => setShowLangModal(false)}>
-                <Ionicons name="close" size={24} color="#64748B" />
-              </TouchableOpacity>
-            </View>
-
-            <ScrollView showsVerticalScrollIndicator={false}>
-              {languages.map((item) => (
-                <TouchableOpacity
-                  key={item.id}
-                  style={[
-                    styles.modalOption,
-                    language === item.id && { backgroundColor: '#F5F3FF', borderRadius: 16 }
-                  ]}
-                  onPress={() => {
-                    changeLanguage(item.id);
-                    setShowLangModal(false);
-                  }}
-                >
-                  <View style={[styles.optionIcon, { backgroundColor: 'white' }]}>
-                    <Text style={{ fontSize: 24 }}>{item.icon}</Text>
-                  </View>
-                  <View style={{ flex: 1 }}>
-                    <Text style={[
-                      styles.optionLabel,
-                      language === item.id && { color: '#7A3FC4' }
-                    ]}>
-                      {item.name}
-                    </Text>
-                    <Text style={{ fontSize: 12, color: '#94A3B8' }}>{item.subName}</Text>
-                  </View>
-                  {language === item.id && (
-                    <Ionicons name="checkmark-circle" size={24} color="#7A3FC4" />
-                  )}
-                </TouchableOpacity>
-              ))}
-            </ScrollView>
-
-            <TouchableOpacity
-              style={styles.modalCancelBtn}
-              onPress={() => setShowLangModal(false)}
-            >
-              <Text style={styles.modalCancelText}>{t("cancel") || "Cancel"}</Text>
-            </TouchableOpacity>
-          </View>
-        </TouchableOpacity>
-      </Modal>
+        onClose={() => setShowLangModal(false)}
+      />
 
       {/* Absolute Coin Animation Layer - follows scroll */}
       {coords && !animationFinished && (
@@ -1441,7 +1385,7 @@ export default function OwnerProfile({ navigation }) {
             >
               <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                 <MaterialIcons name="support-agent" size={24} color="#FFF" style={{ marginRight: 8 }} />
-                <Text style={{ fontSize: 20, fontWeight: 'bold', color: '#FFF' }}>Support Agent</Text>
+                <Text style={{ fontSize: 20, fontWeight: 'bold', color: '#FFF' }}>{t("support_agent") || "Support Agent"}</Text>
               </View>
               <TouchableOpacity onPress={() => setShowAiModal(false)}>
                 <Ionicons name="close-circle" size={28} color="rgba(255,255,255,0.8)" />
@@ -1472,7 +1416,7 @@ export default function OwnerProfile({ navigation }) {
               <View style={{ flexDirection: 'row', padding: 12, borderTopWidth: 1, borderTopColor: '#E5E7EB', backgroundColor: '#FFF' }}>
                 <TextInput
                   style={{ flex: 1, backgroundColor: '#F3F4F6', borderRadius: 20, paddingHorizontal: 16, paddingVertical: 10, fontSize: 15, maxHeight: 100, color: '#1F2937' }}
-                  placeholder="Ask a question..."
+                  placeholder={t("ask_a_question") || "Ask a question..."}
                   placeholderTextColor="#9CA3AF"
                   value={aiInputText}
                   onChangeText={setAiInputText}

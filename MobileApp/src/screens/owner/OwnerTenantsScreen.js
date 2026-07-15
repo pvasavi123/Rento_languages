@@ -260,7 +260,7 @@ export default function OwnerTenantsScreen({ navigation, route }) {
           ListEmptyComponent={
             <View style={styles.emptyContainer}>
               <Ionicons name="people-outline" size={64} color="#D1D5DB" />
-              <Text style={styles.emptyText}>No tenants found</Text>
+              <Text style={styles.emptyText}>{t("no_tenants_found") || "No tenants found"}</Text>
             </View>
           }
         />

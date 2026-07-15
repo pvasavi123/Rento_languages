@@ -25,6 +25,7 @@ import COLORS from "../../theme/colors";
 import { TenantContext } from "@/src/context/TenantContext";
 import { BookingContext } from "@/src/context/BookingContext";
 import FilterBottomSheet from "../../../components/FilterBottomScreen";
+import { useLanguage } from "../../utils/LanguageContext";
 
 const { width } = Dimensions.get("window");
 
@@ -148,6 +149,7 @@ const normalizeFacility = (name) => {
 };
 
 export default function ApartmentScreen() {
+  const { t } = useLanguage();
   const { isConnected } = useNetwork();
   const navigation = useNavigation();
   const [search, setSearch] = useState("");
@@ -501,8 +503,8 @@ const filteredApartments = useMemo(() => {
 
           <View style={styles.heroContent}>
             <View style={styles.heroTextContainer}>
-              <Text style={styles.heroTitle}>Apartments</Text>
-              <Text style={styles.heroSubtitle}>Modern & Spacious</Text>
+              <Text style={styles.heroTitle}>{t("apartments") || "Apartments"}</Text>
+              <Text style={styles.heroSubtitle}>{t("apartments_subtitle") || "Modern & Spacious"}</Text>
             </View>
             <Image
               source={require("../../../assets/images/apartmentLogo.png")}
@@ -518,7 +520,7 @@ const filteredApartments = useMemo(() => {
             <Ionicons name="search" size={20} color="#999" />
             <TextInput
               style={styles.searchInput}
-              placeholder="Search location, property or owner..."
+              placeholder={t("search_property_owner_placeholder") || "Search location, property or owner..."}
               value={search}
               onChangeText={setSearch}
             />
@@ -527,13 +529,13 @@ const filteredApartments = useMemo(() => {
   onPress={() => filterSheetRef.current?.present()}
 >
               <Ionicons name="options-outline" size={20} color="#2563eb" />
-              <Text style={styles.filterText}>Filters</Text>
+              <Text style={styles.filterText}>{t("filter") || "Filters"}</Text>
             </TouchableOpacity>
           </View>
         </View>
 
         <View style={styles.content}>
-          <Text style={styles.sectionTitle}>Modern Living Spaces</Text>
+          <Text style={styles.sectionTitle}>{t("modern_living_spaces") || "Modern Living Spaces"}</Text>
 
           {filteredApartments.map((item) => (
             <TouchableOpacity
@@ -554,14 +556,14 @@ const filteredApartments = useMemo(() => {
                   </View>
                   {item.facilities.slice(0, 2).map((fac, idx) => (
                     <View key={idx} style={styles.tag}>
-                      <Text style={styles.tagText}>{fac}</Text>
+                      <Text style={styles.tagText}>{t(fac.toLowerCase()) || fac}</Text>
                     </View>
                   ))}
                 </View>
 
                 <View style={styles.priceRow}>
                   <Text style={styles.priceText}>₹{item.price}</Text>
-                  <Text style={styles.pricePeriod}>/month</Text>
+                  <Text style={styles.pricePeriod}>/{t("month_suffix") || "month"}</Text>
                 </View>
               </View>
             </TouchableOpacity>
@@ -570,7 +572,7 @@ const filteredApartments = useMemo(() => {
           {filteredApartments.length === 0 && (
             <View style={styles.emptyContainer}>
               <Ionicons name="search-outline" size={60} color="#ccc" />
-              <Text style={styles.emptyText}>No apartments found</Text>
+              <Text style={styles.emptyText}>{t("no_apartments_found") || "No apartments found"}</Text>
             </View>
           )}
         </View>

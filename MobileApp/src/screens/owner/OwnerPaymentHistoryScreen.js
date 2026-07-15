@@ -5,12 +5,14 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as FileSystem from 'expo-file-system';
 import * as Sharing from 'expo-sharing';
 import * as Print from 'expo-print';
+import { useLanguage } from '../../utils/LanguageContext';
 import COLORS from '../../theme/colors';
 import BASE_URL, { fetchWithAuth } from '../../config/Api';
 import { useNetwork } from '../../hooks/useNetwork';
 import OfflineView from '../../components/OfflineView';
 
 export default function OwnerPaymentHistoryScreen({ route, navigation }) {
+    const { t } = useLanguage();
     const { isConnected } = useNetwork();
     const { phone } = route.params || {};
     const [payments, setPayments] = useState([]);
@@ -232,7 +234,7 @@ export default function OwnerPaymentHistoryScreen({ route, navigation }) {
                 <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
                     <Ionicons name="arrow-back" size={24} color={COLORS.TEXT_PRIMARY} />
                 </TouchableOpacity>
-                <Text style={styles.headerTitle}>Payment History</Text>
+                <Text style={styles.headerTitle}>{t("payment_history") || "Payment History"}</Text>
                 <TouchableOpacity onPress={downloadReport} style={styles.downloadBtn}>
                     <Ionicons name="download-outline" size={22} color={COLORS.PRIMARY || "#6366F1"} />
 
@@ -243,7 +245,7 @@ export default function OwnerPaymentHistoryScreen({ route, navigation }) {
             <View style={styles.monthBanner}>
                 <Ionicons name="information-circle-outline" size={18} color="#4F46E5" />
                 <Text style={styles.monthBannerText}>
-                    Showing all payment history
+                    {t("showing_all_payment_history") || "Showing all payment history"}
                 </Text>
             </View>
 
@@ -255,7 +257,7 @@ export default function OwnerPaymentHistoryScreen({ route, navigation }) {
                 ListEmptyComponent={
                     <View style={styles.emptyContainer}>
                         <Ionicons name="receipt-outline" size={64} color="#ccc" />
-                        <Text style={styles.emptyText}>No payment history found for this month</Text>
+                        <Text style={styles.emptyText}>{t("no_payment_history_found_for_this_month") || "No payment history found for this month"}</Text>
                     </View>
                 }
                 refreshing={loading}

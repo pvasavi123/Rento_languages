@@ -1,0 +1,268 @@
+const fs = require('fs');
+const path = require('path');
+
+const localesPath = path.join(__dirname, 'src', 'locales'); // FIXED PATH
+
+const missingTranslations = {
+  "en": {
+    "filters": "Filters",
+    "price_range": "Price Range",
+    "details": "Details",
+    "month": "Month",
+    "vacant": "Vacant",
+    "notification": "Notification",
+    "select_tenant_type": "Select Tenant Type",
+    "new_tenant": "New Tenant",
+    "existing_tenant": "Existing Tenant",
+    "cancel": "Cancel",
+    "book_now": "Book Now",
+    "select_check_in_date": "Select Check-In Date",
+    "book_property": "Book Property",
+    "sharing": "Sharing",
+    "persons": "Persons",
+    "request_to_join": "Request to Join",
+    "existing_tenant_selection": "Existing Tenant Selection",
+    "select_room": "Select Room",
+    "bed": "Bed"
+  },
+  "hi": {
+    "filters": "फ़िल्टर",
+    "price_range": "मूल्य सीमा",
+    "details": "विवरण",
+    "month": "महीना",
+    "vacant": "रिक्त",
+    "notification": "अधिसूचना",
+    "select_tenant_type": "किरायेदार का प्रकार चुनें",
+    "new_tenant": "नया किरायेदार",
+    "existing_tenant": "मौजूदा किरायेदार",
+    "cancel": "रद्द करें",
+    "book_now": "अभी बुक करें",
+    "select_check_in_date": "चेक-इन तिथि चुनें",
+    "book_property": "प्रॉपर्टी बुक करें",
+    "sharing": "शेयरिंग",
+    "persons": "व्यक्ति",
+    "request_to_join": "जुड़ने का अनुरोध करें",
+    "existing_tenant_selection": "मौजूदा किरायेदार चयन",
+    "select_room": "कमरा चुनें",
+    "bed": "बेड"
+  },
+  "te": {
+    "filters": "ఫిల్టర్లు",
+    "price_range": "ధర పరిధి",
+    "details": "వివరాలు",
+    "month": "నెల",
+    "vacant": "ఖాళీ",
+    "notification": "నోటిఫికేషన్",
+    "select_tenant_type": "అద్దెదారు రకాన్ని ఎంచుకోండి",
+    "new_tenant": "కొత్త అద్దెదారు",
+    "existing_tenant": "ప్రస్తుత అద్దెదారు",
+    "cancel": "రద్దు చేయండి",
+    "book_now": "ఇప్పుడే బుక్ చేయండి",
+    "select_check_in_date": "చెకిన్ తేదీని ఎంచుకోండి",
+    "book_property": "ప్రాపర్టీని బుక్ చేయండి",
+    "sharing": "షేరింగ్",
+    "persons": "వ్యక్తులు",
+    "request_to_join": "చేరడానికి అభ్యర్థించండి",
+    "existing_tenant_selection": "ప్రస్తుత అద్దెదారు ఎంపిక",
+    "select_room": "గదిని ఎంచుకోండి",
+    "bed": "బెడ్"
+  },
+  "ta": {
+    "filters": "வடிகட்டிகள்",
+    "price_range": "விலை வரம்பு",
+    "details": "விவரங்கள்",
+    "month": "மாதம்",
+    "vacant": "காலியிடம்",
+    "notification": "அறிவிப்பு",
+    "select_tenant_type": "வாடகைதாரர் வகையைத் தேர்ந்தெடுக்கவும்",
+    "new_tenant": "புதிய வாடகைதாரர்",
+    "existing_tenant": "தற்போதைய வாடகைதாரர்",
+    "cancel": "ரத்துசெய்",
+    "book_now": "இப்போது பதிவு செய்",
+    "select_check_in_date": "செக்-இன் தேதியைத் தேர்வுசெய்க",
+    "book_property": "சொத்தை முன்பதிவு செய்",
+    "sharing": "பகிர்வு",
+    "persons": "நபர்கள்",
+    "request_to_join": "இணைய கோரிக்கை",
+    "existing_tenant_selection": "தற்போதைய வாடகைதாரர் தேர்வு",
+    "select_room": "அறையைத் தேர்ந்தெடு",
+    "bed": "படுக்கை"
+  },
+  "mr": {
+    "filters": "फिल्टर्स",
+    "price_range": "किंमत श्रेणी",
+    "details": "तपशील",
+    "month": "महिना",
+    "vacant": "रिक्त",
+    "notification": "अधिसूचना",
+    "select_tenant_type": "भाडेकरू प्रकार निवडा",
+    "new_tenant": "नवीन भाडेकरू",
+    "existing_tenant": "विद्यमान भाडेकरू",
+    "cancel": "रद्द करा",
+    "book_now": "आता बुक करा",
+    "select_check_in_date": "चेक-इन तारीख निवडा",
+    "book_property": "प्रॉपर्टी बुक करा",
+    "sharing": "शेअरिंग",
+    "persons": "व्यक्ती",
+    "request_to_join": "सामील होण्याची विनंती करा",
+    "existing_tenant_selection": "विद्यमान भाडेकरू निवड",
+    "select_room": "खोली निवडा",
+    "bed": "बेड"
+  },
+  "kn": {
+    "filters": "ಫಿಲ್ಟರ್‌ಗಳು",
+    "price_range": "ಬೆಲೆ ಶ್ರೇಣಿ",
+    "details": "ವಿವರಗಳು",
+    "month": "ತಿಂಗಳು",
+    "vacant": "ಖಾಲಿ",
+    "notification": "ಅಧಿಸೂಚನೆ",
+    "select_tenant_type": "ಬಾಡಿಗೆದಾರರ ಪ್ರಕಾರವನ್ನು ಆಯ್ಕೆಮಾಡಿ",
+    "new_tenant": "ಹೊಸ ಬಾಡಿಗೆದಾರ",
+    "existing_tenant": "ಹಾಲಿ ಬಾಡಿಗೆದಾರ",
+    "cancel": "ರದ್ದುಗೊಳಿಸಿ",
+    "book_now": "ಈಗ ಬುಕ್ ಮಾಡಿ",
+    "select_check_in_date": "ಚೆಕ್-ಇನ್ ದಿನಾಂಕವನ್ನು ಆಯ್ಕೆಮಾಡಿ",
+    "book_property": "ಆಸ್ತಿಯನ್ನು ಬುಕ್ ಮಾಡಿ",
+    "sharing": "ಹಂಚಿಕೆ",
+    "persons": "ವ್ಯಕ್ತಿಗಳು",
+    "request_to_join": "ಸೇರಲು ವಿನಂತಿಸಿ",
+    "existing_tenant_selection": "ಹಾಲಿ ಬಾಡಿಗೆದಾರರ ಆಯ್ಕೆ",
+    "select_room": "ಕೊಠಡಿ ಆಯ್ಕೆಮಾಡಿ",
+    "bed": "ಹಾಸಿಗೆ"
+  },
+  "ml": {
+    "filters": "ഫിൽറ്ററുകൾ",
+    "price_range": "വില പരിധി",
+    "details": "വിശദാംശങ്ങൾ",
+    "month": "മാസം",
+    "vacant": "ഒഴിവുള്ളത്",
+    "notification": "അറിയിപ്പ്",
+    "select_tenant_type": "വാടകക്കാരന്റെ തരം തിരഞ്ഞെടുക്കുക",
+    "new_tenant": "പുതിയ വാടകക്കാരൻ",
+    "existing_tenant": "നിലവിലെ വാടകക്കാരൻ",
+    "cancel": "റദ്ദാക്കുക",
+    "book_now": "ഇപ്പോൾ ബുക്ക് ചെയ്യുക",
+    "select_check_in_date": "ചെക്ക്-ഇൻ തീയതി തിരഞ്ഞെടുക്കുക",
+    "book_property": "വസ്തു ബുക്ക് ചെയ്യുക",
+    "sharing": "പങ്കിടൽ",
+    "persons": "ആളുകൾ",
+    "request_to_join": "ചേരാൻ അഭ്യർത്ഥിക്കുക",
+    "existing_tenant_selection": "നിലവിലെ വാടകക്കാരന്റെ തിരഞ്ഞെടുപ്പ്",
+    "select_room": "മുറി തിരഞ്ഞെടുക്കുക",
+    "bed": "കിടക്ക"
+  },
+  "gu": {
+    "filters": "ફિલ્ટર્સ",
+    "price_range": "કિંમત શ્રેણી",
+    "details": "વિગતો",
+    "month": "મહિનો",
+    "vacant": "ખાલી",
+    "notification": "સૂચના",
+    "select_tenant_type": "ભાડૂતનો પ્રકાર પસંદ કરો",
+    "new_tenant": "નવો ભાડૂત",
+    "existing_tenant": "હાલનો ભાડૂત",
+    "cancel": "રદ કરો",
+    "book_now": "હમણાં બુક કરો",
+    "select_check_in_date": "ચેક-ઇન તારીખ પસંદ કરો",
+    "book_property": "મિલકત બુક કરો",
+    "sharing": "શેરિંગ",
+    "persons": "વ્યક્તિઓ",
+    "request_to_join": "જોડાવા માટે વિનંતી કરો",
+    "existing_tenant_selection": "હાલના ભાડૂતની પસંદગી",
+    "select_room": "રૂમ પસંદ કરો",
+    "bed": "બેડ"
+  },
+  "pa": {
+    "filters": "ਫਿਲਟਰ",
+    "price_range": "ਕੀਮਤ ਰੇਂਜ",
+    "details": "ਵੇਰਵੇ",
+    "month": "ਮਹੀਨਾ",
+    "vacant": "ਖਾਲੀ",
+    "notification": "ਸੂਚਨਾ",
+    "select_tenant_type": "ਕਿਰਾਏਦਾਰ ਦੀ ਕਿਸਮ ਚੁਣੋ",
+    "new_tenant": "ਨਵਾਂ ਕਿਰਾਏਦਾਰ",
+    "existing_tenant": "ਮੌਜੂਦਾ ਕਿਰਾਏਦਾਰ",
+    "cancel": "ਰੱਦ ਕਰੋ",
+    "book_now": "ਹੁਣੇ ਬੁੱਕ ਕਰੋ",
+    "select_check_in_date": "ਚੈੱਕ-ਇਨ ਤਾਰੀਖ ਚੁਣੋ",
+    "book_property": "ਪ੍ਰਾਪਰਟੀ ਬੁੱਕ ਕਰੋ",
+    "sharing": "ਸ਼ੇਅਰਿੰਗ",
+    "persons": "ਵਿਅਕਤੀ",
+    "request_to_join": "ਸ਼ਾਮਲ ਹੋਣ ਦੀ ਬੇਨਤੀ ਕਰੋ",
+    "existing_tenant_selection": "ਮੌਜੂਦਾ ਕਿਰਾਏਦਾਰ ਦੀ ਚੋਣ",
+    "select_room": "ਕਮਰਾ ਚੁਣੋ",
+    "bed": "ਬੈੱਡ"
+  },
+  "bn": {
+    "filters": "ফিল্টার",
+    "price_range": "মূল্য পরিসীমা",
+    "details": "বিবরণ",
+    "month": "মাস",
+    "vacant": "খালি",
+    "notification": "বিজ্ঞপ্তি",
+    "select_tenant_type": "ভাড়াটের ধরন নির্বাচন করুন",
+    "new_tenant": "নতুন ভাড়াটে",
+    "existing_tenant": "বিদ্যমান ভাড়াটে",
+    "cancel": "বাতিল করুন",
+    "book_now": "এখন বুক করুন",
+    "select_check_in_date": "চেক-ইন তারিখ নির্বাচন করুন",
+    "book_property": "প্রপার্টি বুক করুন",
+    "sharing": "শেয়ারিং",
+    "persons": "ব্যক্তি",
+    "request_to_join": "যোগদানের জন্য অনুরোধ করুন",
+    "existing_tenant_selection": "বিদ্যমান ভাড়াটে নির্বাচন",
+    "select_room": "রুম নির্বাচন করুন",
+    "bed": "বেড"
+  },
+  "or": {
+    "filters": "ଫିଲ୍ଟରଗୁଡ଼ିକ",
+    "price_range": "ମୂଲ୍ୟ ପରିସର",
+    "details": "ବିବରଣୀ",
+    "month": "ମାସ",
+    "vacant": "ଖାଲି",
+    "notification": "ବିଜ୍ଞପ୍ତି",
+    "select_tenant_type": "ଭଡାଟିଆ ପ୍ରକାର ବାଛନ୍ତୁ",
+    "new_tenant": "ନୂଆ ଭଡାଟିଆ",
+    "existing_tenant": "ବିଦ୍ୟମାନ ଭଡାଟିଆ",
+    "cancel": "ବାତିଲ୍ କରନ୍ତୁ",
+    "book_now": "ବର୍ତ୍ତମାନ ବୁକ୍ କରନ୍ତୁ",
+    "select_check_in_date": "ଚେକ୍-ଇନ୍ ତାରିଖ ବାଛନ୍ତୁ",
+    "book_property": "ସମ୍ପତ୍ତି ବୁକ୍ କରନ୍ତୁ",
+    "sharing": "ଅଂଶୀଦାର",
+    "persons": "ବ୍ୟକ୍ତିଗଣ",
+    "request_to_join": "ଯୋଗଦାନ ପାଇଁ ଅନୁରୋଧ କରନ୍ତୁ",
+    "existing_tenant_selection": "ବିଦ୍ୟମାନ ଭଡାଟିଆ ଚୟନ",
+    "select_room": "ରୁମ୍ ବାଛନ୍ତୁ",
+    "bed": "ବେଡ୍"
+  }
+};
+
+async function main() {
+  for (const lang of Object.keys(missingTranslations)) {
+    const filePath = path.join(localesPath, lang, 'common.json');
+    if (fs.existsSync(filePath)) {
+      const data = fs.readFileSync(filePath, 'utf8');
+      try {
+        const json = JSON.parse(data);
+        const updates = missingTranslations[lang];
+        let hasChanges = false;
+        
+        for (const [key, value] of Object.entries(updates)) {
+            json[key] = value;
+            hasChanges = true;
+        }
+
+        if (hasChanges) {
+          fs.writeFileSync(filePath, JSON.stringify(json, null, 2), 'utf8');
+          console.log(`Updated ${lang}/common.json`);
+        }
+      } catch (e) {
+        console.error(`Error parsing ${filePath}:`, e);
+      }
+    } else {
+        console.warn(`File not found: ${filePath}`);
+    }
+  }
+}
+
+main();

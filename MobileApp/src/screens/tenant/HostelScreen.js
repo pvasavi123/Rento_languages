@@ -26,6 +26,7 @@ import COLORS from "../../theme/colors";
 import { TenantContext } from "@/src/context/TenantContext";
 import { BookingContext } from "@/src/context/BookingContext";
 import FilterBottomSheet from "../../../components/FilterBottomScreen";
+import { useLanguage } from "../../utils/LanguageContext";
 
 const CITY_STATE_MAP = {
   hyderabad: "telangana", warangal: "telangana", nizamabad: "telangana", karimnagar: "telangana", khammam: "telangana",
@@ -152,6 +153,7 @@ const normalizeFacility = (name) => {
 
 
 export default function HostelScreen() {
+  const { t } = useLanguage();
   const { isConnected } = useNetwork();
   const navigation = useNavigation();
   const [search, setSearch] = useState("");
@@ -493,8 +495,8 @@ const filteredHostels = useMemo(() => {
 
           <View style={styles.heroContent}>
             <View style={styles.heroTextContainer}>
-              <Text style={styles.heroTitle}>Hostels</Text>
-              <Text style={styles.heroSubtitle}>Affordable & Comfortable</Text>
+              <Text style={styles.heroTitle}>{t("hostels") || "Hostels"}</Text>
+              <Text style={styles.heroSubtitle}>{t("hostels_subtitle") || "Affordable & Comfortable"}</Text>
             </View>
             <Image
               source={require("../../../assets/images/hostelLogo.png")}
@@ -510,7 +512,7 @@ const filteredHostels = useMemo(() => {
             <Ionicons name="search" size={20} color="#999" />
             <TextInput
               style={styles.searchInput}
-              placeholder="Search location, property or owner..."
+              placeholder={t("search_property_owner_placeholder") || "Search location, property or owner..."}
               value={search}
               onChangeText={setSearch}
             />
@@ -519,13 +521,13 @@ const filteredHostels = useMemo(() => {
               onPress={() => filterSheetRef.current?.present()}
             >
               <Ionicons name="options-outline" size={20} color={COLORS.PRIMARY} />
-              <Text style={styles.filterText}>Filters</Text>
+              <Text style={styles.filterText}>{t("filter") || "Filters"}</Text>
             </TouchableOpacity>
           </View>
         </View>
 
         <View style={styles.content}>
-          <Text style={styles.sectionTitle}>Popular Hostels</Text>
+          <Text style={styles.sectionTitle}>{t("popular_hostels") || "Popular Hostels"}</Text>
 
           {loading ? (
             <View
@@ -556,14 +558,14 @@ const filteredHostels = useMemo(() => {
                     <View style={styles.tagRow}>
                       {item.facilities.slice(0, 3).map((fac, idx) => (
                         <View key={idx} style={styles.tag}>
-                          <Text style={styles.tagText}>{fac}</Text>
+                          <Text style={styles.tagText}>{t(fac.toLowerCase()) || fac}</Text>
                         </View>
                       ))}
                     </View>
 
                     <View style={styles.priceRow}>
                       <Text style={styles.priceText}>₹{item.price}</Text>
-                      <Text style={styles.pricePeriod}>/month</Text>
+                      <Text style={styles.pricePeriod}>/{t("month_suffix") || "month"}</Text>
                     </View>
                   </View>
                 </TouchableOpacity>
@@ -572,7 +574,7 @@ const filteredHostels = useMemo(() => {
               {filteredHostels.length === 0 && (
                 <View style={styles.emptyContainer}>
                   <Ionicons name="search-outline" size={60} color="#ccc" />
-                  <Text style={styles.emptyText}>No hostels found</Text>
+                  <Text style={styles.emptyText}>{t("no_hostels_found") || "No hostels found"}</Text>
                 </View>
               )}
             </>

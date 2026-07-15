@@ -170,26 +170,26 @@ const OwnerNotificationScreen = ({ route }) => {
 
     if (item.type === "issue") {
       switch (status) {
-        case "completed": return { label: "Resolved", color: COLORS.SUCCESS, bg: "#E8F5E9" };
-        case "in progress": return { label: "In Progress", color: COLORS.PRIMARY, bg: "#F5F3FF" };
-        default: return { label: "Open", color: COLORS.ERROR, bg: "#FFEBEE" };
+        case "completed": return { label: t("resolved") || "Resolved", color: COLORS.SUCCESS, bg: "#E8F5E9" };
+        case "in progress": return { label: t("in_progress") || "In Progress", color: COLORS.PRIMARY, bg: "#F5F3FF" };
+        default: return { label: t("open") || "Open", color: COLORS.ERROR, bg: "#FFEBEE" };
       }
     }
 
     if (item.type === "payment") {
       switch (status) {
-        case "success": return { label: "Success", color: COLORS.SUCCESS, bg: "#E8F5E9" };
-        case "failed": return { label: "Failed", color: COLORS.ERROR, bg: "#FFEBEE" };
-        default: return { label: "Verifying", color: COLORS.WARNING, bg: "#FFF8E1" };
+        case "success": return { label: t("success") || "Success", color: COLORS.SUCCESS, bg: "#E8F5E9" };
+        case "failed": return { label: t("failed") || "Failed", color: COLORS.ERROR, bg: "#FFEBEE" };
+        default: return { label: t("verifying") || "Verifying", color: COLORS.WARNING, bg: "#FFF8E1" };
       }
     }
 
     switch (status) {
-      case "accepted": return { label: "Approved", color: COLORS.SUCCESS, bg: "#E8F5E9" };
-      case "rejected": return { label: "Declined", color: COLORS.ERROR, bg: "#FFEBEE" };
-      case "withdrawn": return { label: "Withdrawn", color: COLORS.TEXT_LIGHT, bg: "#F1F5F9" };
-      case "allotted": return { label: "Room Allotted", color: COLORS.PRIMARY, bg: "#F5F3FF" };
-      default: return { label: "Pending", color: COLORS.WARNING, bg: "#FFF8E1" };
+      case "accepted": return { label: t("approved") || "Approved", color: COLORS.SUCCESS, bg: "#E8F5E9" };
+      case "rejected": return { label: t("declined") || "Declined", color: COLORS.ERROR, bg: "#FFEBEE" };
+      case "withdrawn": return { label: t("withdrawn") || "Withdrawn", color: COLORS.TEXT_LIGHT, bg: "#F1F5F9" };
+      case "allotted": return { label: t("room_allotted") || "Room Allotted", color: COLORS.PRIMARY, bg: "#F5F3FF" };
+      default: return { label: t("pending") || "Pending", color: COLORS.WARNING, bg: "#FFF8E1" };
     }
   };
 
@@ -283,11 +283,11 @@ const OwnerNotificationScreen = ({ route }) => {
                 <Text style={styles.userName}>{item.name}</Text>
                 {item.type === "existing_tenant" ? (
                   <View style={{ backgroundColor: "#E0E7FF", paddingHorizontal: 6, paddingVertical: 2, borderRadius: 4 }}>
-                    <Text style={{ fontSize: 10, fontWeight: "700", color: "#4338CA" }}>Existing Tenant</Text>
+                    <Text style={{ fontSize: 10, fontWeight: "700", color: "#4338CA" }}>{t("existing_tenant") || "Existing Tenant"}</Text>
                   </View>
                 ) : item.type !== "issue" && item.type !== "payment" ? (
                   <View style={{ backgroundColor: "#ECFDF5", paddingHorizontal: 6, paddingVertical: 2, borderRadius: 4 }}>
-                    <Text style={{ fontSize: 10, fontWeight: "700", color: "#059669" }}>New Tenant</Text>
+                    <Text style={{ fontSize: 10, fontWeight: "700", color: "#059669" }}>{t("new_tenant") || "New Tenant"}</Text>
                   </View>
                 ) : null}
               </View>
@@ -334,11 +334,11 @@ const OwnerNotificationScreen = ({ route }) => {
 
         <View style={styles.detailsGrid}>
           <View style={styles.detailItem}>
-            <Text style={styles.detailLabel}>Check-in</Text>
-            <Text style={styles.detailValue}>{item.checkIn || "Flexible"}</Text>
+            <Text style={styles.detailLabel}>{t("check_in") || "Check-in"}</Text>
+            <Text style={styles.detailValue}>{item.checkIn || t("flexible") || "Flexible"}</Text>
           </View>
           <View style={styles.detailItem}>
-            <Text style={styles.detailLabel}>Phone</Text>
+            <Text style={styles.detailLabel}>{t("phone") || "Phone"}</Text>
             <Text style={styles.detailValue}>{item.phone}</Text>
           </View>
         </View>
@@ -354,14 +354,14 @@ const OwnerNotificationScreen = ({ route }) => {
                   onPress={() => handleAction("accepted", item.db_id || item.id, item.is_existing_tenant)}
                 >
                   <Ionicons name="checkmark-circle" size={18} color={COLORS.WHITE} />
-                  <Text style={styles.btnTextPrimary}>Accept</Text>
+                  <Text style={styles.btnTextPrimary}>{t("accept") || "Accept"}</Text>
                 </TouchableOpacity>
 
                 <TouchableOpacity
                   style={[styles.btn, styles.declineBtn]}
                   onPress={() => handleAction("rejected", item.db_id || item.id, item.is_existing_tenant)}
                 >
-                  <Text style={styles.btnTextSecondary}>Decline</Text>
+                  <Text style={styles.btnTextSecondary}>{t("decline") || "Decline"}</Text>
                 </TouchableOpacity>
               </>
             ) : (
@@ -374,14 +374,14 @@ const OwnerNotificationScreen = ({ route }) => {
                   })}
                 >
                   <Ionicons name="bed-outline" size={18} color={COLORS.WHITE} />
-                  <Text style={styles.btnTextPrimary}>Allot Room</Text>
+                  <Text style={styles.btnTextPrimary}>{t("allot_room") || "Allot Room"}</Text>
                 </TouchableOpacity>
 
                 <TouchableOpacity
                   style={[styles.btn, styles.declineBtn]}
                   onPress={() => handleAction("rejected", item.db_id || item.id, item.is_existing_tenant)}
                 >
-                  <Text style={styles.btnTextSecondary}>Decline</Text>
+                  <Text style={styles.btnTextSecondary}>{t("decline") || "Decline"}</Text>
                 </TouchableOpacity>
               </>
             )}
@@ -393,11 +393,11 @@ const OwnerNotificationScreen = ({ route }) => {
               onPress={() => handleAction("accepted", item.db_id || item.id, item.is_existing_tenant)}
             >
               <Ionicons name="checkmark-done" size={18} color={COLORS.WHITE} />
-              <Text style={styles.btnTextPrimary}>Approve</Text>
+              <Text style={styles.btnTextPrimary}>{t("approve") || "Approve"}</Text>
             </TouchableOpacity>
 
             <TouchableOpacity style={[styles.btn, styles.declineBtn]} onPress={() => handleAction("rejected", item.db_id || item.id, item.is_existing_tenant)}>
-              <Text style={styles.btnTextSecondary}>Decline</Text>
+              <Text style={styles.btnTextSecondary}>{t("decline") || "Decline"}</Text>
             </TouchableOpacity>
           </View>
         ) : null}
@@ -427,8 +427,8 @@ const OwnerNotificationScreen = ({ route }) => {
               <Ionicons name="arrow-back" size={24} color={COLORS.TEXT_PRIMARY} />
             </TouchableOpacity>
             <View>
-              <Text style={styles.headerTitle}>Guest Requests</Text>
-              <Text style={styles.headerSubtitle}>Manage incoming booking applications</Text>
+              <Text style={styles.headerTitle}>{t("guest_requests") || "Guest Requests"}</Text>
+              <Text style={styles.headerSubtitle}>{t("manage_incoming_booking_applications") || "Manage incoming booking applications"}</Text>
             </View>
           </View>
           {visibleRequests.length > 0 && (
@@ -436,16 +436,16 @@ const OwnerNotificationScreen = ({ route }) => {
               style={styles.clearBtn}
               onPress={() => {
                 Alert.alert(
-                  "Clear All",
-                  "Are you sure you want to clear all notifications?",
+                  t("clear_all") || "Clear All",
+                  t("clear_all_confirm") || "Are you sure you want to clear all notifications?",
                   [
-                    { text: "Cancel", style: "cancel" },
-                    { text: "Clear All", onPress: clearAllNotifications, style: "destructive" }
+                    { text: t("cancel") || "Cancel", style: "cancel" },
+                    { text: t("clear_all") || "Clear All", onPress: clearAllNotifications, style: "destructive" }
                   ]
                 );
               }}
             >
-              <Text style={styles.clearBtnText}>Clear All</Text>
+              <Text style={styles.clearBtnText}>{t("clear_all") || "Clear All"}</Text>
             </TouchableOpacity>
           )}
         </View>
@@ -461,8 +461,8 @@ const OwnerNotificationScreen = ({ route }) => {
         {visibleRequests.length === 0 ? (
           <View style={styles.emptyState}>
             <MaterialCommunityIcons name="clipboard-check-outline" size={80} color={COLORS.BORDER} />
-            <Text style={styles.emptyTitle}>All cleared!</Text>
-            <Text style={styles.emptyText}>You've managed all your guest requests.</Text>
+            <Text style={styles.emptyTitle}>{t("all_cleared") || "All cleared!"}</Text>
+            <Text style={styles.emptyText}>{t("managed_all_guest_requests") || "You've managed all your guest requests."}</Text>
           </View>
         ) : (
           Object.entries(grouped).map(([title, items]) => (

@@ -181,8 +181,8 @@ export default function PropertyImagesUpload({ ownerPhone }) {
             <Ionicons name="images" size={18} color="#7C3AED" />
           </View>
           <View>
-            <Text style={{ fontSize: 16, fontWeight: "700", color: "#111827" }}>Property Gallery</Text>
-            <Text style={{ color: "#9CA3AF", fontSize: 12, marginTop: 1 }}>Upload room & property photos</Text>
+            <Text style={{ fontSize: 16, fontWeight: "700", color: "#111827" }}>{t("property_gallery") || "Property Gallery"}</Text>
+            <Text style={{ color: "#9CA3AF", fontSize: 12, marginTop: 1 }}>{t("upload_room_property_photos") || "Upload room & property photos"}</Text>
           </View>
         </View>
         {/* Photo count badge */}
@@ -231,9 +231,9 @@ export default function PropertyImagesUpload({ ownerPhone }) {
           )}
         </View>
         <Text style={{ fontSize: 14, fontWeight: "700", color: "#1E1B4B", marginBottom: 4 }}>
-          {isUploading ? 'Uploading...' : 'Upload Property Gallery'}
+          {isUploading ? (t("uploading") || 'Uploading...') : (t("upload_property_gallery") || 'Upload Property Gallery')}
         </Text>
-        <Text style={{ fontSize: 12, color: "#9CA3AF" }}>Maximum 10 Photos • JPG, PNG</Text>
+        <Text style={{ fontSize: 12, color: "#9CA3AF" }}>{t("max_photos_format") || "Maximum 10 Photos • JPG, PNG"}</Text>
       </TouchableOpacity>
 
       {errorMsg ? (
@@ -289,7 +289,7 @@ export default function PropertyImagesUpload({ ownerPhone }) {
               disabled={isUploading}
             >
               <Ionicons name="add" size={24} color="#7C3AED" />
-              <Text style={{ fontSize: 10, color: "#7C3AED", fontWeight: "600", marginTop: 3 }}>Add More</Text>
+              <Text style={{ fontSize: 10, color: "#7C3AED", fontWeight: "600", marginTop: 3 }}>{t("add_more") || "Add More"}</Text>
             </TouchableOpacity>
           )}
         </View>
