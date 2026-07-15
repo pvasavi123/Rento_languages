@@ -15,6 +15,7 @@ import {
   StatusBar,
   Modal,
   ActivityIndicator,
+  RefreshControl,
 } from "react-native";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
@@ -162,6 +163,17 @@ export default function HostelScreen() {
   const [nearBy, setNearBy] = useState(0);
   const [userCoords, setUserCoords] = useState(null);
   const [properties, setProperties] = useState([]);
+  const hasFetchedLocationRef = useRef(false);
+  const [refreshing, setRefreshing] = useState(false);
+
+  const refreshLocation = async () => {
+    setRefreshing(true);
+    hasFetchedLocationRef.current = false;
+    await fetchHostels();
+    await getUserLocation();
+    setRefreshing(false);
+  };
+
   const { tenantEmail } = useContext(TenantContext);
   const { requests = [] } = useContext(BookingContext);
 
@@ -196,40 +208,51 @@ export default function HostelScreen() {
 
   useEffect(() => {
     fetchHostels();
+    if (isConnected && !hasFetchedLocationRef.current) {
+      hasFetchedLocationRef.current = true;
+      getUserLocation();
+    }
   }, [isConnected]);
 
+  const getUserLocation = async () => {
+    try {
+      const { status } = await Location.requestForegroundPermissionsAsync();
 
-  useEffect(() => {
-  getUserLocation();
-}, []);
+      if (status !== "granted") {
+        return;
+      }
 
-const getUserLocation = async () => {
-  try {
-    const { status } =
-      await Location.requestForegroundPermissionsAsync();
+      const location = await Location.getCurrentPositionAsync({});
+      const coords = {
+        latitude: location.coords.latitude,
+        longitude: location.coords.longitude,
+      };
+      
+      setUserCoords(coords);
+      fetchHostels(coords);
+    } catch (err) {
+      console.log("Location Error:", err);
+    }
+  };
 
-    if (status !== "granted") return;
-
-    const location =
-      await Location.getCurrentPositionAsync(
-        {}
-      );
-
-    setUserCoords({
-      latitude:
-        location.coords.latitude,
-      longitude:
-        location.coords.longitude,
-    });
-  } catch (err) {
-    console.log("Location Error:", err);
-  }
-};
-
-  const fetchHostels = async () => {
+  const fetchHostels = async (coords = null) => {
     try {
       setLoading(true);
-      const response = await fetchWithAuth(`${BASE_URL}/api/owner_props/`);
+      // Build query parameters for location-based filtering
+      let url = `${BASE_URL}/api/owner_props/`;
+      const query = [];
+      const currentCoords = coords || userCoords;
+      if (currentCoords) {
+        query.push(`latitude=${currentCoords.latitude}`);
+        query.push(`longitude=${currentCoords.longitude}`);
+      }
+      if (nearBy > 0) {
+        query.push(`radius=${nearBy}`);
+      }
+      if (query.length) {
+        url += `?${query.join('&')}`;
+      }
+      const response = await fetchWithAuth(url);
       if (!response.ok) {
         setProperties([]);
         return;
@@ -277,6 +300,7 @@ const getUserLocation = async () => {
             owner_id: item.owner_id,
             latitude: item.latitude ? parseFloat(item.latitude) : null,
             longitude: item.longitude ? parseFloat(item.longitude) : null,
+            distance_km: item.distance_km ? parseFloat(item.distance_km).toFixed(1) : null,
             isAvailable: item.isAvailable ?? true,
           };
         });
@@ -419,7 +443,7 @@ const filteredHostels = useMemo(() => {
       return (parseFloat(a.price) || 0) - (parseFloat(b.price) || 0);
     } else if (sortBy === "Price High-Low") {
       return (parseFloat(b.price) || 0) - (parseFloat(a.price) || 0);
-    } else if (sortBy === "Nearest First" && userCoords) {
+    } else if ((sortBy === "Nearest First" || sortBy === "Recommended") && userCoords) {
       if (!a.latitude || !a.longitude) return 1;
       if (!b.latitude || !b.longitude) return -1;
       const distA = getDistance(userCoords.latitude, userCoords.longitude, a.latitude, a.longitude);
@@ -449,7 +473,13 @@ const filteredHostels = useMemo(() => {
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="light-content" />
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 100 }}>
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{ paddingBottom: 100 }}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={refreshLocation} />
+        }
+      >
         {/* Hero Section */}
         <LinearGradient
           colors={["#7c3aed", "#a78bfa"]}

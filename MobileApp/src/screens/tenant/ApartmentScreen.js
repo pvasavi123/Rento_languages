@@ -15,6 +15,7 @@ import {
   SafeAreaView,
   StatusBar,
   Modal,
+  RefreshControl,
 } from "react-native";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
@@ -60,6 +61,23 @@ const CITY_ALIASES = {
   warangal: ["warangal"],
   nellore: ["nellore"],
   guntur: ["guntur"],
+};
+
+const CITY_STATE_MAP = {
+  hyderabad: "telangana", warangal: "telangana", nizamabad: "telangana", karimnagar: "telangana", khammam: "telangana",
+  bengaluru: "karnataka", mysore: "karnataka", mysuru: "karnataka", mangalore: "karnataka", mangaluru: "karnataka", hubli: "karnataka", belgaum: "karnataka", belagavi: "karnataka",
+  mumbai: "maharashtra", pune: "maharashtra", nagpur: "maharashtra", thane: "maharashtra", nashik: "maharashtra",
+  delhi: "delhi", "new delhi": "delhi", dwarka: "delhi", rohini: "delhi", saket: "delhi",
+  chennai: "tamil nadu", coimbatore: "tamil nadu", madurai: "tamil nadu", trichy: "tamil nadu", salem: "tamil nadu",
+  visakhapatnam: "andhra pradesh", vizag: "andhra pradesh", vijayawada: "andhra pradesh", guntur: "andhra pradesh", nellore: "andhra pradesh", tirupati: "andhra pradesh", rajahmundry: "andhra pradesh",
+  kochi: "kerala", cochin: "kerala", thiruvananthapuram: "kerala", trivandrum: "kerala", kozhikode: "kerala", thrissur: "kerala", kollam: "kerala",
+  panaji: "goa", margao: "goa", "vasco da gama": "goa", mapusa: "goa",
+  ahmedabad: "gujarat", surat: "gujarat", vadodara: "gujarat", baroda: "gujarat", rajkot: "gujarat", gandhinagar: "gujarat",
+  jaipur: "rajasthan", jodhpur: "rajasthan", udaipur: "rajasthan", kota: "rajasthan", ajmer: "rajasthan",
+  lucknow: "uttar pradesh", noida: "uttar pradesh", ghaziabad: "uttar pradesh", kanpur: "uttar pradesh", agra: "uttar pradesh", varanasi: "uttar pradesh",
+  indore: "madhya pradesh", bhopal: "madhya pradesh", gwalior: "madhya pradesh", jabalpur: "madhya pradesh",
+  ludhiana: "punjab", amritsar: "punjab", jalandhar: "punjab", patiala: "punjab",
+  gurugram: "haryana", faridabad: "haryana", panchkula: "haryana", ambala: "haryana", karnal: "haryana"
 };
 
 const NEIGHBORHOOD_CITY_MAP = {
@@ -110,6 +128,11 @@ const normalizeSearchText = (text, isSearchableText = false) => {
         t += " " + city;
       }
     }
+    for (const [city, state] of Object.entries(CITY_STATE_MAP)) {
+      if (t.includes(city) && !t.includes(state)) {
+        t += " " + state;
+      }
+    }
   }
 
   return t;
@@ -136,7 +159,7 @@ export default function ApartmentScreen() {
   const [filterArea, setFilterArea] = useState('');
   const [maxRent, setMaxRent] = useState(null);
   const [sortBy, setSortBy] = useState('');
-  const [requests, setRequests] = useState([]);
+  const { requests = [] } = useContext(BookingContext);
 
   const [selectedBHK, setSelectedBHK] = useState('');
   const [selectedFacilities, setSelectedFacilities] = useState([]);
@@ -144,6 +167,17 @@ export default function ApartmentScreen() {
   const [userCoords, setUserCoords] = useState(null);
   const [properties, setProperties] = useState([]);
   const [loading, setLoading] = useState(false);
+  const hasFetchedLocationRef = useRef(false);
+  const [refreshing, setRefreshing] = useState(false);
+
+  const refreshLocation = async () => {
+    setRefreshing(true);
+    hasFetchedLocationRef.current = false;
+    await fetchApartments();
+    await getUserLocation();
+    setRefreshing(false);
+  };
+
   const { tenantEmail } = useContext(TenantContext);
 
   // Ref for the filter bottom sheet
@@ -154,50 +188,71 @@ export default function ApartmentScreen() {
     setFilterState(filters.state || '');
     setFilterCity(filters.city || '');
     setFilterArea(filters.area || '');
-    setMaxRent(filters.maxRent !== undefined ? filters.maxRent : null);
-    setSortBy(filters.sortBy || '');
+    setNearBy(filters.distance || 0);
+    setSelectedBHK(filters.bhkType || '');
+    setSelectedFacilities(filters.amenities || []);
+    setMaxRent(filters.maxPrice || 100000);
+    setSortBy(filters.sortBy || 'Recommended');
   };
 
   const resetAllFilters = () => {
     setFilterState('');
     setFilterCity('');
     setFilterArea('');
-    setMaxRent(null);
-    setSortBy('');
+    setNearBy(0);
+    setSelectedBHK('');
+    setSelectedFacilities([]);
+    setMaxRent(100000);
+    setSortBy('Recommended');
   };
 
   useEffect(() => {
     fetchApartments();
+    if (isConnected && !hasFetchedLocationRef.current) {
+      hasFetchedLocationRef.current = true;
+      getUserLocation();
+    }
   }, [isConnected]);
-useEffect(() => {
-  getUserLocation();
-}, []);
-const getUserLocation = async () => {
-  try {
-    const { status } =
-      await Location.requestForegroundPermissionsAsync();
 
-    if (status !== "granted") return;
+  const getUserLocation = async () => {
+    try {
+      const { status } = await Location.requestForegroundPermissionsAsync();
 
-    const location =
-      await Location.getCurrentPositionAsync(
-        {}
-      );
+      if (status !== "granted") {
+        return;
+      }
 
-    setUserCoords({
-      latitude:
-        location.coords.latitude,
-      longitude:
-        location.coords.longitude,
-    });
-  } catch (err) {
-    console.log("Location Error:", err);
-  }
-};
-  const fetchApartments = async () => {
+      const location = await Location.getCurrentPositionAsync({});
+      const coords = {
+        latitude: location.coords.latitude,
+        longitude: location.coords.longitude,
+      };
+      
+      setUserCoords(coords);
+      fetchApartments(coords);
+    } catch (err) {
+      console.log("Location Error:", err);
+    }
+  };
+
+  const fetchApartments = async (coords = null) => {
     try {
       setLoading(true);
-      const response = await fetchWithAuth(`${BASE_URL}/api/owner_props/`);
+      // Build query parameters for location-based filtering
+      let url = `${BASE_URL}/api/owner_props/`;
+      const query = [];
+      const currentCoords = coords || userCoords;
+      if (currentCoords) {
+        query.push(`latitude=${currentCoords.latitude}`);
+        query.push(`longitude=${currentCoords.longitude}`);
+      }
+      if (nearBy > 0) {
+        query.push(`radius=${nearBy}`);
+      }
+      if (query.length) {
+        url += `?${query.join('&')}`;
+      }
+      const response = await fetchWithAuth(url);
       if (!response.ok) {
         setProperties([]);
         return;
@@ -395,7 +450,7 @@ const filteredApartments = useMemo(() => {
       return (parseFloat(a.price) || 0) - (parseFloat(b.price) || 0);
     } else if (sortBy === "Price High-Low") {
       return (parseFloat(b.price) || 0) - (parseFloat(a.price) || 0);
-    } else if (sortBy === "Nearest First" && userCoords) {
+    } else if ((sortBy === "Nearest First" || sortBy === "Recommended") && userCoords) {
       if (!a.latitude || !a.longitude) return 1;
       if (!b.latitude || !b.longitude) return -1;
       const distA = getDistance(userCoords.latitude, userCoords.longitude, a.latitude, a.longitude);
@@ -426,7 +481,13 @@ const filteredApartments = useMemo(() => {
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="light-content" />
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 100 }}>
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{ paddingBottom: 100 }}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={refreshLocation} />
+        }
+      >
         {/* Hero Section */}
         <LinearGradient
           colors={["#2563eb", "#60a5fa"]}

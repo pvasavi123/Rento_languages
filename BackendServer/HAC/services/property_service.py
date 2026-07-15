@@ -309,6 +309,53 @@ class PropertyService:
                 "facilities": commercial.facilities if commercial.facilities else [],
             })
 
+        # Location based filtering
+        import math
+        lat = request.GET.get('latitude')
+        lng = request.GET.get('longitude')
+        radius = request.GET.get('radius')
+        # Only apply a hard distance cutoff if the client explicitly asked for one
+        # (e.g. the "Near By" filter chip). Plain browsing must never drop properties.
+        apply_radius_filter = radius is not None
+        try:
+            lat = float(lat) if lat is not None else None
+            lng = float(lng) if lng is not None else None
+            radius = float(radius) if radius is not None else None
+        except (ValueError, TypeError):
+            lat = lng = None
+            radius = None
+            apply_radius_filter = False
+
+        def haversine(lat1, lon1, lat2, lon2):
+            R = 6371.0
+            phi1 = math.radians(lat1)
+            phi2 = math.radians(lat2)
+            d_phi = math.radians(lat2 - lat1)
+            d_lambda = math.radians(lon2 - lon1)
+            a = math.sin(d_phi / 2) ** 2 + math.cos(phi1) * math.cos(phi2) * math.sin(d_lambda / 2) ** 2
+            return R * 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
+
+        if lat is not None and lng is not None:
+            for item in property_list:
+                if item.get('latitude') is not None and item.get('longitude') is not None:
+                    dist = haversine(lat, lng, item['latitude'], item['longitude'])
+                    item['distance_km'] = round(dist, 2)
+                else:
+                    item['distance_km'] = None
+
+            # Only drop far-away properties when the user explicitly chose a
+            # "Near By" distance filter. Otherwise keep every property visible.
+            if apply_radius_filter and radius is not None:
+                property_list = [
+                    item for item in property_list
+                    if item.get('distance_km') is None or item['distance_km'] <= radius
+                ]
+
+            # Nearest-first ordering: closest properties first, properties
+            # without coordinates pushed to the end (still visible).
+            property_list.sort(
+                key=lambda x: x.get('distance_km') if x.get('distance_km') is not None else float('inf')
+            )
         return {
             "count": len(property_list),
             "data": property_list

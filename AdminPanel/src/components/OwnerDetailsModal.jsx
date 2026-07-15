@@ -75,21 +75,21 @@ function OwnerDetailsModal({ ownerId, onClose }) {
           ))}
 
         {type === "commercial" && (
-          <div style={itemRowStyle}>
+          <>
             {floor.area ? (
-              <>
+              <div style={itemRowStyle}>
                 <span>Total Area</span>
                 <span>{floor.area} sqft</span>
-              </>
+              </div>
             ) : (
               floor.sections?.map((section, i) => (
-                <div key={i} style={{ display: "flex", justifyContent: "space-between", width: "100%" }}>
+                <div key={i} style={itemRowStyle}>
                   <span>Section {section.sectionNo}</span>
                   <span>{section.area_sqft} sqft</span>
                 </div>
               ))
             )}
-          </div>
+          </>
         )}
       </div>
     ));

@@ -115,7 +115,7 @@ class ApartmentStayDetails(models.Model):
     cover_image = models.ImageField(upload_to='property_covers/', null=True, blank=True)
  
     def __str__(self):
-        return f"{self.apartmentName} - {self.bhk}"
+        return f"{self.apartmentName or 'Unnamed Apartment'}"
  
  
 # ------------------ COMMERCIAL ------------------

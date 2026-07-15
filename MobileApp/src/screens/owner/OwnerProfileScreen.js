@@ -787,32 +787,37 @@ export default function OwnerProfile({ navigation }) {
 
         {/* Quick Actions */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>{t("quick_actions") || "Quick Actions"}</Text>
-          <View style={styles.quickActionsGrid}>
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>{t("quick_actions") || "Quick Actions"}</Text>
+            <TouchableOpacity>
+              <Text style={styles.viewReportText}>See All</Text>
+            </TouchableOpacity>
+          </View>
+          <View style={[styles.quickActionsGrid, { gap: 10 }]}>
             <QuickActionBtn
-              icon="construct-outline"
-              label={t("edit_building") || "Edit Building"}
+              icon="business-outline"
+              label="Edit Building"
               color="#7C3AED"
               bg="#F5F3FF"
               onPress={() => navigation.navigate('Home', { editMode: true, ts: Date.now() })}
             />
             <QuickActionBtn
               icon="people-outline"
-              label={t("tenants") || "Tenants"}
+              label="Tenants Management"
               color="#059669"
               bg="#ECFDF5"
               onPress={() => navigation.navigate('Tenants')}
             />
             <QuickActionBtn
               icon="receipt-outline"
-              label={t("add_expense") || "Add Expense"}
+              label="Add Expense"
               color="#DC2626"
               bg="#FEF2F2"
               onPress={() => navigation.navigate('AddExpense')}
             />
             <QuickActionBtn
               icon="images-outline"
-              label={t("upload_property_images") || "Upload Property Images"}
+              label="Upload Images"
               color="#0284C7"
               bg="#F0F9FF"
               onPress={() => setShowPropertyImagesModal(true)}
@@ -1724,7 +1729,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   quickActionBtn: {
-    flex: 0.31,
+    flex: 1,
     alignItems: 'center',
     paddingVertical: 18,
     paddingHorizontal: 8,

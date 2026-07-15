@@ -1019,6 +1019,7 @@ export default function OwnerCommercialSection({
         text: t("submit"),
         onPress: async () => {
           try {
+            setIsLoading(true);
             const formData = new FormData();
             Object.entries(submitData).forEach(([key, value]) => {
               if (value !== null && value !== undefined && value !== "") {
@@ -1056,7 +1057,6 @@ export default function OwnerCommercialSection({
             });
 
             if (response.ok) {
-
               const data = await response.json();
 
               // SAVE JWT TOKEN
@@ -1069,14 +1069,12 @@ export default function OwnerCommercialSection({
               // =========================
 
               try {
-
                 const expoPushToken =
                   await registerForPushNotificationsAsync();
 
                 console.log("OWNER PUSH TOKEN:", expoPushToken);
 
                 if (expoPushToken) {
-
                   await fetchWithAuth(
                     `${BASE_URL}/api/save-push-token/`,
                     {
@@ -1094,18 +1092,16 @@ export default function OwnerCommercialSection({
 
                   console.log("Push token saved successfully");
                 }
-
               } catch (pushError) {
-
                 console.log(
                   "Push token error:",
                   pushError
                 );
-
               }
 
               // =========================
 
+              setIsLoading(false);
               Alert.alert(t("success"), t("registration_successful"), [
                 {
                   text: t("ok") || "OK",
@@ -1120,9 +1116,11 @@ export default function OwnerCommercialSection({
               ]);
 
             } else {
+              setIsLoading(false);
               Alert.alert(t("error"), t("registration_failed"));
             }
           } catch (error) {
+            setIsLoading(false);
             Alert.alert(t("error"), (t("network_error") || "Network error") + ": " + error.message);
           }
         },
@@ -3016,10 +3014,12 @@ export default function OwnerCommercialSection({
 
                       {/* Next / Submit Button */}
                       <TouchableOpacity
+                        disabled={isLoading}
                         style={{
                           flex: 1, borderRadius: 18, overflow: "hidden",
                           shadowColor: "#6D28D9", shadowOffset: { width: 0, height: 6 },
                           shadowOpacity: 0.35, shadowRadius: 12, elevation: 8,
+                          opacity: isLoading ? 0.6 : 1,
                         }}
                         onPress={() => {
                           if (step < 2) {

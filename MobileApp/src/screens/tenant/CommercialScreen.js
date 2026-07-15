@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect, useContext, useCallback } from "react";
 import { useNetwork } from "../../hooks/useNetwork";
 import OfflineView from "../../components/OfflineView";
 import * as Location from "expo-location";
@@ -14,10 +14,11 @@ import {
   SafeAreaView,
   StatusBar,
   Modal,
+  RefreshControl,
 } from "react-native";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
-import { useNavigation } from "@react-navigation/native";
+import { useNavigation, useFocusEffect } from "@react-navigation/native";
 import BASE_URL, { fetchWithAuth } from "@/src/config/Api";
 import COLORS from "../../theme/colors";
 import { TenantContext } from "@/src/context/TenantContext";
@@ -62,6 +63,23 @@ const CITY_ALIASES = {
   guntur: ["guntur"],
 };
 
+const CITY_STATE_MAP = {
+  hyderabad: "telangana", warangal: "telangana", nizamabad: "telangana", karimnagar: "telangana", khammam: "telangana",
+  bengaluru: "karnataka", mysore: "karnataka", mysuru: "karnataka", mangalore: "karnataka", mangaluru: "karnataka", hubli: "karnataka", belgaum: "karnataka", belagavi: "karnataka",
+  mumbai: "maharashtra", pune: "maharashtra", nagpur: "maharashtra", thane: "maharashtra", nashik: "maharashtra",
+  delhi: "delhi", "new delhi": "delhi", dwarka: "delhi", rohini: "delhi", saket: "delhi",
+  chennai: "tamil nadu", coimbatore: "tamil nadu", madurai: "tamil nadu", trichy: "tamil nadu", salem: "tamil nadu",
+  visakhapatnam: "andhra pradesh", vizag: "andhra pradesh", vijayawada: "andhra pradesh", guntur: "andhra pradesh", nellore: "andhra pradesh", tirupati: "andhra pradesh", rajahmundry: "andhra pradesh",
+  kochi: "kerala", cochin: "kerala", thiruvananthapuram: "kerala", trivandrum: "kerala", kozhikode: "kerala", thrissur: "kerala", kollam: "kerala",
+  panaji: "goa", margao: "goa", "vasco da gama": "goa", mapusa: "goa",
+  ahmedabad: "gujarat", surat: "gujarat", vadodara: "gujarat", baroda: "gujarat", rajkot: "gujarat", gandhinagar: "gujarat",
+  jaipur: "rajasthan", jodhpur: "rajasthan", udaipur: "rajasthan", kota: "rajasthan", ajmer: "rajasthan",
+  lucknow: "uttar pradesh", noida: "uttar pradesh", ghaziabad: "uttar pradesh", kanpur: "uttar pradesh", agra: "uttar pradesh", varanasi: "uttar pradesh",
+  indore: "madhya pradesh", bhopal: "madhya pradesh", gwalior: "madhya pradesh", jabalpur: "madhya pradesh",
+  ludhiana: "punjab", amritsar: "punjab", jalandhar: "punjab", patiala: "punjab",
+  gurugram: "haryana", faridabad: "haryana", panchkula: "haryana", ambala: "haryana", karnal: "haryana"
+};
+
 const NEIGHBORHOOD_CITY_MAP = {
   "durgam charuvu":"hyderabad","durgam cheruvu":"hyderabad","hitec city":"hyderabad","hitech city":"hyderabad",
   "madhapur":"hyderabad","gachibowli":"hyderabad","kondapur":"hyderabad","kukatpally":"hyderabad",
@@ -76,6 +94,20 @@ const NEIGHBORHOOD_CITY_MAP = {
   "connaught place":"delhi","lajpat nagar":"delhi","rohini":"delhi","dwarka":"delhi","hauz khas":"delhi",
   "t nagar":"chennai","adyar":"chennai","anna nagar":"chennai","velachery":"chennai","porur":"chennai",
   "hinjewadi":"pune","baner":"pune","kothrud":"pune","hadapsar":"pune","wakad":"pune","viman nagar":"pune",
+};
+
+// For the search QUERY: if user typed a prefix of a known city alias, resolve to canonical
+const resolveQueryCity = (query) => {
+  const q = query.toLowerCase().trim();
+  if (!q || q.length < 2) return q;
+  for (const [canonical, aliases] of Object.entries(CITY_ALIASES)) {
+    for (const alias of aliases) {
+      if (alias === q || alias.startsWith(q) || q === canonical) {
+        return canonical;
+      }
+    }
+  }
+  return q;
 };
 
 const normalizeSearchText = (text, isSearchableText = false) => {
@@ -96,9 +128,23 @@ const normalizeSearchText = (text, isSearchableText = false) => {
         t += " " + city;
       }
     }
+    for (const [city, state] of Object.entries(CITY_STATE_MAP)) {
+      if (t.includes(city) && !t.includes(state)) {
+        t += " " + state;
+      }
+    }
   }
 
   return t;
+};
+
+const normalizeFacility = (name) => {
+  if (!name) return "";
+  let clean = name.toLowerCase().trim();
+  if (clean === "elevator" || clean === "lift") return "lift";
+  if (clean === "power backup" || clean === "powerbackup") return "power_backup";
+  if (clean === "play area" || clean === "playarea") return "play_area";
+  return clean.replace(/\s+/g, '_');
 };
 
 export default function CommercialScreen() {
@@ -118,6 +164,18 @@ const [sortBy, setSortBy] = useState("Recommended");
 const { requests = [] } = useContext(BookingContext);
 const filterSheetRef = useRef(null);
   const [properties, setProperties] = useState([]);
+  const fetchIdRef = useRef(0);
+  const hasFetchedLocationRef = useRef(false);
+  const [refreshing, setRefreshing] = useState(false);
+
+  const refreshLocation = async () => {
+    setRefreshing(true);
+    hasFetchedLocationRef.current = false;
+    await fetchCommercial();
+    await getUserLocation();
+    setRefreshing(false);
+  };
+
   const { tenantEmail } = useContext(TenantContext);
 
 
@@ -143,39 +201,65 @@ const resetAllFilters = () => {
   setMaxRent(100000);
 };
 
-  useEffect(() => {
-    fetchCommercial();
-  }, [isConnected]);
-  useEffect(() => {
-  getUserLocation();
-}, []);
-const getUserLocation = async () => {
-  try {
-    const { status } =
-      await Location.requestForegroundPermissionsAsync();
+  useFocusEffect(
+    useCallback(() => {
+      const init = async () => {
+        // Always load unfiltered data first so the list is populated immediately.
+        await fetchCommercial();
 
-    if (status !== "granted") return;
+        if (isConnected && !hasFetchedLocationRef.current) {
+          // Then refine with location once coordinates are available.
+          hasFetchedLocationRef.current = true;
+          await getUserLocation();
+        }
+      };
 
-    const location =
-      await Location.getCurrentPositionAsync(
-        {}
-      );
+      init();
+    }, [isConnected])
+  );
 
-    setUserCoords({
-      latitude:
-        location.coords.latitude,
-      longitude:
-        location.coords.longitude,
-    });
-  } catch (err) {
-    console.log("Location Error:", err);
-  }
-};
-
-  const fetchCommercial = async () => {
+  const getUserLocation = async () => {
     try {
-      const response = await fetchWithAuth(`${BASE_URL}/api/owner_props/`);
+      const { status } = await Location.requestForegroundPermissionsAsync();
+
+      if (status !== "granted") {
+        return;
+      }
+
+      const location = await Location.getCurrentPositionAsync({});
+      const coords = {
+        latitude: location.coords.latitude,
+        longitude: location.coords.longitude,
+      };
+      
+      setUserCoords(coords);
+      await fetchCommercial(coords);
+    } catch (err) {
+      console.log("Location Error:", err);
+    }
+  };
+
+  const fetchCommercial = async (coords = null) => {
+    const requestId = ++fetchIdRef.current;
+    try {
+      // Build query parameters for location-based filtering
+      let url = `${BASE_URL}/api/owner_props/`;
+      const query = [];
+      const currentCoords = coords || userCoords;
+      if (currentCoords) {
+        query.push(`latitude=${currentCoords.latitude}`);
+        query.push(`longitude=${currentCoords.longitude}`);
+      }
+      if (nearBy > 0) {
+        query.push(`radius=${nearBy}`);
+      }
+      if (query.length) {
+        url += `?${query.join('&')}`;
+      }
+      const response = await fetchWithAuth(url);
+      if (requestId !== fetchIdRef.current) return;
       if (!response.ok) {
+        if (requestId !== fetchIdRef.current) return;
         setProperties([]);
         return;
       }
@@ -220,7 +304,12 @@ const getUserLocation = async () => {
 
             price: item.rent || "",
 
-            category: item.category || "Office",
+            category: item.category || (
+              (item.name || "").toLowerCase().includes("shop") ? "Shop" :
+              (item.name || "").toLowerCase().includes("coworking") ? "Coworking" :
+              (item.name || "").toLowerCase().includes("warehouse") ? "Warehouse" :
+              "Office"
+            ),
 
             ownerName: item.owner_name || "Owner",
 
@@ -243,6 +332,7 @@ const getUserLocation = async () => {
           };
         });
 
+      if (requestId !== fetchIdRef.current) return;
       setProperties(formattedData);
     } catch (error) {
       console.log("Fetch Commercial Error:", error);
@@ -288,19 +378,31 @@ const filteredCommercial = useMemo(() => {
     const matchesCity = !filterCity || normalizedAddress.includes(filterCity.toLowerCase().trim());
     const matchesArea = !filterArea || normalizedAddress.includes(filterArea.toLowerCase().trim());
 
-    const searchText = normalizeSearchText(search.trim(), false);
+    const rawSearch = search.trim();
+    const resolvedCity = resolveQueryCity(rawSearch);
+    const searchText = resolvedCity !== rawSearch.toLowerCase().trim()
+      ? resolvedCity
+      : normalizeSearchText(rawSearch, false);
+
     const searchableText = normalizeSearchText(`
       ${h.name || ""} ${h.address || ""} ${h.category || ""}
+      ${h.ownerName || ""} ${h.contact || ""}
       ${(h.facilities || []).join(" ")}
     `, true).replace(/,/g, " ").replace(/\s+/g, " ");
 
-    const matchesSearch = search.trim() === "" || searchableText.includes(searchText);
+    const matchesSearch =
+      rawSearch === "" ||
+      searchableText.includes(searchText) ||
+      searchableText.includes(rawSearch.toLowerCase());
 
     const matchesCategory = selectedCategory === "" ||
       (h.category || "").toLowerCase() === selectedCategory.toLowerCase();
 
     const matchesFacilities = selectedFacilities.length === 0 ||
-      selectedFacilities.every((f) => h.facilities?.includes(f));
+      selectedFacilities.every((f) => {
+        const normF = normalizeFacility(f);
+        return h.facilities?.some((itemFac) => normalizeFacility(itemFac) === normF);
+      });
 
     let matchesDistance = true;
     if (nearBy > 0) {
@@ -332,7 +434,9 @@ const filteredCommercial = useMemo(() => {
     if (!isAcceptedA && isAcceptedB) return 1;
     if (sortBy === "Price Low-High") return (parseFloat(a.price) || 0) - (parseFloat(b.price) || 0);
     if (sortBy === "Price High-Low") return (parseFloat(b.price) || 0) - (parseFloat(a.price) || 0);
-    if (sortBy === "Nearest First" && userCoords) {
+    // Default behavior (no explicit sort chosen) now also sorts nearest-first
+    // whenever we know the user's location — matching real-world rental apps.
+    if ((sortBy === "Nearest First" || sortBy === "Recommended") && userCoords) {
       if (!a.latitude || !a.longitude) return 1;
       if (!b.latitude || !b.longitude) return -1;
       return getDistance(userCoords.latitude, userCoords.longitude, a.latitude, a.longitude) -
@@ -359,7 +463,13 @@ const filteredCommercial = useMemo(() => {
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="light-content" />
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 100 }}>
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{ paddingBottom: 100 }}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={refreshLocation} />
+        }
+      >
         {/* Hero Section */}
         <LinearGradient
           colors={["#f97316", "#fb923c"]}

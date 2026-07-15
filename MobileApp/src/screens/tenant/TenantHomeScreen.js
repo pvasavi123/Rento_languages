@@ -47,6 +47,7 @@ import {
   KeyboardAvoidingView,
   Keyboard,
   TouchableWithoutFeedback,
+  RefreshControl,
 } from "react-native";
 import ImageViewer from "react-native-image-zoom-viewer";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
@@ -355,6 +356,17 @@ export default function TenantHomeScreen({ route }) {
   const [nearMe, setNearMe] = useState(0);
   const [userCoords, setUserCoords] = useState(null);
   const [loading, setLoading] = useState(false);
+  const hasFetchedLocationRef = useRef(false);
+  const [refreshing, setRefreshing] = useState(false);
+
+  const refreshLocation = async () => {
+    setRefreshing(true);
+    hasFetchedLocationRef.current = false;
+    await fetchProperties();
+    await fetchTenantRequests();
+    await getLocation();
+    setRefreshing(false);
+  };
 
   const [selectedProperty, setSelectedProperty] = useState(null);
   const bookingContext = useContext(BookingContext);
@@ -469,19 +481,24 @@ export default function TenantHomeScreen({ route }) {
           }),
         ])
       ).start();
-    } else {
-      pulseAnim.setValue(1);
     }
   }, [newNotifications]);
 
-  const fetchProperties = async () => {
+  const fetchProperties = async (coords = null) => {
     try {
-
       setLoading(true);
-
       console.log("Fetching properties...");
 
-      const response = await fetchWithAuth(`${BASE_URL}/api/owner_props/`);
+      let url = `${BASE_URL}/api/owner_props/`;
+      const currentCoords = coords || userCoords;
+      if (currentCoords) {
+        url += `?latitude=${currentCoords.latitude}&longitude=${currentCoords.longitude}`;
+        if (nearMe > 0) {
+          url += `&radius=${nearMe}`;
+        }
+      }
+
+      const response = await fetchWithAuth(url);
       const result = await response.json();
 
       console.log("API RESPONSE:", result);
@@ -521,6 +538,7 @@ export default function TenantHomeScreen({ route }) {
 
           latitude: item.latitude ? parseFloat(item.latitude) : null,
           longitude: item.longitude ? parseFloat(item.longitude) : null,
+          distance_km: item.distance_km ? parseFloat(item.distance_km).toFixed(1) : null,
 
           image: mainImage || "https://via.placeholder.com/400",
 
@@ -621,9 +639,18 @@ export default function TenantHomeScreen({ route }) {
 
   useFocusEffect(
     useCallback(() => {
-      getLocation();
-      fetchProperties();
-      fetchTenantRequests();
+      const init = async () => {
+        fetchProperties();
+        fetchTenantRequests();
+        if (!hasFetchedLocationRef.current) {
+          hasFetchedLocationRef.current = true;
+          const coords = await getLocation();
+          if (coords) {
+            fetchProperties(coords);
+          }
+        }
+      };
+      init();
     }, [tenantEmail])
   );
 
@@ -691,7 +718,7 @@ export default function TenantHomeScreen({ route }) {
       let { status } = await Location.requestForegroundPermissionsAsync();
       if (status !== "granted") {
         setLocationName("Location permission denied");
-        return;
+        return null;
       }
 
       let currentLocation = await Location.getCurrentPositionAsync({
@@ -715,9 +742,11 @@ export default function TenantHomeScreen({ route }) {
         const addr = addressResponse[0];
         setLocationName(`${addr.district || addr.name}, ${addr.city}`);
       }
+      return { latitude, longitude };
     } catch (error) {
       console.log(error);
       setLocationName("Unable to fetch location");
+      return null;
     }
   };
 
@@ -853,7 +882,7 @@ export default function TenantHomeScreen({ route }) {
         return (parseFloat(a.rent) || 0) - (parseFloat(b.rent) || 0);
       } else if (sortBy === "Price High-Low") {
         return (parseFloat(b.rent) || 0) - (parseFloat(a.rent) || 0);
-      } else if (sortBy === "Nearest First" && userCoords) {
+      } else if ((sortBy === "Nearest First" || sortBy === "Recommended") && userCoords) {
         if (!a.latitude || !a.longitude) return 1;
         if (!b.latitude || !b.longitude) return -1;
         const distA = getDistance(userCoords.latitude, userCoords.longitude, a.latitude, a.longitude);
@@ -921,6 +950,9 @@ export default function TenantHomeScreen({ route }) {
           showsVerticalScrollIndicator={false}
           stickyHeaderIndices={[1]}
           scrollEventThrottle={16}
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={refreshLocation} />
+          }
         >
           {bookingContext?.isJoined && joinedProperty && joinedProperty.property_name !== "N/A" ? (
             <ImageBackground
@@ -1170,7 +1202,7 @@ export default function TenantHomeScreen({ route }) {
           </View>
 
           {/* Listings */}
-       
+
 
           <View style={homeStyles.propertyGrid}>
             {filteredProperties.map((item) => {
@@ -1254,6 +1286,11 @@ export default function TenantHomeScreen({ route }) {
                           ₹{item.rent} / month
                         </Text>
                       ) : null}
+                      {item.distance_km != null && (
+                        <Text style={[homeStyles.cardSub, { color: "#555", marginTop: 2 }]}>
+                          {item.distance_km} km away
+                        </Text>
+                      )}
                     </View>
                   </View>
                 </TouchableOpacity>
@@ -1275,7 +1312,7 @@ export default function TenantHomeScreen({ route }) {
           onReset={resetAllFilters}
           allProperties={allProperties}
         />
-    </SafeAreaView>
+      </SafeAreaView>
     </SafeAreaProvider>
   );
 }
@@ -1435,14 +1472,14 @@ export function PropertyDetailsScreen(props) {
   // Tenant Selection Modals State
   const [tenantTypeModalVisible, setTenantTypeModalVisible] = useState(false);
   const [existingTenantModalVisible, setExistingTenantModalVisible] = useState(false);
-  
+
   // Existing Tenant Structure State
   const [etFloor, setEtFloor] = useState("");
   const [etRoom, setEtRoom] = useState(""); // used for Room, Flat, Unit
   const [etBed, setEtBed] = useState(""); // used for Bed
   const [etSharing, setEtSharing] = useState(""); // used for Sharing in Apartment
   const [propertyStructure, setPropertyStructure] = useState({ floors: {} });
-  
+
   const fetchPropertyStructure = async (prop) => {
     const ownerId = prop?.owner_id || prop?.contact;
     if (!ownerId) return;
@@ -2122,12 +2159,12 @@ export function PropertyDetailsScreen(props) {
                 onPress={openInGoogleMaps}
                 style={styles.map}
               >
-<View pointerEvents="none" style={styles.map}>
-  <Image
-    source={require("../../../assets/images/map3.png")}
-    style={{ width: "100%", height: "100%", resizeMode: "cover" }}
-  />
-</View>
+                <View pointerEvents="none" style={styles.map}>
+                  <Image
+                    source={require("../../../assets/images/map.png")}
+                    style={{ width: "100%", height: "100%", resizeMode: "cover" }}
+                  />
+                </View>
               </TouchableOpacity>
               <View
                 style={{
@@ -2483,14 +2520,14 @@ export function PropertyDetailsScreen(props) {
                     </Text>
                     <View style={{ flexDirection: "row", gap: 10, flexWrap: "wrap", marginBottom: 15 }}>
                       {["1 BHK", "2 BHK", "3 BHK"].map(t => (
-                        <TouchableOpacity 
-                          key={t} 
-                          onPress={() => setBhkType(t)} 
-                          style={{ 
-                            paddingHorizontal: 16, 
-                            paddingVertical: 10, 
-                            borderRadius: 8, 
-                            backgroundColor: bhkType === t ? COLORS.PRIMARY : "#f1f5f9" 
+                        <TouchableOpacity
+                          key={t}
+                          onPress={() => setBhkType(t)}
+                          style={{
+                            paddingHorizontal: 16,
+                            paddingVertical: 10,
+                            borderRadius: 8,
+                            backgroundColor: bhkType === t ? COLORS.PRIMARY : "#f1f5f9"
                           }}
                         >
                           <Text style={{ color: bhkType === t ? "#fff" : "#475569", fontWeight: "700" }}>{t}</Text>
@@ -2969,7 +3006,7 @@ export function PropertyDetailsScreen(props) {
         <View style={{ flex: 1, backgroundColor: "rgba(0,0,0,0.5)", justifyContent: "center", alignItems: "center" }}>
           <View style={{ width: "80%", backgroundColor: "#fff", borderRadius: 16, padding: 24 }}>
             <Text style={{ fontSize: 20, fontWeight: "800", color: "#1e293b", marginBottom: 20, textAlign: "center" }}>Select Tenant Type</Text>
-            
+
             <TouchableOpacity
               onPress={() => {
                 setTenantTypeModalVisible(false);
@@ -3059,7 +3096,7 @@ export function PropertyDetailsScreen(props) {
                             return units.map(unit => {
                               let rStr = "";
                               let unitId = "";
-                              
+
                               if (property?.type === "Hostel") {
                                 unitId = `${unit.roomNo}`;
                                 rStr = unitId.includes("-") ? unitId : `${etFloor.replace("Floor ", "")}-${unitId.padStart(2, '0')}`;
@@ -3072,17 +3109,17 @@ export function PropertyDetailsScreen(props) {
                               }
 
                               return (
-                                <TouchableOpacity 
-                                  key={rStr} 
+                                <TouchableOpacity
+                                  key={rStr}
                                   onPress={() => {
-                                    setEtRoom(rStr); 
-                                    setEtBed(""); 
-                                    setEtSharing(property?.type === "Apartment" ? (unit.bhk || "") : ""); 
-                                  }} 
-                                  style={{ 
-                                    paddingHorizontal: 16, 
-                                    paddingVertical: 10, 
-                                    borderRadius: 8, 
+                                    setEtRoom(rStr);
+                                    setEtBed("");
+                                    setEtSharing(property?.type === "Apartment" ? (unit.bhk || "") : "");
+                                  }}
+                                  style={{
+                                    paddingHorizontal: 16,
+                                    paddingVertical: 10,
+                                    borderRadius: 8,
                                     backgroundColor: etRoom === rStr ? COLORS.PRIMARY : "#f1f5f9",
                                   }}
                                 >
@@ -3094,7 +3131,7 @@ export function PropertyDetailsScreen(props) {
                             });
                           }
                         }
-                        return <Text style={{fontSize: 12, color: "#94a3b8"}}>No units available for this floor.</Text>;
+                        return <Text style={{ fontSize: 12, color: "#94a3b8" }}>No units available for this floor.</Text>;
                       })()}
                       {/* Render dynamically added units for this floor */}
                       {addedUnits.filter(u => `Floor ${u.floor}` === etFloor).map((u, i) => (
@@ -3106,7 +3143,7 @@ export function PropertyDetailsScreen(props) {
                   </View>
                 )}
 
-                 {/* 3. BED / SHARING SELECTION (Depends on Room) */}
+                {/* 3. BED / SHARING SELECTION (Depends on Room) */}
                 {etFloor !== "" && etRoom !== "" && property?.type === "Hostel" && (
                   <View>
                     <Text style={{ fontSize: 12, color: "#64748b", fontWeight: "800", marginBottom: 10, textTransform: "uppercase" }}>3. Select Bed</Text>
@@ -3119,18 +3156,18 @@ export function PropertyDetailsScreen(props) {
                             if (!testStr.includes("-")) testStr = `${etFloor.replace("Floor ", "")}-${testStr.padStart(2, '0')}`;
                             return testStr === etRoom;
                           });
-                          
+
                           if (room && room.beds > 0) {
                             return Array.from({ length: room.beds }, (_, i) => i + 1).map(b => {
                               const bKey = `Bed ${b}`;
                               return (
-                                <TouchableOpacity 
-                                  key={bKey} 
-                                  onPress={() => setEtBed(bKey)} 
-                                  style={{ 
-                                    paddingHorizontal: 16, 
-                                    paddingVertical: 10, 
-                                    borderRadius: 8, 
+                                <TouchableOpacity
+                                  key={bKey}
+                                  onPress={() => setEtBed(bKey)}
+                                  style={{
+                                    paddingHorizontal: 16,
+                                    paddingVertical: 10,
+                                    borderRadius: 8,
                                     backgroundColor: etBed === bKey ? COLORS.PRIMARY : "#f1f5f9",
                                   }}
                                 >
@@ -3140,7 +3177,7 @@ export function PropertyDetailsScreen(props) {
                             });
                           }
                         }
-                        return <Text style={{fontSize: 12, color: "#94a3b8"}}>No beds available for this room.</Text>;
+                        return <Text style={{ fontSize: 12, color: "#94a3b8" }}>No beds available for this room.</Text>;
                       })()}
                     </View>
                   </View>
@@ -3294,7 +3331,7 @@ export function PropertyDetailsScreen(props) {
                       check_out: "N/A",
                       sharing: property?.type === "Apartment" ? etSharing : "",
                       flat: property?.type === "Apartment" ? etRoom : "",
-                      section: "", 
+                      section: "",
                       is_existing_tenant: true,
                       requested_floor: etFloor.replace("Floor ", ""),
                       requested_room: (property?.type === "Hostel" || property?.type === "Commercial") ? etRoom.replace("Room ", "").replace("Unit ", "") : (property?.type === "Apartment" ? etRoom : ""),
@@ -3323,7 +3360,7 @@ export function PropertyDetailsScreen(props) {
                       alert(`Existing Tenant Request Sent! 🎉\nWe will contact you shortly regarding ${property.name}.`);
                       setRequestStatus("pending");
                       if (bookingContext?.setRefreshTrigger) {
-                         bookingContext.setRefreshTrigger(prev => prev + 1);
+                        bookingContext.setRefreshTrigger(prev => prev + 1);
                       }
                     } else {
                       alert("Failed to send booking request: " + (data.error || data.message || "Unknown error"));
@@ -3344,12 +3381,7 @@ export function PropertyDetailsScreen(props) {
                   borderRadius: 14,
                   alignItems: "center",
                   marginTop: 30,
-                opacity: (
-                  (property?.type === "Hostel" && (!etFloor || !etRoom || !etBed)) ||
-                  (property?.type === "Apartment" && (!etFloor || !etRoom || !etSharing)) ||
-                  (property?.type === "Commercial" && (!etFloor || !etRoom)) ||
-                  !aadharId || !selectedFile || !selectedBackFile || !selectedPaymentScreenshot
-                  ) ? 0.5 : 1
+                  opacity: 1
                 }}
               >
                 <Text style={{ color: "#fff", fontWeight: "bold", fontSize: 16 }}>{buttonText}</Text>
@@ -3358,9 +3390,9 @@ export function PropertyDetailsScreen(props) {
           </View>
         </View>
       </Modal>
-                    
 
-       {/* OCCUPIED POPUP MODAL */}
+
+      {/* OCCUPIED POPUP MODAL */}
       <Modal visible={occupiedPopupVisible} transparent animationType="fade">
         <View style={{ flex: 1, justifyContent: "center", alignItems: "center", backgroundColor: "rgba(0,0,0,0.6)" }}>
           <View style={{ width: "85%", backgroundColor: "#fff", borderRadius: 20, padding: 24, alignItems: "center", shadowColor: "#000", shadowOpacity: 0.2, shadowRadius: 10 }}>
@@ -3368,7 +3400,7 @@ export function PropertyDetailsScreen(props) {
               <Ionicons name="lock-closed" size={32} color="#ef4444" />
             </View>
             <Text style={{ fontSize: 18, fontWeight: "800", color: "#ef4444", marginBottom: 20, letterSpacing: 0.5 }}>STATUS: OCCUPIED</Text>
-            
+
             <View style={{ width: "100%", backgroundColor: "#f8fafc", padding: 16, borderRadius: 12, gap: 10 }}>
               <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
                 <Text style={{ color: "#64748b", fontWeight: "600" }}>Name:</Text>
@@ -3394,7 +3426,7 @@ export function PropertyDetailsScreen(props) {
               )}
             </View>
 
-            <TouchableOpacity 
+            <TouchableOpacity
               onPress={() => setOccupiedPopupVisible(false)}
               style={{ marginTop: 24, backgroundColor: "#ef4444", width: "100%", paddingVertical: 14, borderRadius: 12, alignItems: "center" }}
             >
@@ -3414,7 +3446,7 @@ export function PropertyDetailsScreen(props) {
                 <Ionicons name="close-circle" size={28} color="#94a3b8" />
               </TouchableOpacity>
             </View>
-            
+
             <Text style={{ fontWeight: "700", color: "#64748b", marginBottom: 8 }}>Floor Number</Text>
             <TextInput
               style={{ backgroundColor: "#f8fafc", borderWidth: 1, borderColor: "#e2e8f0", borderRadius: 12, paddingHorizontal: 16, paddingVertical: 12, marginBottom: 16 }}
@@ -3441,7 +3473,7 @@ export function PropertyDetailsScreen(props) {
               ))}
             </View>
 
-            <TouchableOpacity 
+            <TouchableOpacity
               disabled={!newUnitFloor || !newUnitNumber || !newUnitType}
               onPress={() => {
                 setAddedUnits([...addedUnits, { floor: newUnitFloor, unit: newUnitNumber, type: newUnitType }]);
