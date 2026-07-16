@@ -354,6 +354,9 @@
   "account": "Account",
   "failed_to_switch_account": "Failed to switch account",
   "error": "Error",
-    "home": "Home",
-    "edit_profile": "Edit Profile"
+  "home": "Home",
+  "edit_profile": "Edit Profile",
+  "search_location_property": "Search location, property",
+  "filters": "Filters",
+  "logout_confirm": "Are you sure you want to logout?"
 }

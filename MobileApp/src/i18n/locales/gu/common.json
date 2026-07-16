@@ -350,8 +350,12 @@
   "tenant_reported_issue_msg": "A tenant has reported a new issue.",
   "new_payment_alert": "New Payment 💰",
   "tenant_made_payment_msg": "A tenant has made a payment.",
-  "dashboard": "Dashboard",
-  "account": "Account",
+  "dashboard": "ડેશબોર્ડ",
+  "account": "ખાતું",
   "failed_to_switch_account": "Failed to switch account",
-  "error": "Error"
+  "error": "Error",
+  "edit_profile": "પ્રોફાઇલ સંપાદિત કરો",
+  "search_location_property": "સ્થાન, મિલકત શોધો",
+  "filters": "ફિલ્ટર્સ",
+  "logout_confirm": "શું તમે ખરેખર લોગ આઉટ કરવા માંગો છો?"
 }

@@ -350,8 +350,12 @@
   "tenant_reported_issue_msg": "A tenant has reported a new issue.",
   "new_payment_alert": "New Payment 💰",
   "tenant_made_payment_msg": "A tenant has made a payment.",
-  "dashboard": "Dashboard",
-  "account": "Account",
+  "dashboard": "டாஷ்போர்டு",
+  "account": "கணக்கு",
   "failed_to_switch_account": "Failed to switch account",
-  "error": "Error"
+  "error": "Error",
+  "edit_profile": "சுயவிவரத்தை திருத்தவும்",
+  "search_location_property": "இருப்பிடம், சொத்தை தேடுங்கள்",
+  "filters": "வடிகட்டிகள்",
+  "logout_confirm": "நீங்கள் நிச்சயமாக வெளியேற விரும்புகிறீர்களா?"
 }

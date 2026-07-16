@@ -22,7 +22,10 @@ import { useMaintenance } from '../../context/MaintenanceContext';
 import { useNetwork } from '../../hooks/useNetwork';
 import OfflineView from '../../components/OfflineView';
 
+import { useLanguage } from '../../utils/LanguageContext';
+
 export default function OwnerTenantsScreen({ navigation, route }) {
+  const { t } = useLanguage();
   const { isConnected } = useNetwork();
   const { maintenanceMode } = useMaintenance();
   const isReadOnly = maintenanceMode === 'READ_ONLY';

@@ -362,7 +362,7 @@ export default function TenantProfile({ navigation }) {
   };
 
   const handleLogout = async () => {
-    Alert.alert(t("logout") || "Logout", t("logout_confirm_msg") || "Are you sure you want to logout?", [
+    Alert.alert(t("logout") || "Logout", t("logout_confirm") || "Are you sure you want to logout?", [
       { text: t("cancel") || "Cancel", style: "cancel" },
       { text: t("logout") || "Logout", onPress: async () => { await AsyncStorage.multiRemove(["tenantPhone", "tenantName", "userToken", "tenantEmail", "tenantId", "userRole"]); navigation.reset({ index: 0, routes: [{ name: 'RoleSection', params: { skipSplash: true } }] }) } }
     ]);

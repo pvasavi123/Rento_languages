@@ -350,8 +350,12 @@
   "tenant_reported_issue_msg": "A tenant has reported a new issue.",
   "new_payment_alert": "New Payment 💰",
   "tenant_made_payment_msg": "A tenant has made a payment.",
-  "dashboard": "Dashboard",
-  "account": "Account",
+  "dashboard": "డ్యాష్‌బోర్డ్",
+  "account": "ఖాతా",
   "failed_to_switch_account": "Failed to switch account",
-  "error": "Error"
+  "error": "Error",
+  "edit_profile": "ప్రొఫైల్‌ను సవరించండి",
+  "search_location_property": "స్థానం, ఆస్తిని వెతకండి",
+  "filters": "ఫిల్టర్లు",
+  "logout_confirm": "మీరు ఖచ్చితంగా లాగ్ అవుట్ చేయాలనుకుంటున్నారా?"
 }

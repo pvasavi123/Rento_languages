@@ -350,8 +350,12 @@
   "tenant_reported_issue_msg": "A tenant has reported a new issue.",
   "new_payment_alert": "New Payment 💰",
   "tenant_made_payment_msg": "A tenant has made a payment.",
-  "dashboard": "Dashboard",
-  "account": "Account",
+  "dashboard": "ഡാഷ്‌ബോർഡ്",
+  "account": "അക്കൗണ്ട്",
   "failed_to_switch_account": "Failed to switch account",
-  "error": "Error"
+  "error": "Error",
+  "edit_profile": "പ്രൊഫൈൽ എഡിറ്റ് ചെയ്യുക",
+  "search_location_property": "ലൊക്കേഷൻ, പ്രോപ്പർട്ടി തിരയുക",
+  "filters": "ഫിൽട്ടറുകൾ",
+  "logout_confirm": "തീർച്ചയായും ലോഗ് ഔട്ട് ചെയ്യണോ?"
 }

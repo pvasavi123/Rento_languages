@@ -350,8 +350,12 @@
   "tenant_reported_issue_msg": "A tenant has reported a new issue.",
   "new_payment_alert": "New Payment 💰",
   "tenant_made_payment_msg": "A tenant has made a payment.",
-  "dashboard": "Dashboard",
-  "account": "Account",
+  "dashboard": "ਡੈਸ਼ਬੋਰਡ",
+  "account": "ਖਾਤਾ",
   "failed_to_switch_account": "Failed to switch account",
-  "error": "Error"
+  "error": "Error",
+  "edit_profile": "ਪ੍ਰੋਫਾਈਲ ਸੋਧੋ",
+  "search_location_property": "ਲੋਕੇਸ਼ਨ, ਜਾਇਦਾਦ ਲੱਭੋ",
+  "filters": "ਫਿਲਟਰ",
+  "logout_confirm": "ਕੀ ਤੁਸੀਂ ਯਕੀਨੀ ਤੌਰ 'ਤੇ ਲੌਗ ਆਉਟ ਕਰਨਾ ਚਾਹੁੰਦੇ ਹੋ?"
 }
